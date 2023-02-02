@@ -1,4 +1,5 @@
 const Router = require('express').Router();
+const ms= require('ms');
 const mongoose = require('mongoose');
 const { getMetadata } = require('../music-metadata');
 const { upload, getBucket } = require('../multer');
@@ -30,7 +31,6 @@ Router.get('/play', async(req, res) => {
     const Track = bucket.openDownloadStream(mongoose.Types.ObjectId(data.fileId));
     console.log('\x1b[34m%s\x1b[0m', "Sending track...");
     Track.on('data', chunk => {
-        console.log("chunk");
         res.write(chunk);
     })
     Track.on('error', () => {
@@ -38,7 +38,7 @@ Router.get('/play', async(req, res) => {
         res.sendStatus(404);
     });
     Track.on('end', () => {
-        console.log("end");
+        console.log('\x1b[31m%s\x1b[0m', "Request ended");
         res.end();
     });
 });

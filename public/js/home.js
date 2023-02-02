@@ -11,6 +11,7 @@ function enableSubmit() {
 
 async function sendFile() {
     btnSubmit.setAttribute("disabled","disabled")
+    btnInput.setAttribute("disabled","disabled")
     document.querySelector("#loader").classList.remove("desactivate");
     document.querySelector("#content").classList.add("activate");
     document.querySelector("#container").classList.add("loading");

@@ -21,7 +21,7 @@ mongoose.connect(process.env.MONGODB_URI, (err) => {
         process.exit(0);
     }
     db = mongoose.connection.db;
-    console.log('Conexión establecida con la Base de Datos')
+    console.log('\x1b[35m%s\x1b[0m','Conexión establecida con la Base de Datos')
 });
 
 const getConnection = () => db;

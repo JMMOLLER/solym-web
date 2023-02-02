@@ -1,6 +1,8 @@
-let index = 0, m = 0, s = 0, ms = 0, lyrics, mAux, sAux, msAux;
-const toExport = [];
-const lyricsDOM = document.querySelector("#lyrics");
+let index = -1, m = 0, s = 0, ms = 0, mAux='00', sAux='00', msAux='00', lyrics;
+const toExport = [], infoExport = {};
+const c_lyricDOM = document.querySelector("#current-lyric");
+const p_lyricDOM = document.querySelector("#previous-lyric");
+const n_lyricDOM = document.querySelector("#next-lyric");
 const audio = document.querySelector("audio");
 const start = document.querySelector("#start");
 const stopEl = document.querySelector("#stop");
@@ -14,19 +16,26 @@ fetch(`/api/lyrics/${id}`)
     .then((data) => {
         const text = data.lyrics;
         lyrics = text.split("\n");
-        lyricsDOM.innerHTML = lyrics[index];
+        n_lyricDOM.innerHTML = lyrics[0];
+        fetch(`/api/info/${id}`)
+            .then((res) => res.json())
+            .then((data) => {
+                infoExport.artist = data.artist;
+                infoExport.album = data.album;
+                infoExport.title = data.title;
+                toExport.push("[ar:"+data.artist+"]");
+                toExport.push("\n");
+                toExport.push("[al:"+data.album+"]");
+                toExport.push("\n");
+                toExport.push("[ti:"+data.title+"]");
+                toExport.push("\n");
+                if(lyrics[0].includes("[") && lyrics[0].includes("]")){
+                    console.log("Lyrics already have time");
+                    nextLyric();
+                }
+            });
     });
 
-fetch(`/api/info/${id}`)
-    .then((res) => res.json())
-    .then((data) => {
-        toExport.push("[ar:"+data.artist+"]");
-        toExport.push("\n");
-        toExport.push("[al:"+data.album+"]");
-        toExport.push("\n");
-        toExport.push("[ti:"+data.title+"]");
-        toExport.push("\n");
-    });
 
 next.addEventListener("click", nextLyric);
 
@@ -36,11 +45,22 @@ function nextLyric(){
             index++;
         }
         index++;
-        const currentLyric = "["+mAux + ":" + sAux + ":" + msAux+"]"+lyrics[index];
+        const currentLyric = "["+mAux + ":" + sAux + "." + msAux+"]"+lyrics[index];
         toExport.push(currentLyric);
         toExport.push("\n");
         console.log(currentLyric+" Index: "+index);
-        lyricsDOM.innerHTML = lyrics[index];
+        if(lyrics[index - 1] == ""){
+            p_lyricDOM.innerHTML = lyrics[index - 2];
+        }else{
+            p_lyricDOM.innerHTML = lyrics[index - 1] || "START";
+        }
+        c_lyricDOM.innerHTML = lyrics[index];
+        if(lyrics[index + 1] == ""){
+            index++;
+            return nextLyric();
+        }else{
+            n_lyricDOM.innerHTML = lyrics[index + 1] || "END";
+        }
     }
 }
 
@@ -69,7 +89,7 @@ function init(){
 async function exportLyric(){
     if(confirm("Do you want to export the lyrics?")){
         console.log(toExport);
-        const document = new Blob(toExport, {type: "text/plain;charset=utf-8"}, "lyrics.lrc");
+        const document = new Blob(toExport, {type: "text/plain;charset=utf-8"}, `${infoExport.title} - ${infoExport.artist}.lrc`);
         const link = window.URL.createObjectURL(document);
         await saveAs(link, "lyrics.lrc");
     }
