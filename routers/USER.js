@@ -20,13 +20,9 @@ Router.get('/select', async(req, res) => {
     if(!data){
         return res.redirect('/');
     }
-    if(data.results.length > 0){
-        res.render('index',{title: 'Select', layout: 'select', songs: data.results })
-    }else{
-        await DB.deleteTrack(data.fileId);
-        await DB.deleteDoc(data._id);
-        res.render('index',{title: 'Select', layout: 'select', error: true });
-    }
+    data.results.length > 0
+        ? res.render('index',{title: 'Select', layout: 'select', songs: data.results })
+        : res.render('index',{title: 'Select', layout: 'select', error: true });
 })
 
 Router.get('/start', async(req, res) => {

@@ -2,8 +2,8 @@ const Router = require('express').Router();
 const ms= require('ms');
 const mongoose = require('mongoose');
 const { getMetadata } = require('../music-metadata');
-const { upload, getBucket } = require('../multer');
-const { searchSong, getLyricsByID, getInfoByID } = require('../genius-api');
+const { upload, getBucket, getConnection } = require('../multer');
+const { searchSong, getLyricsByID, getInfoByID, shearchByName } = require('../genius-api');
 const {UploadFile} = require('../DB/DAO/DAO');
 const DB = UploadFile.returnSingleton();
 const { Readable } = require('stream');
@@ -16,6 +16,14 @@ Router.get('/lyrics/:id', async(req, res) => {
     res.status(200).json({lyrics: lyrics});
 });
 
+Router.get('/info/:id', async(req, res) => {
+    if(req.params.id < 1){
+        return res.status(400).json({error: 'Invalid ID'});
+    }
+    const info = await getInfoByID(Number(req.params.id));
+    res.status(200).json(info);
+});
+
 Router.get('/play', async(req, res) => {
     console.log('\x1b[31m%s\x1b[0m', "New request");
     if(!req.cookies['Symly']){
@@ -25,13 +33,26 @@ Router.get('/play', async(req, res) => {
     if(!data){
         return res.status(400).json({error: 'No data'});
     }
-    res.set('content-type', 'audio/mp3');
-    res.set('accept-ranges', 'bytes');
+    res.set('content-type', 'audio/mpeg');
+    res.set('content-range', 'bytes');
+    res.set('Accept-Ranges', 'bytes');
     const bucket = await getBucket();
     const Track = bucket.openDownloadStream(mongoose.Types.ObjectId(data.fileId));
+    await getConnection().collection('tracks.files').findOne({_id: mongoose.Types.ObjectId(data.fileId)}, (err, file) => {
+        if(err){
+            console.log(err);
+            return res.status(500).json({error: 'Error'});
+        }
+        res.set('content-length', file.length);
+        res.set('X-Content-Duration', file.length);
+    } )
     console.log('\x1b[34m%s\x1b[0m', "Sending track...");
     Track.on('data', chunk => {
         res.write(chunk);
+    })
+    Track.on('field', (name, value) => {
+        console.log("field");
+        console.log(name, value);
     })
     Track.on('error', () => {
         console.log("error");
@@ -43,12 +64,9 @@ Router.get('/play', async(req, res) => {
     });
 });
 
-Router.get('/info/:id', async(req, res) => {
-    if(req.params.id < 1){
-        return res.status(400).json({error: 'Invalid ID'});
-    }
-    const info = await getInfoByID(Number(req.params.id));
-    res.status(200).json(info);
+Router.post('/search/:music', async(req, res) => {
+    const results = await shearchByName(req.params.music);
+    res.send(results)
 });
 
 Router.post('/uploadFile', upload.single('song'), async(req, res) => {

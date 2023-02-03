@@ -62,5 +62,6 @@ module.exports = {
         return await selectSong(results, artist, title);
     },
     getLyricsByID,
-    getInfoByID
+    getInfoByID,
+    shearchByName,
 }

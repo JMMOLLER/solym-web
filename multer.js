@@ -1,4 +1,4 @@
-const { GridFSBucket, ObjectId } = require('mongodb');
+const { GridFSBucket } = require('mongodb');
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
 
@@ -36,5 +36,6 @@ module.exports = {
             resolve(bucket);
         });
     },
-    upload
+    upload,
+    getConnection
 }
