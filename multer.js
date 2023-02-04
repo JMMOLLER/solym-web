@@ -1,4 +1,5 @@
 const { GridFSBucket } = require('mongodb');
+const { getConnectionURI } = require('./DB/Service/Connection.service');
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
 
@@ -15,7 +16,7 @@ const upload = multer({
 });
 
 
-mongoose.connect(process.env.MONGODB_URI, (err) => {
+mongoose.connect(getConnectionURI(), (err) => {
     if(err){
         console.log(err);
         process.exit(0);

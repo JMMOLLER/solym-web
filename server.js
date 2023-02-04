@@ -1,10 +1,10 @@
 require('dotenv').config({ path: './.env' });
-const ms = require('ms');
+const {args} = require('./yargs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { engine } = require("express-handlebars");
 const app = express();
-const port = process.env.PORT || 8081;
+const port = args.port || 8080;
 
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));

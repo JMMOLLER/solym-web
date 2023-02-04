@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
-const Symly = require('../models/schema.requests');
+const Somly = require('../models/schema.requests');
 const { getBucket } = require('../../multer');
-let db;
+const { getConnectionURI } = require('../Service/Connection.service');
 
 class UploadFile {
 
     instance
     constructor(){
-        this.url = process.env.MONGODB_URI;
+        this.url = getConnectionURI();
         this.mongodb = mongoose.connect;
     }
 
@@ -21,7 +21,7 @@ class UploadFile {
     async saveDoc(data){
         try{
             this.mongodb(this.url);
-            const newDoc = new Symly(data);
+            const newDoc = new Somly(data);
             return await newDoc.save();
         }catch(err){
             console.log(err);
@@ -32,7 +32,7 @@ class UploadFile {
     async getDoc(id){
         try{
             this.mongodb(this.url);
-            const doc = await Symly.findById(id);
+            const doc = await Somly.findById(id);
             if(doc==null){throw new Error('ID not found')}
             return doc;
         }catch(err){
@@ -44,7 +44,7 @@ class UploadFile {
     async deleteDoc(id){
         try{
             this.mongodb(this.url);
-            await Symly.findByIdAndDelete(id);
+            await Somly.findByIdAndDelete(id);
             return true;
         }catch(err){
             console.log(err);
@@ -55,12 +55,7 @@ class UploadFile {
     async deleteTrack(id){
         try{
             const bucket = await getBucket();
-            bucket.delete(mongoose.Types.ObjectId(id), (err) => {
-                if(err){
-                    console.log(err);
-                    return false;
-                }
-            });
+            await bucket.delete(mongoose.Types.ObjectId(id));
             return true;
         }catch(err){
             console.log(err);
