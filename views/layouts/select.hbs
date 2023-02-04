@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="stylesheet" href="/css/select.css">
     <!-- Font Awesome -->
     <link
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
@@ -23,54 +23,6 @@
     <title>Document</title>
 </head>
 <body>
-    <style>
-        .card {
-            width: calc(50% - 2em);
-            margin: 1em;
-            width: 18rem; 
-            min-height: 15cm;
-            max-height: 22cm;
-        }
-        .container {
-            margin: 0 auto;
-        }
-        .options{
-            width: 100%;
-            display: inline-flex;
-        }
-        button{
-            margin: 20px auto ;
-        }
-        .text-container {
-            min-height: 150px;
-        }
-        label, input {
-            margin-top: 10px;
-        }
-        .card-title{
-            min-height: 70px;
-        }
-        #search-lyric {
-            border: 1px solid !important;
-        }
-        #btn-search {
-            margin-top: 10px;
-            margin-bottom: 0px;
-        }
-        .search-container{
-            margin: 1cm;
-        }
-        body{
-            text-align: center;
-        }
-        .selected {
-            background-color: red !important;
-        }
-        .titles {
-            margin-top: 40px;
-            margin-top: 40px;
-        }
-    </style>
     <h1 class="titles">SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR</h1>
     {{#if error}}
         <h1 class="titles">No se encontraron coincidencias con tu archivo de música</h1>
@@ -84,31 +36,32 @@
                     <div class="card-body">
                         <h5 class="card-title">{{this.result.full_title}}</h5>
                         <div class="text-container">
-                            <p class="card-text">title: {{this.result.title}}</p>
-                            <p class="card-text">Full title: {{this.result.full_title}}</p>
+                            <p class="card-text"><strong>Título:</strong> {{this.result.title}}</p>
+                            <p class="card-text"><strong>Artista:</strong> {{this.result.primary_artist.name}}</p>
                         </div>
                         <input type="checkbox" class="btn-check" id="{{this.result.id}}" autocomplete="off" data-target="{{this.result.id}}">
-                        <label id="label_{{this.result.id}}" class="btn btn-primary" for="{{this.result.id}}">Single toggle</label>
+                        <label id="label_{{this.result.id}}" class="btn btn-primary" for="{{this.result.id}}">Seleccionar</label>
                     </div>
                 </div>
             {{/each}}
         </div>
         <h2 class="titles">¿No encuentras lo que buscas?</h2>
         <div class="search-container">
-            <div class="input-group">
-                <div class="form-outline">
-                    <input type="search" id="search-lyric" class="form-control" />
-                    <label class="form-label" for="search-lyric">Search</label>
+            <form onsubmit="return searchForm(event)">
+                <div class="input-group">
+                    <div class="form-outline">
+                        <input type="search" name="search_input" id="search-lyric" class="form-control" />
+                        <label class="form-label" id="label_input" for="search-lyric">Search</label>
+                    </div>
+                    <button type="button" name="search" id="btn-search" class="btn btn-primary">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </div>
-                <button type="button" id="btn-search" class="btn btn-primary">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
+            </form>
         </div>
         <div class="sub-container" id="results">
-            <div class="card-columns" style="display:flex;flex-wrap:wrap;" id="results-search">
 
-            </div>
+            <div class="card-columns" style="display:flex;flex-wrap:wrap;" id="results-search"></div>
         </div>
         <div class="options">
             <button type="button" class="btn btn-warning" id="previous">Regresar</button>
