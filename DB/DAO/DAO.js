@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const Somly = require('../models/schema.requests');
-const { getBucket } = require('../../multer');
+const { getBucket } = require('../../Resources/multer');
 const { getConnectionURI } = require('../Service/Connection.service');
 
 class UploadFile {

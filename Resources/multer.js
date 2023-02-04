@@ -1,8 +1,7 @@
 const { GridFSBucket } = require('mongodb');
-const { getConnectionURI } = require('./DB/Service/Connection.service');
+const { getConnectionURI } = require('../DB/Service/Connection.service');
 const mongoose = require('mongoose');
 mongoose.set('strictQuery', true);
-
 const multer = require('multer');
 const storage = multer.memoryStorage({});
 const upload = multer({ 

@@ -1,9 +1,9 @@
 const Router = require('express').Router();
 const ms= require('ms');
 const mongoose = require('mongoose');
-const { getMetadata } = require('../music-metadata');
-const { upload, getBucket, getConnection } = require('../multer');
-const { searchSong, getLyricsByID, getInfoByID, shearchByName } = require('../genius-api');
+const { getMetadata } = require('../Resources/music-metadata');
+const { upload, getBucket, getConnection } = require('../Resources/multer');
+const { searchSong, getLyricsByID, getInfoByID, shearchByName } = require('../Resources/genius-api');
 const {UploadFile} = require('../DB/DAO/DAO');
 const DB = UploadFile.returnSingleton();
 const { Readable } = require('stream');

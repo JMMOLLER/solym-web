@@ -1,5 +1,5 @@
 require('dotenv').config({ path: './.env' });
-const {args} = require('./yargs');
+const { args } = require('./Resources/yargs');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const { engine } = require("express-handlebars");

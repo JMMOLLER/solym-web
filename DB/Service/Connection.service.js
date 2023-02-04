@@ -1,4 +1,4 @@
-const {args} = require('../../yargs');
+const { args } = require('../../Resources/yargs');
 
 module.exports = {
     getConnectionURI: () => {
