@@ -52,6 +52,10 @@ audio.oncanplaythrough = () => {
 
 
 function nextLyric(){
+    if(index >= -1){
+        previous.removeAttribute("disabled");
+        console.log("Previous enabled");
+    }
     if (index < lyrics.length - 1) {
         index++;
         const currentSecond = s + (ms/1000) + (m*60);
@@ -63,9 +67,6 @@ function nextLyric(){
         p_lyricDOM.innerHTML = lyrics[index - 1] || "START";
         c_lyricDOM.innerHTML = lyrics[index];
         n_lyricDOM.innerHTML = lyrics[index + 1] || "END";
-        // if(index == 0){
-        //     previous.removeAttribute("disabled");
-        // }
     }
 }
 
@@ -87,6 +88,17 @@ function previousLyric(){
         p_lyricDOM.innerHTML = lyrics[index - 1] || "START";
         c_lyricDOM.innerHTML = lyrics[index];
         n_lyricDOM.innerHTML = lyrics[index + 1] || "END";
+    }else{
+        previous.setAttribute("disabled", true);
+        times.delete(index);
+        stopEl.click();
+        toExport.pop();
+        toExport.pop();
+        index--;
+        p_lyricDOM.innerHTML = lyrics[index - 1] || "START";
+        c_lyricDOM.innerHTML = lyrics[index] || "TEXT";
+        n_lyricDOM.innerHTML = lyrics[index + 1] || "END";
+        audio.currentTime = 0;
     }
 }
 
