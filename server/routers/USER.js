@@ -9,7 +9,7 @@ Router.get('/', (req, res) => {
     }if(req.cookies['selectedTrack']){
         res.clearCookie('selectedTrack');
     }
-    res.render('index',{title: 'Home', layout: 'home' });
+    res.status(200).json({data: "Hello index"});
 });
 
 Router.get('/select', async(req, res) => {
@@ -20,9 +20,7 @@ Router.get('/select', async(req, res) => {
     if(!data){
         return res.redirect('/');
     }
-    data.results.length > 0
-        ? res.render('index',{title: 'Select', layout: 'select', songs: data.results })
-        : res.render('index',{title: 'Select', layout: 'select', error: true });
+    res.status(200).send(data.results);
 })
 
 Router.get('/start', async(req, res) => {
@@ -31,7 +29,7 @@ Router.get('/start', async(req, res) => {
     }if(!req.cookies['Symly']){
         return res.status(400).redirect('/');
     }
-    res.render('index',{title: 'Start', layout: 'start'});
+    res.status(200).json({});
 });
 
 module.exports = Router;
