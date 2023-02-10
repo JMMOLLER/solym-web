@@ -52,6 +52,19 @@ class UploadFile {
         }
     }
 
+    async deleteDocByFileId(id){
+        try{
+            this.mongodb(this.url);
+            const doc = await Somly.findOne({fileId: id});
+            if(doc==null){throw new Error('ID not found')}
+            doc.delete();
+            return true;
+        }catch(err){
+            console.log(err);
+            return false;
+        }
+    }
+
     async deleteTrack(id){
         try{
             const bucket = await getBucket();

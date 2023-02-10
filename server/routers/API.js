@@ -1,162 +1,34 @@
 const Router = require('express').Router();
-const mongoose = require('mongoose');
-const { UploadFile } = require('../DB/DAO/DAO');
-const DB = UploadFile.returnSingleton();
-const { Readable } = require('stream');
-const ms= require('ms');
-const { getMetadata } = require('../Resources/music-metadata');
-const {
-    cleanCookies,
-    validateCookies,
-    validateSolymCookie,
-} = require('./middlewares/auth');
-const { 
-    searchSong, 
-    getLyricsByID, 
-    getInfoByID, 
-    shearchByName 
-} = require('../Resources/genius-api');
-const { 
-    upload, 
-    getBucket, 
-    getConnection 
-} = require('../Resources/multer');
+const { upload } = require('../Resources/multer');
+const GetController = require('./controllers/API.GET.controller.js');
+const PostController = require('./controllers/API.POST.controller.js');
+const DeleteController = require('./controllers/API.DELETE.controller.js');
+const cookie = require('./middlewares/cookies');
 
+/* GET REQUESTS */
 
-Router.get('/', cleanCookies, (req, res) => {
-    res.status(200).json({});
-});
+Router.get('/', cookie.cleanCookies, GetController.home);
 
-Router.get('/select', validateSolymCookie, async(req, res) => {
-    const data = await DB.getDoc(req.cookies['Symly'].infoId);
-    if(!data){
-        return res.redirect('/');
-    }
-    res.status(200).send(data.results);
-})
+Router.get('/select', cookie.validateSolymCookie, GetController.select)
 
-Router.get('/start', validateCookies, async(req, res) => {
-    res.status(200).json({});
-});
+Router.get('/start', cookie.validateCookies, GetController.start);
 
-Router.get('/lyrics/:id', async(req, res) => {
-    if(req.params.id < 1){
-        return res.status(400).json({error: 'Invalid ID'});
-    }
-    const lyrics = await getLyricsByID(Number(req.params.id));
-    res.status(200).json({lyrics: lyrics});
-});
+Router.get('/lyrics/:id', GetController.lyrics);
 
-Router.get('/info/:id', async(req, res) => {
-    if(req.params.id < 1){
-        return res.status(400).json({error: 'Invalid ID'});
-    }
-    const info = await getInfoByID(Number(req.params.id));
-    res.status(200).json(info);
-});
+Router.get('/info/:id', GetController.info);
 
-Router.get('/play', validateSolymCookie, async(req, res) => {
-    console.log('\x1b[31m%s\x1b[0m', "New request");
-    const data = await DB.getDoc(req.cookies['Symly'].infoId);
-    if(!data){
-        return res.status(400).json({error: 'No data'});
-    }
-    res.set('content-type', 'audio/mpeg');
-    res.set('content-range', 'bytes');
-    res.set('Accept-Ranges', 'bytes');
-    const bucket = await getBucket();
-    const Track = bucket.openDownloadStream(mongoose.Types.ObjectId(data.fileId));
-    await getConnection().collection('tracks.files').findOne({_id: mongoose.Types.ObjectId(data.fileId)}, (err, file) => {
-        if(err){
-            console.log(err);
-            return res.status(500).json({error: 'Error'});
-        }
-        res.set('content-length', file.length);
-        res.set('X-Content-Duration', file.length);
-    } )
-    console.log('\x1b[34m%s\x1b[0m', "Sending track...");
-    Track.on('data', chunk => {
-        res.write(chunk);
-    })
-    Track.on('field', (name, value) => {
-        console.log("field");
-        console.log(name, value);
-    })
-    Track.on('error', () => {
-        console.log("error");
-        res.sendStatus(404);
-    });
-    Track.on('end', () => {
-        console.log('\x1b[31m%s\x1b[0m', "Request ended");
-        res.end();
-    });
-});
+Router.get('/uploadFile', cookie.validateSolymCookie, GetController.uploadFile);
 
-Router.post('/search/:music', async(req, res) => {
-    const results = await shearchByName(req.params.music);
-    res.send(results)
-});
+/* POST REQUESTS */
 
-Router.post('/uploadFile', upload.single('song'), async(req, res) => {
-    if (!req.file) {
-        return res.status(400).send({error: 'No file uploaded.'});
-    }
-    //UPLOAD TRACK TO DB
-    const filename = new Date().getTime()+"."+req.file.originalname.split('.').pop();
-    const TrackStream = new Readable();
-    TrackStream.push(req.file.buffer);
-    TrackStream.push(null);
+Router.post('/search/:music', PostController.shearchName);
 
+Router.post('/uploadFile', upload.single('song'), PostController.uploadFile);
 
-    const bucket = await getBucket();
+/* DELETE REQUESTS */
 
+Router.delete('/delete', cookie.validateSolymCookie, DeleteController.deleteRoute);
 
-    let uploadStream = bucket.openUploadStream(filename);
-    TrackStream.pipe(uploadStream);
-    uploadStream.on('error', () => {
-        return res.status(500).send('Error uploading file.');
-    });
-    uploadStream.on('finish', async() => {
-        console.log('\x1b[36m%s\x1b[0m', "File uploaded successfully.\nWaiting for metadata...");
-        try {
-            const bucket = await getBucket();
-            const Track = bucket.openDownloadStream(uploadStream.id);
-            const fullInfo = await getMetadata(Track);
-            const partialInfo = {
-                title: fullInfo.title,
-                fullTitle: fullInfo.title+" by "+fullInfo.artist[0],
-                artist: fullInfo.artist,
-                duration: fullInfo.duration,
-            }
-            console.log(partialInfo);
-            const results = await searchSong(partialInfo.fullTitle, partialInfo.artist[0]);
-            const Symly = await DB.saveDoc({results: results,fileId: uploadStream.id})
-            res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: true });
-            res.status(200).send("OK");
-        } catch (error) {
-            await DB.deleteTrack(uploadStream.id);
-            console.log(error);
-            res.status(500).json({error: error.message});
-        } 
-    });
-
-});
-
-Router.delete('/delete', validateSolymCookie, async(req, res) => {
-    const data = await DB.getDoc(req.cookies['Symly'].infoId);
-    if(!data){
-        return res.status(400).json({error: 'No data'});
-    }
-    await DB.deleteDoc(data._id);
-    await DB.deleteTrack(data.fileId)
-        ? res.status(200).json({message: "File deleted successfully."})
-        : res.status(500).json({message: "Error deleting file."});
-});
-
-Router.delete('/delete/:id', async(req, res) => {
-    await DB.deleteTrack(req.params.id)
-        ? res.status(200).json({message: "File deleted successfully."})
-        : res.status(500).json({message: "Error deleting file."});
-});
+Router.delete('/delete/:id', DeleteController.deleteByID);
 
 module.exports = Router;
