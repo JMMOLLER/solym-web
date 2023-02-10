@@ -20,12 +20,7 @@ app.engine('hbs', engine({
 }));
 
 
-app.use('/let', require('./routers/USER'));
 app.use('/api/', require('./routers/API'));
-app.use('/users', (req, res) => {
-    const users = require('./users.json');
-    res.send(users);
-});
 app.use('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..') + '/client/build/index.html');
 });

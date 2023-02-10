@@ -1,26 +1,33 @@
 const Router = require('express').Router();
-const ms= require('ms');
 const mongoose = require('mongoose');
-const { getMetadata } = require('../Resources/music-metadata');
-const { upload, getBucket, getConnection } = require('../Resources/multer');
-const { searchSong, getLyricsByID, getInfoByID, shearchByName } = require('../Resources/genius-api');
-const {UploadFile} = require('../DB/DAO/DAO');
+const { UploadFile } = require('../DB/DAO/DAO');
 const DB = UploadFile.returnSingleton();
 const { Readable } = require('stream');
+const ms= require('ms');
+const { getMetadata } = require('../Resources/music-metadata');
+const {
+    cleanCookies,
+    validateCookies,
+    validateSolymCookie,
+} = require('./middlewares/auth');
+const { 
+    searchSong, 
+    getLyricsByID, 
+    getInfoByID, 
+    shearchByName 
+} = require('../Resources/genius-api');
+const { 
+    upload, 
+    getBucket, 
+    getConnection 
+} = require('../Resources/multer');
 
-Router.get('/', (req, res) => {
-    if(req.cookies['Symly']){
-        res.clearCookie('Symly');
-    }if(req.cookies['selectedTrack']){
-        res.clearCookie('selectedTrack');
-    }
+
+Router.get('/', cleanCookies, (req, res) => {
     res.status(200).json({});
 });
 
-Router.get('/select', async(req, res) => {
-    if(!req.cookies['Symly']){
-        return res.redirect('/');
-    }
+Router.get('/select', validateSolymCookie, async(req, res) => {
     const data = await DB.getDoc(req.cookies['Symly'].infoId);
     if(!data){
         return res.redirect('/');
@@ -28,12 +35,7 @@ Router.get('/select', async(req, res) => {
     res.status(200).send(data.results);
 })
 
-Router.get('/start', async(req, res) => {
-    if(!req.cookies['selectedTrack']){
-        return res.status(400).redirect('/');
-    }if(!req.cookies['Symly']){
-        return res.status(400).redirect('/');
-    }
+Router.get('/start', validateCookies, async(req, res) => {
     res.status(200).json({});
 });
 
@@ -53,11 +55,8 @@ Router.get('/info/:id', async(req, res) => {
     res.status(200).json(info);
 });
 
-Router.get('/play', async(req, res) => {
+Router.get('/play', validateSolymCookie, async(req, res) => {
     console.log('\x1b[31m%s\x1b[0m', "New request");
-    if(!req.cookies['Symly']){
-        return res.status(400).json({error: 'No cookie'});
-    }
     const data = await DB.getDoc(req.cookies['Symly'].infoId);
     if(!data){
         return res.status(400).json({error: 'No data'});
@@ -143,10 +142,7 @@ Router.post('/uploadFile', upload.single('song'), async(req, res) => {
 
 });
 
-Router.delete('/delete', async(req, res) => {
-    if(!req.cookies['Symly']){
-        return res.status(400).json({error: 'No cookie'});
-    }
+Router.delete('/delete', validateSolymCookie, async(req, res) => {
     const data = await DB.getDoc(req.cookies['Symly'].infoId);
     if(!data){
         return res.status(400).json({error: 'No data'});
