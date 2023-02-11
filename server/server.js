@@ -21,6 +21,19 @@ app.engine('hbs', engine({
 
 
 app.use('/api/', require('./routers/API'));
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header(
+      "Access-Control-Allow-Methods",
+      "GET,PUT,POST,DELETE,UPDATE,OPTIONS"
+    );
+    res.header(
+      "Access-Control-Allow-Headers",
+      "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
+    );
+    next();
+});
 app.use('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..') + '/client/build/index.html');
 });

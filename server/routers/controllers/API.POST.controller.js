@@ -8,7 +8,7 @@ const ms= require('ms');
 
 /* POST REQUESTS */
 
-const shearchName = async (name) => {
+const shearchName = async (req, res) => {
     const results = await shearchByName(req.params.music);
     res.send(results)
 };
@@ -45,8 +45,9 @@ const uploadFile = async (req, res) => {
                 duration: fullInfo.duration,
             }
             console.log(partialInfo);
-            const results = await searchSong(partialInfo.fullTitle, partialInfo.artist[0]);
-            const Symly = await DB.saveDoc({results: results,fileId: uploadStream.id})
+            let results = [];
+            if(partialInfo.title && partialInfo.artist){results = await searchSong(partialInfo.fullTitle, partialInfo.artist[0]);}
+            const Symly = await DB.saveDoc({results: results, fileId: uploadStream.id})
             res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: true });
             res.status(200).send("OK");
         } catch (error) {

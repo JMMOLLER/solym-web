@@ -13,9 +13,9 @@ Router.get('/select', cookie.validateSolymCookie, GetController.select)
 
 Router.get('/start', cookie.validateCookies, GetController.start);
 
-Router.get('/lyrics/:id', GetController.lyrics);
+Router.get('/lyrics/:id', cookie.validateCookies, GetController.lyrics);
 
-Router.get('/info/:id', GetController.info);
+Router.get('/info/:id', cookie.validateCookies, GetController.info);
 
 Router.get('/uploadFile', cookie.validateSolymCookie, GetController.uploadFile);
 
