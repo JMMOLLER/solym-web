@@ -130,27 +130,35 @@ class Select extends React.Component {
         });
     }
 
+    getResults() {
+        console.log("enviando resultados");
+        if(this.state.response.length === 0) {
+            return <h1>No se puedo encontrar resultados automaticamente</h1>
+        }else{
+            return this.state.response.map((item) => 
+            <div class="card">
+                <img src={item.result.header_image_url} class="card-img-top" alt="cover"></img>
+                <div class="card-body">
+                    <h5 class="card-title">{item.result.full_title}</h5>
+                    <div class="text-container">
+                        <p class="card-text"><strong>Título: </strong>{item.result.title}</p>
+                        <p class="card-text"><strong>Artista: </strong>{item.result.primary_artist.name}</p>
+                    </div>
+                    <input type="checkbox" class="btn-check" id={item.result.id} autocomplete="off" data-target={item.result.id} onChange={this.doSelected}></input>
+                    <label id={"label_"+item.result.id} class="btn btn-primary" for={item.result.id}>Seleccionar</label>
+                </div>
+            </div>
+        )
+        }
+    }
+
     render(){
         return (
             <div>
                 <h1 class="titles">SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR</h1>
                 <div class="container">
-                    {/* AQUI VA CONDICIONAL "NO SE ECONTRÓ RESULTADOS PARA TU MÚSICA" */}
                     <div class="card-columns">
-                        {this.state.response.map((item) => 
-                            <div class="card">
-                                <img src={item.result.header_image_url} class="card-img-top" alt="cover"></img>
-                                <div class="card-body">
-                                    <h5 class="card-title">{item.result.full_title}</h5>
-                                    <div class="text-container">
-                                        <p class="card-text"><strong>Título: </strong>{item.result.title}</p>
-                                        <p class="card-text"><strong>Artista: </strong>{item.result.primary_artist.name}</p>
-                                    </div>
-                                    <input type="checkbox" class="btn-check" id={item.result.id} autocomplete="off" data-target={item.result.id} onChange={this.doSelected}></input>
-                                    <label id={"label_"+item.result.id} class="btn btn-primary" for={item.result.id}>Seleccionar</label>
-                                </div>
-                            </div>
-                        )}
+                        {this.getResults()}
                     </div>
                     <h2 class="titles">¿No encuentras lo que buscas?</h2>
                     <div class="search-container">

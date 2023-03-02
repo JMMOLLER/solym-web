@@ -1,3 +1,4 @@
+/* eslint-disable array-callback-return */
 import React from "react";
 import axios from "axios";
 import "./Styles/start.css";
@@ -155,7 +156,7 @@ class Start extends React.Component {
         }
         if (this.index < this.state.lyrics.length - 1) {
             this.index++;
-            const currentSecond = this.s + this.ms / 1000 + this.m * 60;
+            const currentSecond = (this.s + this.ms / 1000 + this.m * 60)-0.8;
             this.times.set(this.index, currentSecond);
             const currentLyric = "[" + this.mAux + ":" + this.sAux + "." +this.msAux +"]" + this.state.lyrics[this.index];
             this.state.toExport.push(currentLyric);
@@ -167,41 +168,54 @@ class Start extends React.Component {
         }
     }
 
+    editChronometer({isRestart, currentTime}) {
+        if(isRestart){
+            this.m = 0;
+            this.s = 0;
+            this.ms = 0;
+            this.mAux = "00";
+            this.sAux = "00";
+            this.msAux = "00";
+        }else{
+            this.m = Math.floor(currentTime / 60);//OBTIENE LOS MINUTOS
+            this.s = Math.floor(currentTime % 60);//OBTIENE LOS SEGUNDOS
+            this.ms = Math.floor((currentTime - Math.floor(currentTime)) * 1000) - 1;//OBTIENE LOS MILISEGUNDOS
+        }
+        this.escribir();
+    }
+
     previousLyric() {
         this.stopDOM.current.style.display = "none";
         this.nextDOM.current.style.display = "none";
         if (this.index > 0) {
-            this.index--;
-            this.stopDOM.current.click();
-            const currentTime = this.times.get(this.index);
-            this.audioDOM.current.currentTime = currentTime;
-            this.m = Math.floor(currentTime / 60);
-            this.s = Math.floor(currentTime % 60);
-            this.ms =
-                Math.floor((currentTime - Math.floor(currentTime)) * 1000) - 1;
-            this.escribir();
-            this.times.delete(this.index + 1);
+            this.index--;//REDUCE EL INDICE
+            this.stopDOM.current.click();//HACE UN CLICK EN EL BOTON DE PARAR
+            const currentTime = this.times.get(this.index);//OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
+            this.audioDOM.current.currentTime = currentTime;//SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
+            this.editChronometer({isRestart: false, currentTime: currentTime});//SETEA EL CRONOMETRO A EL TIEMPO DE LA LETRA ANTERIOR
+            this.times.delete(this.index + 1);//ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
             this.state.toExport.pop();
-            this.state.toExport.pop();
+            this.state.toExport.pop();//ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
             this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START";
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
+                this.state.lyrics[this.index - 1] || "START";//ESCRIBE LA LETRA ANTERIOR
+            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];//ESCRIBE LA LETRA ACTUAL
             this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END";
+                this.state.lyrics[this.index + 1] || "END";//ESCRIBE LA LETRA SIGUIENTE
         } else {
-            this.previousDOM.current.setAttribute("disabled", true);
-            this.times.delete(this.index);
-            this.stopDOM.current.click();
+            this.editChronometer({isRestart: true, currentTime: 0});//SETEA EL CRONOMETRO A 0
+            this.setState({ previousDisabled: true });//DESACTIVA EL BOTON DE LETRA ANTERIOR
+            this.times.delete(this.index);//ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+            this.stopDOM.current.click();//HACE UN CLICK EN EL BOTON DE PARAR
             this.state.toExport.pop();
-            this.state.toExport.pop();
-            this.index--;
+            this.state.toExport.pop();//ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+            this.index--;//REDUCE EL INDICE
             this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START";
+                this.state.lyrics[this.index - 1] || "START";//ESCRIBE LA LETRA ANTERIOR
             this.c_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index] || "TEXT";
+                this.state.lyrics[this.index] || "TEXT";//ESCRIBE LA LETRA ACTUAL
             this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END";
-            this.audioDOM.current.currentTime = 0;
+                this.state.lyrics[this.index + 1] || "END";//ESCRIBE LA LETRA SIGUIENTE
+            this.audioDOM.current.currentTime = 0;//SETEA EL TIEMPO DEL AUDIO A 0
         }
     }
 
