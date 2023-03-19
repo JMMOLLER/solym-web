@@ -43,7 +43,6 @@ class Home extends React.Component {
         const formData = new FormData();
         formData.append("song", file);
 
-        let current = undefined;
         axios.post("/api/uploadFile", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
@@ -52,8 +51,6 @@ class Home extends React.Component {
                     const { loaded, total } = progressEvent;
 
                     let percent = Math.floor((loaded * 100) / total);
-
-                    current = { loaded, total };
 
                     this.setState({ now: percent });
                 },
