@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "(cd client && pnpm build) && (cd ..) && node server/server.js",
-    "dev": "(cd client && pnpm build) && (cd ..) && (nodemon server/server.js)"
+    "dev": "(cd client && pnpm build) && (cd ..) && (nodemon server/server.js --s atlas)"
   },
   "keywords": [],
   "author": "",

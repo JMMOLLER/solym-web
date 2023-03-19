@@ -43,8 +43,8 @@ class Home extends React.Component {
         const formData = new FormData();
         formData.append("song", file);
 
-        axios
-            .post("/api/uploadFile", formData, {
+        let current = undefined;
+        axios.post("/api/uploadFile", formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -53,12 +53,19 @@ class Home extends React.Component {
 
                     let percent = Math.floor((loaded * 100) / total);
 
+                    current = { loaded, total };
+
                     this.setState({ now: percent });
                 },
             })
             .then((res) => {
                 if (res.status === 200) {
-                    document.location.href = "/select";
+                    axios.get(`/api/uploadFileInfo/${res.data.id}`).then((res) => {
+                        if(res.status === 200)
+                            setTimeout(() => {
+                                document.location.href = "/select";
+                            }, 7000);
+                    });
                 } else {
                     alert("Error uploading file. Please try again.");
                 }
@@ -71,6 +78,11 @@ class Home extends React.Component {
 
     componentDidUpdate() {
         this.progressDiv.current.style.width = `${this.state.now}%`;
+        document.getElementsByClassName("progress-bar")[0].innerHTMLL = `${this.state.now}%`;
+        if(this.state.now === 100)
+            setTimeout(() => {
+                document.getElementsByClassName("progress-bar")[0].innerHTML = `Processing...`;
+            }, 500);
     }
 
     render() {
@@ -95,13 +107,14 @@ class Home extends React.Component {
 
                 <div class="progressBar desactivate" ref={this.loaderDiv}>
                     <ProgressBar
+                        animated={true}
                         ref={this.progressDiv}
                         style={{ height: "20px" }}
                         now={this.state.now}
                         label={`${this.state.now}%`}
                     />
                 </div>
-                
+
             </div>
         );
     }

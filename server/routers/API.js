@@ -19,6 +19,8 @@ Router.get('/info/:id', cookie.validateCookies, GetController.info);
 
 Router.get('/uploadFile', cookie.validateSolymCookie, GetController.uploadFile);
 
+Router.get('/uploadFileInfo/:id', GetController.uploadFileInfo);
+
 /* POST REQUESTS */
 
 Router.post('/search/:music', PostController.shearchName);
