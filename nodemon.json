@@ -1,0 +1,6 @@
+{
+    "ext": "js,json,hbs,html",
+    "ignore": [
+        "client/src/Views/Scripts/*"
+    ]
+}

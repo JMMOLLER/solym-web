@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "(cd client && pnpm build) && (cd ..) && node server/server.js",
-    "dev": "(cd client && pnpm build) && (cd ..) && (nodemon server/server.js --ignore client/src/Views/Scripts/*)"
+    "dev": "(cd client && pnpm build) && (cd ..) && (nodemon server/server.js)"
   },
   "keywords": [],
   "author": "",
@@ -15,10 +15,8 @@
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "express-handlebars": "^6.0.7",
     "genius-api": "^0.4.1",
     "genius-lyrics": "^4.4.2",
-    "handlebars": "^4.7.7",
     "mongodb": "^4.13.0",
     "mongoose": "^6.9.0",
     "ms": "^2.1.3",

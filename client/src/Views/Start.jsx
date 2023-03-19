@@ -3,6 +3,10 @@ import React from "react";
 import axios from "axios";
 import "./Styles/start.css";
 
+/*
+    HACER QUE CUANDO TERMINE LA MÚSICA SE MUESTRE UNA PREVIEW DE LA SINCRONIZACIÓN
+*/
+
 class Start extends React.Component {
     constructor(props) {
         super(props);
@@ -24,6 +28,8 @@ class Start extends React.Component {
         this.current = undefined;
         this.index = -1;
         this.times = new Map();
+        this.currentLyric = "";
+        this.currentSecond = 0;
         // DOM LYRICS
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
@@ -151,35 +157,54 @@ class Start extends React.Component {
     }
 
     nextLyric() {
+        const currentMin = this.mAux,
+        currentSeg = this.sAux,
+        currentMs = this.msAux,
+        start = window.performance.now();
+        let executinTime = 0, end = 0;
         if (this.index >= -1) {
             this.setState({ previousDisabled: false });
-        }
-        if (this.index < this.state.lyrics.length - 1) {
+        }if (this.index < this.state.lyrics.length - 1) {
             this.index++;
-            const currentSecond = (this.s + this.ms / 1000 + this.m * 60)-0.8;
-            this.times.set(this.index, currentSecond);
-            const currentLyric = "[" + this.mAux + ":" + this.sAux + "." +this.msAux +"]" + this.state.lyrics[this.index];
-            this.state.toExport.push(currentLyric);
+            this.currentSecond = (this.s + this.ms / 1000 + this.m * 60);
+            this.times.set(this.index, this.currentSecond);
+            executinTime = (end - start)/1000;
+            //executinTime = executinTime - Number(currentSeg+"."+currentMs);
+            this.currentLyric =
+                "[" +
+                currentMin +
+                ":" +
+                currentSeg +
+                "." +
+                (currentMs - executinTime).toFixed(0) +
+                "]" +
+                this.state.lyrics[this.index];
+            this.state.toExport.push(this.currentLyric);
             this.state.toExport.push("\n");
-            console.log(currentLyric + " Index: " + this.index);
-            this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "START";
+            console.log(this.currentLyric + " Index: " + this.index);
+            this.p_lyricDOM.current.innerHTML =
+                this.state.lyrics[this.index - 1] || "START";
             this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
-            this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "END";
+            this.n_lyricDOM.current.innerHTML =
+                this.state.lyrics[this.index + 1] || "END";
         }
+        // console.log(executinTime, Number(this.sAux+"."+this.msAux));
+        console.log("Time to execute: " + executinTime + " ms");
     }
 
-    editChronometer({isRestart, currentTime}) {
-        if(isRestart){
+    editChronometer({ isRestart, currentTime }) {
+        if (isRestart) {
             this.m = 0;
             this.s = 0;
             this.ms = 0;
             this.mAux = "00";
             this.sAux = "00";
             this.msAux = "00";
-        }else{
-            this.m = Math.floor(currentTime / 60);//OBTIENE LOS MINUTOS
-            this.s = Math.floor(currentTime % 60);//OBTIENE LOS SEGUNDOS
-            this.ms = Math.floor((currentTime - Math.floor(currentTime)) * 1000) - 1;//OBTIENE LOS MILISEGUNDOS
+        } else {
+            this.m = Math.floor(currentTime / 60); //OBTIENE LOS MINUTOS
+            this.s = Math.floor(currentTime % 60); //OBTIENE LOS SEGUNDOS
+            this.ms =
+                Math.floor((currentTime - Math.floor(currentTime)) * 1000) - 1; //OBTIENE LOS MILISEGUNDOS
         }
         this.escribir();
     }
@@ -188,34 +213,37 @@ class Start extends React.Component {
         this.stopDOM.current.style.display = "none";
         this.nextDOM.current.style.display = "none";
         if (this.index > 0) {
-            this.index--;//REDUCE EL INDICE
-            this.stopDOM.current.click();//HACE UN CLICK EN EL BOTON DE PARAR
-            const currentTime = this.times.get(this.index);//OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
-            this.audioDOM.current.currentTime = currentTime;//SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
-            this.editChronometer({isRestart: false, currentTime: currentTime});//SETEA EL CRONOMETRO A EL TIEMPO DE LA LETRA ANTERIOR
-            this.times.delete(this.index + 1);//ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+            this.index--; //REDUCE EL INDICE
+            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
+            const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
+            this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
+            this.editChronometer({
+                isRestart: false,
+                currentTime: currentTime,
+            }); //SETEA EL CRONOMETRO A EL TIEMPO DE LA LETRA ANTERIOR
+            this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
             this.state.toExport.pop();
-            this.state.toExport.pop();//ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
             this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START";//ESCRIBE LA LETRA ANTERIOR
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];//ESCRIBE LA LETRA ACTUAL
+                this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
+            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
             this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END";//ESCRIBE LA LETRA SIGUIENTE
+                this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
         } else {
-            this.editChronometer({isRestart: true, currentTime: 0});//SETEA EL CRONOMETRO A 0
-            this.setState({ previousDisabled: true });//DESACTIVA EL BOTON DE LETRA ANTERIOR
-            this.times.delete(this.index);//ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-            this.stopDOM.current.click();//HACE UN CLICK EN EL BOTON DE PARAR
+            this.editChronometer({ isRestart: true, currentTime: 0 }); //SETEA EL CRONOMETRO A 0
+            this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
+            this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
             this.state.toExport.pop();
-            this.state.toExport.pop();//ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-            this.index--;//REDUCE EL INDICE
+            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+            this.index--; //REDUCE EL INDICE
             this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START";//ESCRIBE LA LETRA ANTERIOR
+                this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
             this.c_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index] || "TEXT";//ESCRIBE LA LETRA ACTUAL
+                this.state.lyrics[this.index] || "TEXT"; //ESCRIBE LA LETRA ACTUAL
             this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END";//ESCRIBE LA LETRA SIGUIENTE
-            this.audioDOM.current.currentTime = 0;//SETEA EL TIEMPO DEL AUDIO A 0
+                this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
+            this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
         }
     }
 
@@ -242,90 +270,125 @@ class Start extends React.Component {
         this.audioDOM.current.pause();
     }
 
-    exportLyric(){
-        if(window.confirm("Do you want to export the lyrics?")){
+    exportLyric() {
+        if (window.confirm("Do you want to export the lyrics?")) {
             console.log(this.state.toExport);
-            const document = new Blob(this.state.toExport, {type: "text/plain;charset=utf-8"});
+            const document = new Blob(this.state.toExport, {
+                type: "text/plain;charset=utf-8",
+            });
             const link = window.URL.createObjectURL(document);
             this.saveAs(link, `${this.state.infoExport.title}.lrc`);
         }
-        axios.delete("/api/delete").then((res) => {
-            window.location.href = "/";
-        }).catch(() => {
-            window.location.href = "/";
-        });
+        axios
+            .delete("/api/delete")
+            .then((res) => {
+                window.location.href = "/";
+            })
+            .catch(() => {
+                window.location.href = "/";
+            });
     }
 
     saveAs(uri, filename) {
-        let link = document.createElement('a');
-        if (typeof link.download === 'string') {
-        link.href = uri;
-        link.download = filename;
-    
-        //Firefox requires the link to be in the body
-        document.body.appendChild(link);
-        
-        //simulate click
-        link.click();
-    
-        //remove the link when done
-        document.body.removeChild(link);
+        let link = document.createElement("a");
+        if (typeof link.download === "string") {
+            link.href = uri;
+            link.download = filename;
+
+            //Firefox requires the link to be in the body
+            document.body.appendChild(link);
+
+            //simulate click
+            link.click();
+
+            //remove the link when done
+            document.body.removeChild(link);
         } else {
             window.open(uri);
         }
     }
 
-    OnErrorFile(){
-        alert("Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo")
-        axios.delete("/api/delete").then((res) => {
-            window.location.href = "/";
-        }).catch(() => {
-            window.location.href = "/";
-        });
+    OnErrorFile() {
+        alert(
+            "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"
+        );
+        axios
+            .delete("/api/delete")
+            .then((res) => {
+                window.location.href = "/";
+            })
+            .catch(() => {
+                window.location.href = "/";
+            });
     }
 
     /* CRONOMETRO */
-    cronometrar(){
+    cronometrar() {
         this.escribir();
-        this.current = setInterval(this.escribir,10);
-        document.querySelector(".start").removeEventListener("click",this.cronometrar);
+        this.current = setInterval(this.escribir, 10);
+        document
+            .querySelector(".start")
+            .removeEventListener("click", this.cronometrar);
     }
-    escribir(){
+    escribir() {
         this.ms++;
-        if (this.ms>99){
+        if (this.ms > 99) {
             this.s++;
-            this.ms=0;
-        }if (this.s>59){
+            this.ms = 0;
+        }
+        if (this.s > 59) {
             this.m++;
-            this.s=0;
-        }if (this.m>59){
-            this.m=0;
+            this.s = 0;
+        }
+        if (this.m > 59) {
+            this.m = 0;
         }
 
-        if (this.ms<10){this.msAux="0"+this.ms;}else{this.msAux=this.ms;}
-        if (this.s<10){this.sAux="0"+this.s;}else{this.sAux=this.s;}
-        if (this.m<10){this.mAux="0"+this.m;}else{this.mAux=this.m;}
+        if (this.ms < 10) {
+            this.msAux = "0" + this.ms;
+        } else {
+            this.msAux = this.ms;
+        }
+        if (this.s < 10) {
+            this.sAux = "0" + this.s;
+        } else {
+            this.sAux = this.s;
+        }
+        if (this.m < 10) {
+            this.mAux = "0" + this.m;
+        } else {
+            this.mAux = this.m;
+        }
 
-        this.chronometer.current.innerHTML = this.mAux + ":" + this.sAux + ":" + this.msAux; 
+        this.chronometer.current.innerHTML =
+            this.mAux + ":" + this.sAux + ":" + this.msAux;
     }
 
-    parar(){
+    parar() {
         clearInterval(this.current);
-        document.querySelector(".start").addEventListener("click",this.cronometrar);
+        document
+            .querySelector(".start")
+            .addEventListener("click", this.cronometrar);
     }
 
-    reiniciar(){
+    reiniciar() {
         clearInterval(this.current);
-        document.getElementById("hms").innerHTML="00:00:00";
-        this.m=0;this.s=0;this.ms=0;
-        document.querySelector(".start").addEventListener("click",this.cronometrar);
+        document.getElementById("hms").innerHTML = "00:00:00";
+        this.m = 0;
+        this.s = 0;
+        this.ms = 0;
+        document
+            .querySelector(".start")
+            .addEventListener("click", this.cronometrar);
     }
 
     render() {
         return (
             <div>
                 <div class="lyrics">
-                    <div id="hms" ref={this.chronometer}>00:00:00</div>
+                    <div id="hms" ref={this.chronometer}>
+                        00:00:00
+                    </div>
                     <div class="boton start"></div>
                     <div class="boton stop"></div>
                     <div class="boton reiniciar"></div>
@@ -341,7 +404,7 @@ class Start extends React.Component {
                     </p>
                     <div class="controllers">
                         <button
-                            style={{display: "none"}}
+                            style={{ display: "none" }}
                             type="button"
                             ref={this.previousDOM}
                             class="btn btn-warning"
@@ -352,7 +415,7 @@ class Start extends React.Component {
                             previous
                         </button>
                         <button
-                            style={{display: "none"}}
+                            style={{ display: "none" }}
                             type="button"
                             ref={this.nextDOM}
                             class="btn btn-info"
@@ -362,7 +425,7 @@ class Start extends React.Component {
                             Next
                         </button>
                         <button
-                            style={{display: "none"}}
+                            style={{ display: "none" }}
                             type="button"
                             ref={this.stopDOM}
                             class="btn btn-danger"
@@ -393,7 +456,7 @@ class Start extends React.Component {
                     onEnded={this.exportLyric}
                     onPause={this.parar}
                     onCanPlayThrough={() => {
-                        this.setState({startDisabled: false});
+                        this.setState({ startDisabled: false });
                     }}
                 ></audio>
             </div>
