@@ -18,6 +18,7 @@ async function getInfoByID(id) {
     const info = {};
     try{
         const song = await Client.songs.get(id);
+        info.cover = song.image || undefined;
         info.title = song.title;
         info.artist = song.artist.name;
         song.album

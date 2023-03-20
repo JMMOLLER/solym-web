@@ -1,15 +1,15 @@
 .lyrics{
     text-align: center;
 }
-#previous-lyric {
+.previousLyric {
     opacity: 30%;
 }
-#next-lyric {
+.nextLiric {
     opacity:60%;
 }
 .controllers{
     display:flex;
     align-items:center;
     justify-content:space-around;
-    margin:2% 42%;
+    margin:2% 40%;
 }

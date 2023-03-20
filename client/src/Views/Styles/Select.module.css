@@ -1,0 +1,60 @@
+body{
+    text-align: center !important;
+}
+.card {
+    width: calc(50% - 2em) !important;
+    margin: 1em !important;
+    width: 18rem !important; 
+    min-height: 15cm !important;
+    max-height: 22cm !important;
+    background-color: hsl(0deg 0% 38.58% / 50%) !important;
+
+}
+.container {
+    margin: 0 auto !important;
+}
+.options{
+    width: 100% !important;
+    display: inline-flex !important;
+}
+button{
+    margin: 20px auto !important;
+}
+.cardColumns {
+    display: flex !important;
+    flex-wrap: wrap !important;
+}
+.cardImgTop {
+    max-height: 300px !important;
+    min-height: 300px !important;
+}
+.textContainer {
+    min-height: 150px !important;
+}
+.cardTitle{
+    min-height: 70px !important;
+}
+.btnSearch {
+    margin-top: 0px !important;
+    margin-bottom: 0px !important;
+}
+.searchContainer{
+    margin: 1cm;
+}
+.selected {
+    background-color: red !important;
+}
+.titles {
+    margin-top: 40px !important;
+    margin-bottom: 40px !important;
+}
+.contentResults{
+    padding-top: 40px;
+    --h: 100vh;
+}
+.spinner {
+    margin: 40px 0px;
+}
+.hidden {
+    display: none;
+}

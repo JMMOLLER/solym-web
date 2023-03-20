@@ -1,10 +1,12 @@
 /* eslint-disable array-callback-return */
 import React from "react";
 import axios from "axios";
-import "./Styles/start.css";
+import StylesStart from "./Styles/Start.module.css";
 
 /*
     HACER QUE CUANDO TERMINE LA MÚSICA SE MUESTRE UNA PREVIEW DE LA SINCRONIZACIÓN
+
+    REMPLAZAR EL CRONÓMETRO POR CURRENTTIME DEL AUDIO
 */
 
 class Start extends React.Component {
@@ -34,6 +36,7 @@ class Start extends React.Component {
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
         this.n_lyricDOM = React.createRef();
+        this.backgroundDOM = React.createRef();
         // DOM BUTTONS
         this.startDOM = React.createRef();
         this.stopDOM = React.createRef();
@@ -114,6 +117,9 @@ class Start extends React.Component {
                             })
                             .then((data) => {
                                 console.log(data);
+                                this.backgroundDOM.current.style.backgroundImage = `url("${data.cover}")`;
+                                this.backgroundDOM.current.style.backgroundRepeat = 'no-repeat';
+                                this.backgroundDOM.current.style.backgroundSize = 'cover';
                                 this.setState({ infoExport: data }, () => {
                                     document.title = `${data.title} - ${data.artist}`;
                                     this.state.toExport.push(
@@ -384,81 +390,84 @@ class Start extends React.Component {
 
     render() {
         return (
-            <div>
-                <div class="lyrics">
-                    <div id="hms" ref={this.chronometer}>
-                        00:00:00
+            <div style={{position: "relative", height: "100%"}}>
+                <div ref={this.backgroundDOM} style={{height: "100%", width: "100%", position: "absolute", zIndex: "1", filter: "brightness(0.5) blur(10px)"}}></div>
+                <div style={{height: "100%", position: "relative", zIndex: "2"}}>
+                    <div className={StylesStart.lyrics}>
+                        <div id="hms" ref={this.chronometer}>
+                            00:00:00
+                        </div>
+                        <div class="boton start"></div>
+                        <div class="boton stop"></div>
+                        <div class="boton reiniciar"></div>
+                        <h1>Lyrics</h1>
+                        <p id="previous-lyric" className={StylesStart.previousLyric} ref={this.p_lyricDOM}>
+                            TEXT
+                        </p>
+                        <p id="current-lyric" ref={this.c_lyricDOM}>
+                            TEXT
+                        </p>
+                        <p id="next-lyric" className={StylesStart.nextLiric} ref={this.n_lyricDOM}>
+                            TEXT
+                        </p>
+                        <div className={StylesStart.controllers}>
+                            <button
+                                style={{ display: "none" }}
+                                type="button"
+                                ref={this.previousDOM}
+                                class="btn btn-warning"
+                                id="previous"
+                                onClick={this.previousLyric}
+                                disabled={this.state.previousDisabled}
+                            >
+                                previous
+                            </button>
+                            <button
+                                style={{ display: "none" }}
+                                type="button"
+                                ref={this.nextDOM}
+                                class="btn btn-info"
+                                id="next"
+                                onClick={this.nextLyric}
+                            >
+                                Next
+                            </button>
+                            <button
+                                style={{ display: "none" }}
+                                type="button"
+                                ref={this.stopDOM}
+                                class="btn btn-danger"
+                                id="stop"
+                                onClick={this.stopMusic}
+                            >
+                                stop
+                            </button>
+                            <button
+                                type="button"
+                                ref={this.startDOM}
+                                class="btn btn-success"
+                                id="start"
+                                onClick={this.playMusic}
+                                disabled={this.state.startDisabled}
+                            >
+                                start
+                            </button>
+                        </div>
                     </div>
-                    <div class="boton start"></div>
-                    <div class="boton stop"></div>
-                    <div class="boton reiniciar"></div>
-                    <h1>Lyrics</h1>
-                    <p id="previous-lyric" ref={this.p_lyricDOM}>
-                        TEXT
-                    </p>
-                    <p id="current-lyric" ref={this.c_lyricDOM}>
-                        TEXT
-                    </p>
-                    <p id="next-lyric" ref={this.n_lyricDOM}>
-                        TEXT
-                    </p>
-                    <div class="controllers">
-                        <button
-                            style={{ display: "none" }}
-                            type="button"
-                            ref={this.previousDOM}
-                            class="btn btn-warning"
-                            id="previous"
-                            onClick={this.previousLyric}
-                            disabled={this.state.previousDisabled}
-                        >
-                            previous
-                        </button>
-                        <button
-                            style={{ display: "none" }}
-                            type="button"
-                            ref={this.nextDOM}
-                            class="btn btn-info"
-                            id="next"
-                            onClick={this.nextLyric}
-                        >
-                            Next
-                        </button>
-                        <button
-                            style={{ display: "none" }}
-                            type="button"
-                            ref={this.stopDOM}
-                            class="btn btn-danger"
-                            id="stop"
-                            onClick={this.stopMusic}
-                        >
-                            stop
-                        </button>
-                        <button
-                            type="button"
-                            ref={this.startDOM}
-                            class="btn btn-success"
-                            id="start"
-                            onClick={this.playMusic}
-                            disabled={this.state.startDisabled}
-                        >
-                            start
-                        </button>
-                    </div>
+                    <audio
+                        controls
+                        preload="auto"
+                        ref={this.audioDOM}
+                        src="/api/uploadFile"
+                        onError={this.OnErrorFile}
+                        onPlay={this.cronometrar}
+                        onEnded={this.exportLyric}
+                        onPause={this.parar}
+                        onCanPlayThrough={() => {
+                            this.setState({ startDisabled: false });
+                        }}
+                    ></audio>
                 </div>
-                <audio
-                    controls
-                    preload="auto"
-                    ref={this.audioDOM}
-                    src="/api/uploadFile"
-                    onError={this.OnErrorFile}
-                    onPlay={this.cronometrar}
-                    onEnded={this.exportLyric}
-                    onPause={this.parar}
-                    onCanPlayThrough={() => {
-                        this.setState({ startDisabled: false });
-                    }}
-                ></audio>
             </div>
         );
     }

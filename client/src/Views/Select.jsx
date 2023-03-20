@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios';
-import { MDBInput } from "mdb-react-ui-kit";
+import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
 import selectScript from './Scripts/select.js';
-import './Styles/select.css';
+import SelectStyle from './Styles/Select.module.css';
 
 
 class Select extends React.Component {
@@ -12,8 +12,11 @@ class Select extends React.Component {
             response: [],
             selected: undefined,
         };
+        /* REFS */
+        this.spinner = React.createRef();
         this.results_searchEl = React.createRef();
         this.resultsContainer = React.createRef();
+        /* FUNCTIONS */
         this.doSelected = this.doSelected.bind(this);
         this.searchForm = this.searchForm.bind(this);
         this.setLoader = this.setLoader.bind(this);
@@ -29,11 +32,11 @@ class Select extends React.Component {
         console.log("Item \"N°"+id+"\" seleccionado.");
         if(!this.state.selected) {
             this.setState({selected: id}, () => {
-                document.querySelector(`#label_${this.state.selected}`).classList.add("selected");
+                document.querySelector(`#label_${this.state.selected}`).classList.add(`${SelectStyle.selected}`);
             });
         }else if (this.state.selected !== id) {
-            document.querySelector(`#label_${this.state.selected}`).classList.remove("selected");
-            document.querySelector(`#label_${id}`).classList.add("selected");
+            document.querySelector(`#label_${this.state.selected}`).classList.remove(`${SelectStyle.selected}`);
+            document.querySelector(`#label_${id}`).classList.add(`${SelectStyle.selected}`);
             this.setState({selected: id});
         }
     }
@@ -48,18 +51,11 @@ class Select extends React.Component {
     }
 
     setLoader(){
-        const loader = document.createElement("div");
-        loader.classList.add("loader");
-        loader.style = "margin-top: 40px;margin-bottom: 40px;";
-        const span = document.createElement("span");
-        span.classList.add("loader");
-        loader.appendChild(span);
-        this.resultsContainer.current.insertBefore(loader, this.results_searchEl.current);
+        this.spinner.current.classList.remove(`${SelectStyle.hidden}`);
     }
 
     removeLoader(){
-        const loader = document.querySelector(".loader");
-        loader.remove();
+        this.spinner.current.classList.add(`${SelectStyle.hidden}`);
     }
 
     async searchForm(form){
@@ -85,11 +81,11 @@ class Select extends React.Component {
                 results.forEach((result) => {
                     result = result.result;
                     this.results_searchEl.current.innerHTML +=
-                    `<div class="card">
-                        <img src=${result.header_image_url} class="card-img-top" alt="cover"></img>
+                    `<div class="${SelectStyle.card} card">
+                        <img src=${result.header_image_url} class="${SelectStyle.cardImgTop} card-img-top" alt="cover"></img>
                         <div class="card-body">
-                            <h5 class="card-title">${result.full_title}</h5>
-                            <div class="text-container">
+                            <h5 class="${SelectStyle.cardTitle} card-title">${result.full_title}</h5>
+                            <div class="${SelectStyle.textContainer} text-container">
                                 <p class="card-text"><strong>Título:</strong> ${result.title}</p>
                                 <p class="card-text"><strong>Artista:</strong> ${result.primary_artist.name}</p>
                             </div>
@@ -136,11 +132,11 @@ class Select extends React.Component {
             return <h1>No se puedo encontrar resultados automaticamente</h1>
         }else{
             return this.state.response.map((item) => 
-            <div class="card">
-                <img src={item.result.header_image_url} class="card-img-top" alt="cover"></img>
+            <div className={SelectStyle.card+' card'}>
+                <img src={item.result.header_image_url} className={SelectStyle.cardImgTop+" card-img-top"} alt="cover"></img>
                 <div class="card-body">
-                    <h5 class="card-title">{item.result.full_title}</h5>
-                    <div class="text-container">
+                    <h5 className={SelectStyle.cardTitle+"card-title"}>{item.result.full_title}</h5>
+                    <div className={SelectStyle.textContainer+" text-container"}>
                         <p class="card-text"><strong>Título: </strong>{item.result.title}</p>
                         <p class="card-text"><strong>Artista: </strong>{item.result.primary_artist.name}</p>
                     </div>
@@ -154,30 +150,30 @@ class Select extends React.Component {
 
     render(){
         return (
-            <div>
-                <h1 class="titles">SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR</h1>
-                <div class="container">
-                    <div class="card-columns">
+            <div className={SelectStyle.contentResults}>
+                <h1 className={SelectStyle.titles}>SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR</h1>
+                <div className={SelectStyle.container+' container'}>
+                    <div className={SelectStyle.cardColumns}>
                         {this.getResults()}
                     </div>
-                    <h2 class="titles">¿No encuentras lo que buscas?</h2>
-                    <div class="search-container">
+                    <h2 className={SelectStyle.titles}>¿No encuentras lo que buscas?</h2>
+                    <div className={SelectStyle.searchContainer}>
                         <form onSubmit={this.searchForm}>
                             <div class="input-group">
                                 <div class="form-outline">
                                     <MDBInput type="search" label="Search" name="search_input" id="search-lyric"></MDBInput>
                                 </div>
-                                <button type="button" name="search" id="btn-search" class="btn btn-primary">
+                                <button type="submit" name="search" className={SelectStyle.btnSearch+" btn btn-primary"}>
                                     <i class="fas fa-search"></i>
                                 </button>
                             </div>
                         </form>
                     </div>
                     <div class="sub-container" ref={this.resultsContainer} id="results">
-
-                        <div class="card-columns" ref={this.results_searchEl} id="results-search"></div>
+                        <MDBSpinner className={SelectStyle.spinner+' mx-2 '+SelectStyle.hidden} color='info' ref={this.spinner}></MDBSpinner>
+                        <div className={SelectStyle.cardColumns} ref={this.results_searchEl} id="results-search"></div>
                     </div>
-                    <div class="options">
+                    <div class={SelectStyle.options}>
                         <button type="button" class="btn btn-warning" id="previous">Regresar</button>
                         <button type="button" class="btn btn-success" id="next" onClick={this.goNextStep}>Continuar</button>
                     </div>

@@ -1,0 +1,13 @@
+#root {
+    color: white;
+    height: 100%;
+}
+
+html, body {
+    height: 100vh !important;
+    background-color: black;
+}
+
+.form-label, .form-control {
+    color: white !important;
+}

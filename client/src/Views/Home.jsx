@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import "./Styles/home.css";
+import "./Styles/Home.module.css";
 
 class Home extends React.Component {
     constructor(props) {
