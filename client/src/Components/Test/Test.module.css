@@ -1,36 +1,6 @@
-.content{
-    text-align: center;
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%) translateX(-50%);
-    margin: 0px 50%;
-    width: 500px;
-}
-.previousLyric {
-    opacity: 30%;
-}
-.nextLiric {
-    opacity:60%;
-}
-.controllers{
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    margin:2% 5%;
-}
-.bg {
-    height: 100%;
-    width: 100%;
-    position: absolute;
-    z-index: 1;
-    filter: brightness(0.5) blur(10px);
-    background-repeat: no-repeat;
-    background-size: 100% 100%;
-    background-image: none;
-}
 .modal {
     position: fixed;
-    z-index: 3;
+    z-index: 1;
     padding-top: 100px;
     left: 0;
     top: 0;

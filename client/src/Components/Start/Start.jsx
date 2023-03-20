@@ -1,7 +1,8 @@
 /* eslint-disable array-callback-return */
 import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
 import StylesStart from "./Start.module.css";
+import { nextLyric, previousLyric, exportLyric } from "./Controllers/Start.controller.js";
 
 /*
     HACER QUE CUANDO TERMINE LA MÚSICA SE MUESTRE UNA PREVIEW DE LA SINCRONIZACIÓN
@@ -15,7 +16,6 @@ class Start extends React.Component {
         this.state = {
             lyrics: [],
             toExport: [],
-            temp2: [],
             infoExport: {},
             id: NaN,
             startDisabled: true,
@@ -32,6 +32,7 @@ class Start extends React.Component {
         this.times = new Map();
         this.currentLyric = "";
         this.currentSecond = 0;
+        this.toggleShow = false;
         // DOM LYRICS
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
@@ -42,22 +43,38 @@ class Start extends React.Component {
         this.stopDOM = React.createRef();
         this.previousDOM = React.createRef();
         this.nextDOM = React.createRef();
+        this.exportDOM = React.createRef();
+        this.resetDOM = React.createRef();
+        this.previewDOM = React.createRef();
         // DOM AUDIO
         this.audioDOM = React.createRef();
         // DOM TIME
         this.chronometer = React.createRef();
+        // DOM MODAL
+        this.modal = React.createRef();
         // FUNCTIONS
-        this.nextLyric = this.nextLyric.bind(this);
-        this.previousLyric = this.previousLyric.bind(this);
+        this.nextLyric = nextLyric.bind(this);
+        this.previousLyric = previousLyric.bind(this);
         this.playMusic = this.playMusic.bind(this);
         this.stopMusic = this.stopMusic.bind(this);
         this.cronometrar = this.cronometrar.bind(this);
         this.escribir = this.escribir.bind(this);
         this.parar = this.parar.bind(this);
         this.reiniciar = this.reiniciar.bind(this);
-        this.exportLyric = this.exportLyric.bind(this);
+        this.exportLyric = exportLyric.bind(this);
+        this.Toggle = this.Toggle.bind(this);
     }
 
+    Toggle() {
+        this.toggleShow = !this.toggleShow;
+        console.log(this.toggleShow);
+        if(this.toggleShow){
+            this.modal.current.classList.add(StylesStart.mostrar);
+        }else{
+            this.modal.current.classList.remove(StylesStart.mostrar);
+        }
+    }
+    
     async componentDidMount() {
         const response = await axios.get("/api/start", {
             withCredentials: true,
@@ -91,10 +108,11 @@ class Start extends React.Component {
                     .then((data) => {
                         const text = data.lyrics;
                         const temp = text.split("\n");
+                        const temp2 = [];
                         temp.filter((lyric) => {
-                            if (lyric !== "") this.state.temp2.push(lyric);
+                            if (lyric !== "") temp2.push(lyric);
                         });
-                        this.state.temp2.filter((lyric) => {
+                        temp2.filter((lyric) => {
                             if (!lyric.includes("["))
                                 this.state.lyrics.push(lyric);
                         });
@@ -160,40 +178,11 @@ class Start extends React.Component {
         );
     }
 
-    nextLyric() {
-        const currentMin = this.mAux,
-        currentSeg = this.sAux,
-        currentMs = this.msAux,
-        start = window.performance.now();
-        let executinTime = 0, end = 0;
-        if (this.index >= -1) {
-            this.setState({ previousDisabled: false });
-        }if (this.index < this.state.lyrics.length - 1) {
-            this.index++;
-            this.currentSecond = (this.s + this.ms / 1000 + this.m * 60);
-            this.times.set(this.index, this.currentSecond);
-            executinTime = (end - start)/1000;
-            //executinTime = executinTime - Number(currentSeg+"."+currentMs);
-            this.currentLyric =
-                "[" +
-                currentMin +
-                ":" +
-                currentSeg +
-                "." +
-                (currentMs - executinTime).toFixed(0) +
-                "]" +
-                this.state.lyrics[this.index];
-            this.state.toExport.push(this.currentLyric);
-            this.state.toExport.push("\n");
-            console.log(this.currentLyric + " Index: " + this.index);
-            this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START";
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
-            this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END";
-        }
-        // console.log(executinTime, Number(this.sAux+"."+this.msAux));
-        console.log("Time to execute: " + executinTime + " ms");
+    preview() {
+        this.audioDOM.current.currentTime = 0;
+        this.p_lyricDOM.current.innerHTML = "TEXT";
+        this.c_lyricDOM.current.innerHTML = this.state.lyrics[0];
+        this.n_lyricDOM.current.innerHTML = this.state.lyrics[1];
     }
 
     editChronometer({ isRestart, currentTime }) {
@@ -213,43 +202,6 @@ class Start extends React.Component {
         this.escribir();
     }
 
-    previousLyric() {
-        this.stopDOM.current.style.display = "none";
-        this.nextDOM.current.style.display = "none";
-        if (this.index > 0) {
-            this.index--; //REDUCE EL INDICE
-            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-            const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
-            this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
-            this.editChronometer({
-                isRestart: false,
-                currentTime: currentTime,
-            }); //SETEA EL CRONOMETRO A EL TIEMPO DE LA LETRA ANTERIOR
-            this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-            this.state.toExport.pop();
-            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-            this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
-            this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
-        } else {
-            this.editChronometer({ isRestart: true, currentTime: 0 }); //SETEA EL CRONOMETRO A 0
-            this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
-            this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-            this.state.toExport.pop();
-            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-            this.index--; //REDUCE EL INDICE
-            this.p_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
-            this.c_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index] || "TEXT"; //ESCRIBE LA LETRA ACTUAL
-            this.n_lyricDOM.current.innerHTML =
-                this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
-            this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
-        }
-    }
 
     removeDisbaled(dom) {
         console.log("function removeDisabled");
@@ -274,42 +226,8 @@ class Start extends React.Component {
         this.audioDOM.current.pause();
     }
 
-    exportLyric() {
-        if (window.confirm("Do you want to export the lyrics?")) {
-            console.log(this.state.toExport);
-            const document = new Blob(this.state.toExport, {
-                type: "text/plain;charset=utf-8",
-            });
-            const link = window.URL.createObjectURL(document);
-            this.saveAs(link, `${this.state.infoExport.title}.lrc`);
-        }
-        axios
-            .delete("/api/delete")
-            .then((res) => {
-                window.location.href = "/";
-            })
-            .catch(() => {
-                window.location.href = "/";
-            });
-    }
-
-    saveAs(uri, filename) {
-        let link = document.createElement("a");
-        if (typeof link.download === "string") {
-            link.href = uri;
-            link.download = filename;
-
-            //Firefox requires the link to be in the body
-            document.body.appendChild(link);
-
-            //simulate click
-            link.click();
-
-            //remove the link when done
-            document.body.removeChild(link);
-        } else {
-            window.open(uri);
-        }
+    reset() {
+        window.location.reload();
     }
 
     OnErrorFile() {
@@ -455,15 +373,53 @@ class Start extends React.Component {
                             controls
                             preload="auto"
                             ref={this.audioDOM}
+                            id="audio"
                             src="/api/uploadFile"
                             onError={this.OnErrorFile}
                             onPlay={this.cronometrar}
-                            onEnded={this.exportLyric}
+                            onEnded={this.Toggle}
                             onPause={this.parar}
                             onCanPlayThrough={() => {
                                 this.setState({ startDisabled: false });
                             }}
                         ></audio>
+                    </div>
+                </div>
+                <div className={StylesStart.modal+' modal'} ref={this.modal} tabindex="-1">
+                    <div class="modal-dialog">
+                        <div className={StylesStart["modal-content"]+" modal-content"}>
+                            <div class="modal-header">
+                                <h5 class="modal-title">¡Último paso!</h5>
+                                <button
+                                    type="button"
+                                    className={StylesStart.close+" btn-close"}
+                                    data-mdb-dismiss="modal"
+                                    aria-label="Close"
+                                    onClick={this.Toggle}
+                                ></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>La música ha terminado, puede ver una previsualización del resultado
+                                    o puede exportar directamente el archivo ahora. ¿Qué desea hacer?
+                                </p>
+                            </div>
+                            <div class="modal-footer">
+                                <button
+                                    type="button"
+                                    class="btn btn-danger btn-rounded"
+                                    data-mdb-dismiss="modal"
+                                    onClick={this.reset}
+                                >
+                                    Reiniciar
+                                </button>
+                                <button type="button" ref={this.previewDOM} class="btn btn-success btn-rounded">
+                                    Previsualizar
+                                </button>
+                                <button type="button" ref={this.exportDOM} onClick={this.exportLyric} class="btn btn-info btn-rounded">
+                                    Exportar<i className={StylesStart.icon+" fas fa-download"}></i>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
