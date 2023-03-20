@@ -1,7 +1,7 @@
 /* eslint-disable array-callback-return */
-import React from "react";
 import axios from "axios";
-import StylesStart from "./Styles/Start.module.css";
+import React, { useState } from "react";
+import StylesStart from "./Start.module.css";
 
 /*
     HACER QUE CUANDO TERMINE LA MÚSICA SE MUESTRE UNA PREVIEW DE LA SINCRONIZACIÓN
@@ -117,9 +117,7 @@ class Start extends React.Component {
                             })
                             .then((data) => {
                                 console.log(data);
-                                this.backgroundDOM.current.style.backgroundImage = `url("${data.cover}")`;
-                                this.backgroundDOM.current.style.backgroundRepeat = 'no-repeat';
-                                this.backgroundDOM.current.style.backgroundSize = 'cover';
+                                document.styleSheets[4].cssRules.item(22).style.backgroundImage = `url(${data.cover})`;
                                 this.setState({ infoExport: data }, () => {
                                     document.title = `${data.title} - ${data.artist}`;
                                     this.state.toExport.push(
@@ -391,9 +389,9 @@ class Start extends React.Component {
     render() {
         return (
             <div style={{position: "relative", height: "100%"}}>
-                <div ref={this.backgroundDOM} style={{height: "100%", width: "100%", position: "absolute", zIndex: "1", filter: "brightness(0.5) blur(10px)"}}></div>
+                <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
                 <div style={{height: "100%", position: "relative", zIndex: "2"}}>
-                    <div className={StylesStart.lyrics}>
+                    <div className={StylesStart.content}>
                         <div id="hms" ref={this.chronometer}>
                             00:00:00
                         </div>
@@ -453,20 +451,20 @@ class Start extends React.Component {
                                 start
                             </button>
                         </div>
+                        <audio
+                            controls
+                            preload="auto"
+                            ref={this.audioDOM}
+                            src="/api/uploadFile"
+                            onError={this.OnErrorFile}
+                            onPlay={this.cronometrar}
+                            onEnded={this.exportLyric}
+                            onPause={this.parar}
+                            onCanPlayThrough={() => {
+                                this.setState({ startDisabled: false });
+                            }}
+                        ></audio>
                     </div>
-                    <audio
-                        controls
-                        preload="auto"
-                        ref={this.audioDOM}
-                        src="/api/uploadFile"
-                        onError={this.OnErrorFile}
-                        onPlay={this.cronometrar}
-                        onEnded={this.exportLyric}
-                        onPause={this.parar}
-                        onCanPlayThrough={() => {
-                            this.setState({ startDisabled: false });
-                        }}
-                    ></audio>
                 </div>
             </div>
         );

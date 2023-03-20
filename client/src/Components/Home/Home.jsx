@@ -1,7 +1,7 @@
 import React from "react";
 import axios from "axios";
 import ProgressBar from "react-bootstrap/ProgressBar";
-import "./Styles/Home.module.css";
+import HomeStyle from "./Home.module.css";
 
 class Home extends React.Component {
     constructor(props) {
@@ -86,7 +86,7 @@ class Home extends React.Component {
         return (
             <div class="container" ref={this.containerDiv}>
                 
-                <div class="content" ref={this.mainContent}>
+                <div className={HomeStyle.content} ref={this.mainContent}>
                     <h1>Uploaded File</h1>
 
                     <form action="/select" onsubmit="event.preventDefault()">

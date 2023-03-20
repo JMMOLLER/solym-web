@@ -1,8 +1,8 @@
 import React from 'react';
 import axios from 'axios';
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
-import selectScript from './Scripts/select.js';
-import SelectStyle from './Styles/Select.module.css';
+import selectScript from './select.js';
+import SelectStyle from './Select.module.css';
 
 
 class Select extends React.Component {

@@ -1,0 +1,158 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@800&family=Roboto:wght@100;300&display=swap");
+.root {
+  --button: #b3b3b3 !important;
+  --button-color: #0a0a0a !important;
+  --bg: #737373 !important;
+  --header: #7a7a7a !important;
+  --color: #fafafa !important;
+  --lit-header: #e6e6e6 !important;
+  --speed: 2s !important;
+}
+.todo {
+  box-sizing: border-box !important;
+  transform-style: preserve-3d !important;
+}
+@property --swing-x {
+  initial-value: 0 ;
+  inherits: false;
+  syntax: '<integer>';
+}
+@property --swing-y {
+  initial-value: 0;
+  inherits: false;
+  syntax: '<integer>';
+}
+.body {
+  min-height: 100vh !important;
+  display: flex !important;
+  font-family: 'Roboto', sans-serif !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: var(--bg) !important;
+  color: var(--color) !important;
+  perspective: 1200px !important;
+}
+.content {
+  height: 100%;
+}
+.a {
+  text-transform: uppercase !important;
+  text-decoration: none !important;
+  background: var(--button) !important;
+  color: var(--button-color) !important;
+  padding: 1rem 4rem !important;
+  border-radius: 4rem !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.05rem !important;
+}
+.p {
+  font-weight: 100 !important;
+}
+.h1 {
+  animation: swing var(--speed) infinite alternate ease-in-out;
+  font-size: clamp(5rem, 40vmin, 20rem) !important;
+  font-family: 'Open Sans', sans-serif !important;
+  margin: 0 !important;
+  margin-bottom: 1rem !important;
+  letter-spacing: 1rem !important;
+  transform: translate3d(0, 0, 0vmin) !important;
+  --x: calc(50% + (var(--swing-x) * 0.5) * 1%) !important;
+  background: radial-gradient(var(--lit-header), var(--header) 45%) var(--x) 100%/200% 200%;
+  -webkit-background-clip: text;
+  color: transparent !important;
+  text-align: center;
+}
+.h1:after {
+  animation: swing var(--speed) infinite alternate ease-in-out;
+  content: "404" !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  filter: blur(1.5vmin) !important;
+  transform: scale(1.05) translate3d(0, 12%, -10vmin) translate(calc((var(--swing-x, 0) * 0.05) * 1%), calc((var(--swing-y) * 0.05) * 1%));
+}
+.cloak {
+  animation: swing var(--speed) infinite alternate-reverse ease-in-out;
+  height: 100% !important;
+  width: 100% !important;
+  transform-origin: 50% 30%;
+  transform: rotate(calc(var(--swing-x) * -0.25deg));
+  background: radial-gradient(40% 40% at 50% 42%, transparent, #000 35%);
+}
+.cloak__wrapper {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  overflow: hidden !important;
+}
+.cloak__container {
+  height: 250vmax !important;
+  width: 250vmax !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%);
+}
+.info {
+  text-align: center !important;
+  line-height: 1.5 !important;
+  max-width: clamp(16rem, 90vmin, 25rem) !important;
+}
+.info > p {
+  margin-bottom: 3rem !important;
+}
+@-moz-keyframes swing {
+  0% {
+    --swing-x: -100;
+    --swing-y: -100;
+  }
+  50% {
+    --swing-y: 0;
+  }
+  100% {
+    --swing-y: -100;
+    --swing-x: 100;
+  }
+}
+@-webkit-keyframes swing {
+  0% {
+    --swing-x: -100;
+    --swing-y: -100;
+  }
+  50% {
+    --swing-y: 0;
+  }
+  100% {
+    --swing-y: -100;
+    --swing-x: 100;
+  }
+}
+@-o-keyframes swing {
+  0% {
+    --swing-x: -100;
+    --swing-y: -100;
+  }
+  50% {
+    --swing-y: 0;
+  }
+  100% {
+    --swing-y: -100;
+    --swing-x: 100;
+  }
+}
+@keyframes swing {
+  0% {
+    --swing-x: -100;
+    --swing-y: -100;
+  }
+  50% {
+    --swing-y: 0;
+  }
+  100% {
+    --swing-y: -100;
+    --swing-x: 100;
+  }
+}
