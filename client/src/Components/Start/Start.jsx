@@ -48,8 +48,6 @@ class Start extends React.Component {
         this.previewDOM = React.createRef();
         // DOM AUDIO
         this.audioDOM = React.createRef();
-        // DOM TIME
-        this.chronometer = React.createRef();
         // DOM MODAL
         this.modal = React.createRef();
         // FUNCTIONS
@@ -57,10 +55,6 @@ class Start extends React.Component {
         this.previousLyric = previousLyric.bind(this);
         this.playMusic = this.playMusic.bind(this);
         this.stopMusic = this.stopMusic.bind(this);
-        this.cronometrar = this.cronometrar.bind(this);
-        this.escribir = this.escribir.bind(this);
-        this.parar = this.parar.bind(this);
-        this.reiniciar = this.reiniciar.bind(this);
         this.exportLyric = exportLyric.bind(this);
         this.Toggle = this.Toggle.bind(this);
     }
@@ -185,24 +179,6 @@ class Start extends React.Component {
         this.n_lyricDOM.current.innerHTML = this.state.lyrics[1];
     }
 
-    editChronometer({ isRestart, currentTime }) {
-        if (isRestart) {
-            this.m = 0;
-            this.s = 0;
-            this.ms = 0;
-            this.mAux = "00";
-            this.sAux = "00";
-            this.msAux = "00";
-        } else {
-            this.m = Math.floor(currentTime / 60); //OBTIENE LOS MINUTOS
-            this.s = Math.floor(currentTime % 60); //OBTIENE LOS SEGUNDOS
-            this.ms =
-                Math.floor((currentTime - Math.floor(currentTime)) * 1000) - 1; //OBTIENE LOS MILISEGUNDOS
-        }
-        this.escribir();
-    }
-
-
     removeDisbaled(dom) {
         console.log("function removeDisabled");
         dom.removeAttribute("disabled");
@@ -234,8 +210,7 @@ class Start extends React.Component {
         alert(
             "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"
         );
-        axios
-            .delete("/api/delete")
+        axios.delete("/api/delete")
             .then((res) => {
                 window.location.href = "/";
             })
@@ -244,75 +219,12 @@ class Start extends React.Component {
             });
     }
 
-    /* CRONOMETRO */
-    cronometrar() {
-        this.escribir();
-        this.current = setInterval(this.escribir, 10);
-        document
-            .querySelector(".start")
-            .removeEventListener("click", this.cronometrar);
-    }
-    escribir() {
-        this.ms++;
-        if (this.ms > 99) {
-            this.s++;
-            this.ms = 0;
-        }
-        if (this.s > 59) {
-            this.m++;
-            this.s = 0;
-        }
-        if (this.m > 59) {
-            this.m = 0;
-        }
-
-        if (this.ms < 10) {
-            this.msAux = "0" + this.ms;
-        } else {
-            this.msAux = this.ms;
-        }
-        if (this.s < 10) {
-            this.sAux = "0" + this.s;
-        } else {
-            this.sAux = this.s;
-        }
-        if (this.m < 10) {
-            this.mAux = "0" + this.m;
-        } else {
-            this.mAux = this.m;
-        }
-
-        this.chronometer.current.innerHTML =
-            this.mAux + ":" + this.sAux + ":" + this.msAux;
-    }
-
-    parar() {
-        clearInterval(this.current);
-        document
-            .querySelector(".start")
-            .addEventListener("click", this.cronometrar);
-    }
-
-    reiniciar() {
-        clearInterval(this.current);
-        document.getElementById("hms").innerHTML = "00:00:00";
-        this.m = 0;
-        this.s = 0;
-        this.ms = 0;
-        document
-            .querySelector(".start")
-            .addEventListener("click", this.cronometrar);
-    }
-
     render() {
         return (
             <div style={{position: "relative", height: "100%"}}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
                 <div style={{height: "100%", position: "relative", zIndex: "2"}}>
                     <div className={StylesStart.content}>
-                        <div id="hms" ref={this.chronometer}>
-                            00:00:00
-                        </div>
                         <div class="boton start"></div>
                         <div class="boton stop"></div>
                         <div class="boton reiniciar"></div>
