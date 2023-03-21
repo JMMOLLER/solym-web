@@ -2,12 +2,12 @@ const validateCookies = (req, res, next) => {
     if(req.cookies['Symly'] && req.cookies['selectedTrack']){
         return next();
     }
-    return res.json({error: {text:'No cookies', status: 400, returnTo: '/'}});
+    return res.status(403).json({ text:'No cookies', code: 403, returnTo: '/' });
 }
 
 const validateSolymCookie = (req, res, next) => {
     if(!req.cookies['Symly']){
-        return res.redirect('/');
+        return res.status(403).json({ text:'No Solym cookie', code: 403, returnTo: '/' });
     }
     return next();
 }

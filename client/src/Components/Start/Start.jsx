@@ -2,7 +2,14 @@
 import axios from "axios";
 import React from "react";
 import StylesStart from "./Start.module.css";
-import { nextLyric, previousLyric, exportLyric } from "./Controllers/Start.controller.js";
+import {
+    nextLyric,
+    previousLyric,
+    exportLyric,
+    getLyrics,
+    getInfoSelected,
+} from "./Controllers/Start.controller.js";
+axios.defaults.withCredentials = true;
 
 /*
     HACER QUE CUANDO TERMINE LA MÚSICA SE MUESTRE UNA PREVIEW DE LA SINCRONIZACIÓN
@@ -20,6 +27,9 @@ class Start extends React.Component {
             id: NaN,
             startDisabled: true,
             previousDisabled: true,
+            previewEnabled: false,
+            hasData: false,
+            notification: undefined,
         };
         this.m = 0;
         this.s = 0;
@@ -33,6 +43,8 @@ class Start extends React.Component {
         this.currentLyric = "";
         this.currentSecond = 0;
         this.toggleShow = false;
+        this.Toggle = () => {this.toggleShow = !this.toggleShow;}
+        this.checkTime = undefined;
         // DOM LYRICS
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
@@ -56,127 +68,188 @@ class Start extends React.Component {
         this.playMusic = this.playMusic.bind(this);
         this.stopMusic = this.stopMusic.bind(this);
         this.exportLyric = exportLyric.bind(this);
-        this.Toggle = this.Toggle.bind(this);
+        this.preview = this.preview.bind(this);
+        this.timeUpdate = this.timeUpdate.bind(this);
+        this.renderModal = this.renderModal.bind(this);
+        this.endedAction = this.endedAction.bind(this);
     }
 
-    Toggle() {
-        this.toggleShow = !this.toggleShow;
-        console.log(this.toggleShow);
-        if(this.toggleShow){
-            this.modal.current.classList.add(StylesStart.mostrar);
+    renderModal({ title, body, footer }) {
+        this.Toggle();
+        const modal = ( 
+            <div
+                className={StylesStart.modal + " modal"}
+                ref={this.modal}
+                tabindex="-1"
+            >
+                <div className="modal-dialog">
+                    <div
+                        className={
+                            StylesStart["modal-content"] + " modal-content"
+                        }
+                    >
+                        <div className="modal-header">
+                            <h5 className="modal-title">{title}</h5>
+                            <button
+                                type="button"
+                                className={StylesStart.close + " btn-close"}
+                                data-mdb-dismiss="modal"
+                                aria-label="Close"
+                                onClick={this.Toggle()}
+                            ></button>
+                        </div>
+                        <div className="modal-body">
+                            <p>{body}</p>
+                        </div>
+                        <div className="modal-footer">{footer}</div>
+                    </div>
+                </div>
+            </div>
+        );
+        this.setState({ notification: modal});
+    }
+
+    endedAction() {
+        const title = "¡Último paso!";
+        const body =
+            "La música ha terminado, puede ver una previsualización del resultado o puede exportar directamente el archivo ahora. ¿Qué desea hacer?";
+        const footer = (
+            <>
+                <button
+                    type="button"
+                    className="btn btn-danger btn-rounded"
+                    data-mdb-dismiss="modal"
+                    onClick={this.reset}
+                >
+                    Reiniciar
+                </button>
+                <button
+                    type="button"
+                    ref={this.previewDOM}
+                    onClick={this.preview}
+                    className="btn btn-success btn-rounded"
+                >
+                    Previsualizar
+                </button>
+                <button
+                    type="button"
+                    ref={this.exportDOM}
+                    onClick={this.exportLyric}
+                    className="btn btn-info btn-rounded"
+                >
+                    Exportar
+                    <i className={StylesStart.icon + " fas fa-download"}></i>
+                </button>
+            </>
+        );
+        this.renderModal({title, body, footer});
+    }
+
+    componentDidUpdate() {
+        if (this.toggleShow) {
+            this.endedAction();
         }else{
-            this.modal.current.classList.remove(StylesStart.mostrar);
+            if(this.modal.current){
+                this.modal.current.removeChild(this.modal.current.children[0]);
+            }
+        }
+
+        if (this.state.hasData) {
+            console.log("Hola mundo");
         }
     }
-    
+
     async componentDidMount() {
-        const response = await axios.get("/api/start", {
-            withCredentials: true,
-        });
-        if (response.data.error)
-            return (window.location.href = response.data.error.returnTo);
-        const indexS = document.cookie.indexOf(":") + 1;
-        const tmp = document.cookie.substring(indexS);
-        this.setState(
-            { id: Number.parseInt(tmp.substring(0, tmp.length - 1)) },
-            () => {
-                if (isNaN(this.state.id)) {
-                    alert(
-                        "Error: No se pudo obtener el ID de la canción seleccionada."
-                    );
-                    return (window.location.href = "/");
-                }
-                axios
-                    .get(`/api/lyrics/${this.state.id}`)
-                    .then((res) => {
-                        const responseURL = new URL(res.request.responseURL);
-                        if (
-                            responseURL.pathname !==
-                            `/api/lyrics/${this.state.id}`
-                        ) {
-                            return (window.location.href =
-                                res.request.responseURL);
+        try{
+            const indexS = document.cookie.indexOf(":") + 1;
+            const tmp = document.cookie.substring(indexS);
+            this.setState(
+                { id: Number.parseInt(tmp.substring(0, tmp.length - 1)) },
+                async() => {
+                    try{
+                        if (isNaN(this.state.id)) {
+                            alert(
+                                "Error: No se pudo obtener el ID de la canción seleccionada."
+                            );
+                            return (window.location.href = "/");
                         }
-                        return res.data;
-                    })
-                    .then((data) => {
-                        const text = data.lyrics;
-                        const temp = text.split("\n");
-                        const temp2 = [];
-                        temp.filter((lyric) => {
-                            if (lyric !== "") temp2.push(lyric);
+
+                        const lyrics = await getLyrics(this.state.id);
+                        if(!lyrics){
+                            alert("Error: No se pudo obtener la letra de la canción seleccionada.");
+                            return (window.location.href = "/");
+                        }
+                        this.state.lyrics.push(...lyrics);
+                        this.n_lyricDOM.current.innerHTML = this.state.lyrics[0];
+                        /* FETCH INFO */
+                        const info = await getInfoSelected(this.state.id);
+                        if(!info){
+                            alert("Se generó un error al intentar obtener la información de la canción, intente recargar la página");
+                            return (window.location.href = "/");
+                        }
+                        console.log(info);
+                        this.backgroundDOM.current.style.backgroundImage = `url(${info.cover})`;
+                        this.setState({ infoExport: info }, () => {
+                            document.title = `${info.title} - ${info.artist}`;
+                            this.state.toExport.push("[ar:" + info.artist + "]");
+                            this.state.toExport.push("\n");
+                            this.state.toExport.push("[al:" + info.album + "]");
+                            this.state.toExport.push("\n");
+                            this.state.toExport.push("[ti:" + info.title + "]");
+                            this.state.toExport.push("\n");
+                            if (
+                                this.state.lyrics[0].includes("[") &&
+                                this.state.lyrics[0].includes("]")
+                            ) {
+                                console.log("Lyrics is maybe separated by verses");
+                                this.nextLyric();
+                            }
                         });
-                        temp2.filter((lyric) => {
-                            if (!lyric.includes("["))
-                                this.state.lyrics.push(lyric);
-                        });
-                        this.n_lyricDOM.current.innerHTML =
-                            this.state.lyrics[0];
-                        axios
-                            .get(`/api/info/${this.state.id}`)
-                            .then((res) => {
-                                const responseURL = new URL(
-                                    res.request.responseURL
-                                );
-                                if (
-                                    responseURL.pathname !==
-                                    `/api/info/${this.state.id}`
-                                ) {
-                                    return (window.location.href =
-                                        res.request.responseURL);
-                                }
-                                return res.data;
-                            })
-                            .then((data) => {
-                                console.log(data);
-                                document.styleSheets[4].cssRules.item(22).style.backgroundImage = `url(${data.cover})`;
-                                this.setState({ infoExport: data }, () => {
-                                    document.title = `${data.title} - ${data.artist}`;
-                                    this.state.toExport.push(
-                                        "[ar:" + data.artist + "]"
-                                    );
-                                    this.state.toExport.push("\n");
-                                    this.state.toExport.push(
-                                        "[al:" + data.album + "]"
-                                    );
-                                    this.state.toExport.push("\n");
-                                    this.state.toExport.push(
-                                        "[ti:" + data.title + "]"
-                                    );
-                                    this.state.toExport.push("\n");
-                                    if (
-                                        this.state.lyrics[0].includes("[") &&
-                                        this.state.lyrics[0].includes("]")
-                                    ) {
-                                        console.log(
-                                            "Lyrics is maybe separated by verses"
-                                        );
-                                        this.nextLyric();
-                                    }
-                                });
-                            })
-                            .catch((err) => {
-                                alert(
-                                    "Se generó un error al intentar obtener la información de la canción, intente recargar la página"
-                                );
-                                console.log(err);
-                            });
-                    })
-                    .catch((err) => {
-                        alert(
-                            "Se generó un error al intentar obtener la letra de la canción, intente recargar la página"
-                        );
+                    }catch(err){
                         console.log(err);
-                    });
-            }
-        );
+                        console.log("hello")
+                    }
+
+                }
+
+                    
+            );
+        }catch(err){
+            console.log(err);
+            return (window.location.href = "/");
+        }
     }
 
     preview() {
+        this.Toggle();
         this.audioDOM.current.currentTime = 0;
         this.p_lyricDOM.current.innerHTML = "TEXT";
         this.c_lyricDOM.current.innerHTML = this.state.lyrics[0];
         this.n_lyricDOM.current.innerHTML = this.state.lyrics[1];
+        this.previousDOM.current.style.display = "none";
+        this.nextDOM.current.style.display = "none";
+        this.index = -1;
+        this.setState({ previewEnabled: true }, () => {
+            console.log("ready to preview => ", this.state.previewEnabled);
+            this.playMusic();
+            this.checkTime = requestAnimationFrame(this.timeUpdate);
+        });
+    }
+
+    timeUpdate() {
+        if (this.state.previewEnabled) {
+            console.log("timeUpdate => ", this.audioDOM.current.currentTime);
+            console.log("compareTo => ", this.times.get(this.index + 1));
+            if (
+                this.audioDOM.current.currentTime <=
+                this.times.get(this.index + 1)
+            ) {
+                this.nextLyric();
+            }
+            if (this.index < this.times.size) {
+                this.checkTime = requestAnimationFrame(this.timeUpdate);
+            }
+        }
     }
 
     removeDisbaled(dom) {
@@ -210,7 +283,8 @@ class Start extends React.Component {
         alert(
             "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"
         );
-        axios.delete("/api/delete")
+        axios
+            .delete(`${process.env.REACT_APP_API_URL}/delete`)
             .then((res) => {
                 window.location.href = "/";
             })
@@ -221,21 +295,35 @@ class Start extends React.Component {
 
     render() {
         return (
-            <div style={{position: "relative", height: "100%"}}>
+            <div style={{ position: "relative", height: "100%" }}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
-                <div style={{height: "100%", position: "relative", zIndex: "2"}}>
+                <div
+                    style={{
+                        height: "100%",
+                        position: "relative",
+                        zIndex: "2",
+                    }}
+                >
                     <div className={StylesStart.content}>
-                        <div class="boton start"></div>
-                        <div class="boton stop"></div>
-                        <div class="boton reiniciar"></div>
+                        <div className="boton start"></div>
+                        <div className="boton stop"></div>
+                        <div className="boton reiniciar"></div>
                         <h1>Lyrics</h1>
-                        <p id="previous-lyric" className={StylesStart.previousLyric} ref={this.p_lyricDOM}>
+                        <p
+                            id="previous-lyric"
+                            className={StylesStart.previousLyric}
+                            ref={this.p_lyricDOM}
+                        >
                             TEXT
                         </p>
                         <p id="current-lyric" ref={this.c_lyricDOM}>
                             TEXT
                         </p>
-                        <p id="next-lyric" className={StylesStart.nextLiric} ref={this.n_lyricDOM}>
+                        <p
+                            id="next-lyric"
+                            className={StylesStart.nextLiric}
+                            ref={this.n_lyricDOM}
+                        >
                             TEXT
                         </p>
                         <div className={StylesStart.controllers}>
@@ -243,7 +331,7 @@ class Start extends React.Component {
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.previousDOM}
-                                class="btn btn-warning"
+                                className="btn btn-warning"
                                 id="previous"
                                 onClick={this.previousLyric}
                                 disabled={this.state.previousDisabled}
@@ -254,7 +342,7 @@ class Start extends React.Component {
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.nextDOM}
-                                class="btn btn-info"
+                                className="btn btn-info"
                                 id="next"
                                 onClick={this.nextLyric}
                             >
@@ -264,7 +352,7 @@ class Start extends React.Component {
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.stopDOM}
-                                class="btn btn-danger"
+                                className="btn btn-danger"
                                 id="stop"
                                 onClick={this.stopMusic}
                             >
@@ -273,7 +361,7 @@ class Start extends React.Component {
                             <button
                                 type="button"
                                 ref={this.startDOM}
-                                class="btn btn-success"
+                                className="btn btn-success"
                                 id="start"
                                 onClick={this.playMusic}
                                 disabled={this.state.startDisabled}
@@ -286,54 +374,19 @@ class Start extends React.Component {
                             preload="auto"
                             ref={this.audioDOM}
                             id="audio"
-                            src="/api/uploadFile"
+                            src={`${process.env.REACT_APP_API_URL}/uploadFile`}
                             onError={this.OnErrorFile}
                             onPlay={this.cronometrar}
-                            onEnded={this.Toggle}
+                            onEnded={this.Toggle()}
                             onPause={this.parar}
+                            onTimeUpdate={this.timeUpdate}
                             onCanPlayThrough={() => {
                                 this.setState({ startDisabled: false });
                             }}
                         ></audio>
                     </div>
                 </div>
-                <div className={StylesStart.modal+' modal'} ref={this.modal} tabindex="-1">
-                    <div class="modal-dialog">
-                        <div className={StylesStart["modal-content"]+" modal-content"}>
-                            <div class="modal-header">
-                                <h5 class="modal-title">¡Último paso!</h5>
-                                <button
-                                    type="button"
-                                    className={StylesStart.close+" btn-close"}
-                                    data-mdb-dismiss="modal"
-                                    aria-label="Close"
-                                    onClick={this.Toggle}
-                                ></button>
-                            </div>
-                            <div class="modal-body">
-                                <p>La música ha terminado, puede ver una previsualización del resultado
-                                    o puede exportar directamente el archivo ahora. ¿Qué desea hacer?
-                                </p>
-                            </div>
-                            <div class="modal-footer">
-                                <button
-                                    type="button"
-                                    class="btn btn-danger btn-rounded"
-                                    data-mdb-dismiss="modal"
-                                    onClick={this.reset}
-                                >
-                                    Reiniciar
-                                </button>
-                                <button type="button" ref={this.previewDOM} class="btn btn-success btn-rounded">
-                                    Previsualizar
-                                </button>
-                                <button type="button" ref={this.exportDOM} onClick={this.exportLyric} class="btn btn-info btn-rounded">
-                                    Exportar<i className={StylesStart.icon+" fas fa-download"}></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {}
             </div>
         );
     }

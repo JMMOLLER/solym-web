@@ -8,25 +8,18 @@ const ms= require('ms');
 
 
 /* GET REQUESTS */
-const home = (req, res) => {
-    res.status(200).json({});
-};
 
 const select = async(req, res) => {
     const data = await DB.getDoc(req.cookies['Symly'].infoId);
     if(!data){
-        return res.redirect('/');
+        return res.status(403).json({ message: "No Solym data found", code: 403, returnTo: '/' });
     }
     res.status(200).send(data.results);
 };
 
-const start = (req, res) => {
-    res.status(200).json({});
-};
-
 const lyrics = async(req, res) => {
     if(req.params.id < 1){
-        return res.status(400).json({error: 'Invalid ID'});
+        return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
     const lyrics = await getLyricsByID(Number(req.params.id));
     res.status(200).json({lyrics: lyrics});
@@ -34,7 +27,7 @@ const lyrics = async(req, res) => {
 
 const info = async(req, res) => {
     if(req.params.id < 1){
-        return res.status(400).json({error: 'Invalid ID'});
+        return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
     const info = await getInfoByID(Number(req.params.id));
     res.status(200).json(info);
@@ -66,7 +59,7 @@ const uploadFileInfo = async (req, res) => {
 
         const Symly = await DB.saveDoc({results: results, fileId: uploadStream})
         
-        res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: true });
+        res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: false });
         res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
         await DB.deleteTrack(uploadStream);
@@ -104,7 +97,7 @@ const uploadFile = async(req, res) => {
     })
     Track.on('error', () => {
         console.log("error");
-        res.sendStatus(404);
+        res.status(404);
     });
     Track.on('end', () => {
         console.log('\x1b[31m%s\x1b[0m', "Request ended");
@@ -113,9 +106,7 @@ const uploadFile = async(req, res) => {
 };
 
 module.exports = {
-    home,
     select,
-    start,
     lyrics,
     info,
     uploadFile,

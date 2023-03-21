@@ -3,11 +3,9 @@ const { upload } = require('../Resources/multer');
 const GetController = require('./controllers/API.GET.controller.js');
 const PostController = require('./controllers/API.POST.controller.js');
 const DeleteController = require('./controllers/API.DELETE.controller.js');
-const cookie = require('./middlewares/cookies');
+const cookie = require('./middlewares/authCookies');
 
 /* GET REQUESTS */
-
-Router.get('/', cookie.cleanCookies, GetController.home);
 
 Router.get('/select', cookie.validateSolymCookie, GetController.select)
 

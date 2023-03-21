@@ -20,18 +20,19 @@ class Home extends React.Component {
     }
 
     componentDidMount() {
+        this.delete_cookie("Symly");
+        this.delete_cookie("selectedTrack");
         this.btnSubmit.current.setAttribute("disabled", "disabled");
 
         this.btnInput.current.addEventListener("change", this.enableSubmit);
-
-        this.btnSubmit.current.addEventListener("click", this.sendFile);
     }
 
     enableSubmit() {
         this.btnSubmit.current.removeAttribute("disabled");
     }
 
-    async sendFile() {
+    async sendFile(e) {
+        e.preventDefault();
         this.btnSubmit.current.setAttribute("disabled", "disabled");
         this.btnInput.current.setAttribute("disabled", "disabled");
 
@@ -43,7 +44,7 @@ class Home extends React.Component {
         const formData = new FormData();
         formData.append("song", file);
 
-        axios.post("/api/uploadFile", formData, {
+        axios.post(`${process.env.REACT_APP_API_URL}/uploadFile`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -57,11 +58,9 @@ class Home extends React.Component {
             })
             .then((res) => {
                 if (res.status === 200) {
-                    axios.get(`/api/uploadFileInfo/${res.data.id}`).then((res) => {
+                    axios.get(`${process.env.REACT_APP_API_URL}/uploadFileInfo/${res.data.id}`).then((res) => {
                         if(res.status === 200)
-                            setTimeout(() => {
-                                document.location.href = "/select";
-                            }, 7000);
+                            document.location.href = "/select";
                     });
                 } else {
                     alert("Error uploading file. Please try again.");
@@ -82,14 +81,18 @@ class Home extends React.Component {
             }, 500);
     }
 
+    delete_cookie(name) {
+        document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    }
+
     render() {
         return (
-            <div class="container" ref={this.containerDiv}>
+            <div className="container" ref={this.containerDiv}>
                 
                 <div className={HomeStyle.content} ref={this.mainContent}>
                     <h1>Uploaded File</h1>
 
-                    <form action="/select" onsubmit="event.preventDefault()">
+                    <form action="/select" onSubmit={(e) => {this.sendFile(e)}}>
                         <input
                             type="file"
                             ref={this.btnInput}
@@ -102,7 +105,7 @@ class Home extends React.Component {
                     </form>
                 </div>
 
-                <div class="progressBar desactivate" ref={this.loaderDiv}>
+                <div className="progressBar desactivate" ref={this.loaderDiv}>
                     <ProgressBar
                         animated={true}
                         ref={this.progressDiv}

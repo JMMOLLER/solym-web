@@ -11,7 +11,7 @@ const shearchName = async (req, res) => {
 
 const uploadFile = async (req, res) => {
     if (!req.file) {
-        return res.status(400).send({error: 'No file uploaded.'});
+        return res.status(400).send({ message: 'No file uploaded.', code: 400, returnTo: '/' });
     }
     //UPLOAD TRACK TO DB
     const filename = new Date().getTime()+"."+req.file.originalname.split('.').pop();
@@ -28,12 +28,12 @@ const uploadFile = async (req, res) => {
 
     uploadStream.on('error', () => {
         console.log('\x1b[31m%s\x1b[0m', "File uploaded successfully.");
-        return res.status(500).send('Error uploading file.');
+        return res.status(500).json({ message:'Error uploading file.', code: 500, returnTo: '/' });
     });
 
     uploadStream.on('finish', async() => {
         console.log('\x1b[32m%s\x1b[0m', "File uploaded successfully.");
-        return res.status(200).json({id: uploadStream.id})
+        return res.status(200).json({ message:"Stream finished" ,id: uploadStream.id, code: 200, returnTo: '/' })
     });
 };
 

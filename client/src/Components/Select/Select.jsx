@@ -3,7 +3,7 @@ import axios from 'axios';
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
 import selectScript from './select.js';
 import SelectStyle from './Select.module.css';
-
+axios.defaults.withCredentials = true;
 
 class Select extends React.Component {
     constructor(props) {
@@ -110,19 +110,21 @@ class Select extends React.Component {
     }
 
     async getSearch(title) {
-        const response = await axios.post(`/api/search/${title}`);
+        const response = await axios.post(`${process.env.REACT_APP_API_URL}/search/${title}`);
         const results = await response.data;
         return results;
     }
 
     componentWillMount() {
-        axios.get('/api/select').then((res) => {
+        axios.get(`${process.env.REACT_APP_API_URL}/select`).then((res) => {
             console.log(res.data);
-            const responseURL = new URL(res.request.responseURL);
-            if(responseURL.pathname !== '/api/select') {
-                window.location.href = res.request.responseURL;
-            }
+            // const responseURL = new URL(res.request.responseURL);
+            // if(responseURL.pathname !== `${process.env.REACT_APP_API_URL}/select`) {
+            //     window.location.href = res.request.responseURL;
+            // }
             this.setState({response: res.data});
+        }).catch((err) => {
+            window.location.href = err.response.data.returnTo;
         });
     }
 
@@ -132,16 +134,16 @@ class Select extends React.Component {
             return <h1>No se puedo encontrar resultados automaticamente</h1>
         }else{
             return this.state.response.map((item) => 
-            <div className={SelectStyle.card+' card'}>
+            <div className={SelectStyle.card+' card'} key={item.result.id}>
                 <img src={item.result.header_image_url} className={SelectStyle.cardImgTop+" card-img-top"} alt="cover"></img>
-                <div class="card-body">
+                <div className="card-body">
                     <h5 className={SelectStyle.cardTitle+"card-title"}>{item.result.full_title}</h5>
                     <div className={SelectStyle.textContainer+" text-container"}>
-                        <p class="card-text"><strong>Título: </strong>{item.result.title}</p>
-                        <p class="card-text"><strong>Artista: </strong>{item.result.primary_artist.name}</p>
+                        <p className="card-text"><strong>Título: </strong>{item.result.title}</p>
+                        <p className="card-text"><strong>Artista: </strong>{item.result.primary_artist.name}</p>
                     </div>
-                    <input type="checkbox" class="btn-check" id={item.result.id} autocomplete="off" data-target={item.result.id} onChange={this.doSelected}></input>
-                    <label id={"label_"+item.result.id} class="btn btn-primary" for={item.result.id}>Seleccionar</label>
+                    <input type="checkbox" className="btn-check" id={item.result.id} autoComplete="off" data-target={item.result.id} onChange={this.doSelected}></input>
+                    <label id={"label_"+item.result.id} className="btn btn-primary" htmlFor={item.result.id}>Seleccionar</label>
                 </div>
             </div>
         )
@@ -159,23 +161,23 @@ class Select extends React.Component {
                     <h2 className={SelectStyle.titles}>¿No encuentras lo que buscas?</h2>
                     <div className={SelectStyle.searchContainer}>
                         <form onSubmit={this.searchForm}>
-                            <div class="input-group">
-                                <div class="form-outline">
+                            <div className="input-group">
+                                <div className="form-outline">
                                     <MDBInput type="search" label="Search" name="search_input" id="search-lyric"></MDBInput>
                                 </div>
                                 <button type="submit" name="search" className={SelectStyle.btnSearch+" btn btn-primary"}>
-                                    <i class="fas fa-search"></i>
+                                    <i className="fas fa-search"></i>
                                 </button>
                             </div>
                         </form>
                     </div>
-                    <div class="sub-container" ref={this.resultsContainer} id="results">
+                    <div className="sub-container" ref={this.resultsContainer} id="results">
                         <MDBSpinner className={SelectStyle.spinner+' mx-2 '+SelectStyle.hidden} color='info' ref={this.spinner}></MDBSpinner>
                         <div className={SelectStyle.cardColumns} ref={this.results_searchEl} id="results-search"></div>
                     </div>
-                    <div class={SelectStyle.options}>
-                        <button type="button" class="btn btn-warning" id="previous">Regresar</button>
-                        <button type="button" class="btn btn-success" id="next" onClick={this.goNextStep}>Continuar</button>
+                    <div className={SelectStyle.options}>
+                        <button type="button" className="btn btn-warning" id="previous">Regresar</button>
+                        <button type="button" className="btn btn-success" id="next" onClick={this.goNextStep}>Continuar</button>
                     </div>
                 </div>
             </div>
