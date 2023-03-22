@@ -40,6 +40,12 @@ function buildLocalStorage() {
     console.log("build");
     this.times = new Map(JSON.parse(window.localStorage.getItem("times")));
     this.index = Number.parseInt(window.localStorage.getItem("index"));
+    this.state.lyrics.map((lyric, index) => {
+        if (index < this.index) {
+            this.state.toExport.push(formatTime(...this.times) + lyric);
+            this.state.toExport.push("\n");
+        }
+    });
     this.p_lyricDOM.current.innerHTML =
         this.state.lyrics[this.index - 1] || "START";
     this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];

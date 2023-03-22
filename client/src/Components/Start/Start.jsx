@@ -160,7 +160,6 @@ class Start extends React.Component {
     }
 
     componentDidUpdate() {
-        console.log("actualizado => " + this.state.toggleShow);
         if (this.state.toggleShow) {
             const root = createRoot(document.getElementById("modalContainer"));
             root.render(this.state.notification);

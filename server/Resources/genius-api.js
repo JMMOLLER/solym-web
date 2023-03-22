@@ -42,6 +42,7 @@ async function selectSong(results, artist, title){
             bestFound = true;
             const temp = results[i].result
             results.unshift({best: true,result: temp});
+            results.splice(i+1,1);
         }
     }
     return results
