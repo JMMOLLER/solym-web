@@ -42,6 +42,7 @@ class Start extends React.Component {
             this.setState({ toggleShow: !this.state.toggleShow });
         };
         this.checkTime = undefined;
+        this.cacheBusting = Date.now();
         // DOM LYRICS
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
@@ -274,13 +275,13 @@ class Start extends React.Component {
     }
 
     preview() {
+        this.index = -1;
         this.audioDOM.current.currentTime = 0;
-        this.p_lyricDOM.current.innerHTML = "TEXT";
-        this.c_lyricDOM.current.innerHTML = this.state.lyrics[0];
-        this.n_lyricDOM.current.innerHTML = this.state.lyrics[1];
+        this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "TEXT";
+        this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "START";
+        this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "END";
         this.previousDOM.current.style.display = "none";
         this.nextDOM.current.style.display = "none";
-        this.index = -1;
         this.setState({ previewEnabled: true }, () => {
             console.log("ready to preview => ", this.state.previewEnabled);
             this.Toggle();
@@ -291,13 +292,12 @@ class Start extends React.Component {
 
     timeUpdate() {
         if (this.state.previewEnabled) {
-            console.log("timeUpdate => ", this.audioDOM.current.currentTime);
-            console.log("compareTo => ", this.times.get(this.index + 1));
             if (
                 this.audioDOM.current.currentTime <=
                 this.times.get(this.index + 1)
             ) {
                 this.nextLyric();
+                this.forceUpdate();
             }
             if (this.index < this.times.size) {
                 this.checkTime = requestAnimationFrame(this.timeUpdate);
@@ -410,7 +410,7 @@ class Start extends React.Component {
                             preload="auto"
                             ref={this.audioDOM}
                             id="audio"
-                            src={`${process.env.REACT_APP_API_URL}/uploadFile`}
+                            src={`${process.env.REACT_APP_API_URL}/uploadFile?v=${this.cacheBusting}`}
                             onError={() => {
                                 alert(
                                     "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"

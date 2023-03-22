@@ -41,7 +41,7 @@ async function selectSong(results, artist, title){
         if ((indexArtist>-1 || indexTitle>-1) && !bestFound) {
             bestFound = true;
             const temp = results[i].result
-            results[i] = {best: true,result: temp}
+            results.unshift({best: true,result: temp});
         }
     }
     return results
