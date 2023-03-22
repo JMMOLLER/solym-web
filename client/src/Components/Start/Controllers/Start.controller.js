@@ -1,5 +1,6 @@
 /* eslint-disable array-callback-return */
 import axios from "axios";
+import StylesStart from "../Start.module.css";
 
 async function getLyrics(id) {
     try {
@@ -33,6 +34,74 @@ async function getInfoSelected(id) {
         console.log(err);
         return null;
     }
+}
+
+function buildLocalStorage() {
+    console.log("build");
+    this.times = new Map(JSON.parse(window.localStorage.getItem("times")));
+    this.index = Number.parseInt(window.localStorage.getItem("index"));
+    this.p_lyricDOM.current.innerHTML =
+        this.state.lyrics[this.index - 1] || "START";
+    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
+    this.n_lyricDOM.current.innerHTML =
+        this.state.lyrics[this.index + 1] || "END";
+    this.audioDOM.current.currentTime = this.times.get(this.index);
+    this.Toggle();
+}
+
+function detectedLocalStorage(isCompleted) {
+    const title = "Se ha detectado progreso guardado";
+    const body =
+        "Al parecer existe progreso guardado de un posible cierre inesperado. ¿Deseas continuar con el progreso?";
+    const footer = (
+        <>
+            <button
+                type="button"
+                className="btn btn-danger btn-rounded"
+                data-mdb-dismiss="modal"
+                onClick={this.reset}
+            >
+                Reiniciar
+            </button>
+            {isCompleted ? (
+                <>
+                    <button
+                        type="button"
+                        ref={this.previewDOM}
+                        onClick={this.preview}
+                        className="btn btn-success btn-rounded"
+                    >
+                        Previsualizar
+                    </button>
+                    <button
+                        type="button"
+                        ref={this.exportDOM}
+                        onClick={this.exportLyric}
+                        className="btn btn-info btn-rounded"
+                    >
+                        Exportar
+                        <i
+                            className={
+                                StylesStart.icon + " fas fa-download"
+                            }
+                        ></i>
+                    </button>
+                </>
+            ) : (
+                <>
+                    <button
+                        type="button"
+                        ref={this.previewDOM}
+                        onClick={this.buildLocalStorage}
+                        className="btn btn-success btn-rounded"
+                    >
+                        Continuar
+                    </button>
+                </>
+            )}
+        </>
+    );
+    this.renderModal({ title, body, footer });
 }
 
 function nextLyric() {
@@ -146,4 +215,4 @@ function saveAs(uri, filename) {
     }
 }
 
-export { nextLyric, previousLyric, exportLyric, getLyrics, getInfoSelected };
+export { nextLyric, previousLyric, exportLyric, getLyrics, getInfoSelected, buildLocalStorage, detectedLocalStorage };

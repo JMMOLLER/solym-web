@@ -8,6 +8,8 @@ import {
     exportLyric,
     getLyrics,
     getInfoSelected,
+    buildLocalStorage,
+    detectedLocalStorage,
 } from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 
@@ -30,20 +32,15 @@ class Start extends React.Component {
             previewEnabled: false,
             hasData: false,
             notification: undefined,
+            toggleShow: false,
         };
-        this.m = 0;
-        this.s = 0;
-        this.ms = 0;
-        this.mAux = "00";
-        this.sAux = "00";
-        this.msAux = "00";
-        this.current = undefined;
         this.index = -1;
         this.times = new Map();
         this.currentLyric = "";
         this.currentSecond = 0;
-        this.toggleShow = false;
-        this.Toggle = () => {this.toggleShow = !this.toggleShow;}
+        this.Toggle = () => {
+            this.setState({ toggleShow: !this.state.toggleShow });
+        };
         this.checkTime = undefined;
         // DOM LYRICS
         this.c_lyricDOM = React.createRef();
@@ -62,25 +59,143 @@ class Start extends React.Component {
         this.audioDOM = React.createRef();
         // DOM MODAL
         this.modal = React.createRef();
+        this.containerDOM = React.createRef();
         // FUNCTIONS
         this.nextLyric = nextLyric.bind(this);
         this.previousLyric = previousLyric.bind(this);
         this.playMusic = this.playMusic.bind(this);
-        this.stopMusic = this.stopMusic.bind(this);
         this.exportLyric = exportLyric.bind(this);
         this.preview = this.preview.bind(this);
+        this.buildLocalStorage = buildLocalStorage.bind(this);
         this.timeUpdate = this.timeUpdate.bind(this);
         this.renderModal = this.renderModal.bind(this);
         this.endedAction = this.endedAction.bind(this);
+        this.detectedLocalStorage = detectedLocalStorage.bind(this);
+    }
+
+    async componentDidMount() {
+        try {
+            window.addEventListener("beforeunload", (e) => {
+                window.localStorage.setItem(
+                    "times",
+                    JSON.stringify(Array.from(this.times))
+                );
+                window.localStorage.setItem("index", this.index);
+            });
+            this.audioDOM.current.volume = 0.5;
+            const indexS = document.cookie.indexOf(":") + 1;
+            const tmp = document.cookie.substring(indexS);
+            this.setState(
+                { id: Number.parseInt(tmp.substring(0, tmp.length - 1)) },
+                async () => {
+                    try {
+                        if (isNaN(this.state.id)) {
+                            alert(
+                                "Error: No se pudo obtener el ID de la canción seleccionada."
+                            );
+                            return (window.location.href = "/");
+                        }
+                        /* FETCH LYRICS */
+                        const lyrics = await getLyrics(this.state.id);
+                        if (!lyrics) {
+                            alert(
+                                "Error: No se pudo obtener la letra de la canción seleccionada."
+                            );
+                            return (window.location.href = "/");
+                        }
+                        this.state.lyrics.push(...lyrics);
+                        window.localStorage.setItem(
+                            "lyrics",
+                            JSON.stringify(lyrics)
+                        );
+                        this.n_lyricDOM.current.innerHTML =
+                            this.state.lyrics[0];
+
+                        if (
+                            window.localStorage.getItem("lyrics") &&
+                            JSON.parse(window.localStorage.getItem("times"))
+                                .length > 1
+                        ) {
+                            let response = true;
+                            const localLyrics = JSON.parse(
+                                window.localStorage.getItem("lyrics")
+                            );
+                            this.state.lyrics.forEach((lyric, index) => {
+                                if (lyric !== localLyrics[index]) {
+                                    response = false;
+                                }
+                            });
+                            if (response) {
+                                this.detectedLocalStorage(
+                                    JSON.parse(
+                                        window.localStorage.getItem("times")
+                                    ).length === this.state.lyrics.length
+                                );
+                            }
+                        }
+
+                        /* FETCH INFO */
+                        const info = await getInfoSelected(this.state.id);
+                        if (!info) {
+                            alert(
+                                "Se generó un error al intentar obtener la información de la canción, intente recargar la página"
+                            );
+                            return (window.location.href = "/");
+                        }
+                        console.log(info);
+                        this.backgroundDOM.current.style.backgroundImage = `url(${info.cover})`;
+                        this.setState({ infoExport: info }, () => {
+                            document.title = `${info.title} - ${info.artist}`;
+                            this.state.toExport.push(
+                                "[ar:" + info.artist + "]"
+                            );
+                            this.state.toExport.push("\n");
+                            this.state.toExport.push("[al:" + info.album + "]");
+                            this.state.toExport.push("\n");
+                            this.state.toExport.push("[ti:" + info.title + "]");
+                            this.state.toExport.push("\n");
+                            if (
+                                this.state.lyrics[0].includes("[") &&
+                                this.state.lyrics[0].includes("]")
+                            ) {
+                                console.log(
+                                    "Lyrics is maybe separated by verses"
+                                );
+                                this.nextLyric();
+                            }
+                        });
+                    } catch (err) {
+                        console.log(err);
+                        console.log("hello");
+                    }
+                }
+            );
+        } catch (err) {
+            console.log(err);
+            return (window.location.href = "/");
+        }
+    }
+
+    componentDidUpdate() {
+        console.log("actualizado => " + this.state.toggleShow);
+        if (!this.state.toggleShow) {
+            if (this.modal.current) {
+                this.modal.current.remove();
+            }
+        }
+
+        if (this.state.hasData) {
+            console.log("Hola mundo");
+        }
     }
 
     renderModal({ title, body, footer }) {
         this.Toggle();
-        const modal = ( 
+        const modal = (
             <div
                 className={StylesStart.modal + " modal"}
                 ref={this.modal}
-                tabindex="-1"
+                tabIndex="-1"
             >
                 <div className="modal-dialog">
                     <div
@@ -95,7 +210,9 @@ class Start extends React.Component {
                                 className={StylesStart.close + " btn-close"}
                                 data-mdb-dismiss="modal"
                                 aria-label="Close"
-                                onClick={this.Toggle()}
+                                onClick={() => {
+                                    this.Toggle();
+                                }}
                             ></button>
                         </div>
                         <div className="modal-body">
@@ -106,7 +223,7 @@ class Start extends React.Component {
                 </div>
             </div>
         );
-        this.setState({ notification: modal});
+        this.setState({ notification: modal });
     }
 
     endedAction() {
@@ -142,82 +259,7 @@ class Start extends React.Component {
                 </button>
             </>
         );
-        this.renderModal({title, body, footer});
-    }
-
-    componentDidUpdate() {
-        if (this.toggleShow) {
-            this.endedAction();
-        }else{
-            if(this.modal.current){
-                this.modal.current.removeChild(this.modal.current.children[0]);
-            }
-        }
-
-        if (this.state.hasData) {
-            console.log("Hola mundo");
-        }
-    }
-
-    async componentDidMount() {
-        try{
-            const indexS = document.cookie.indexOf(":") + 1;
-            const tmp = document.cookie.substring(indexS);
-            this.setState(
-                { id: Number.parseInt(tmp.substring(0, tmp.length - 1)) },
-                async() => {
-                    try{
-                        if (isNaN(this.state.id)) {
-                            alert(
-                                "Error: No se pudo obtener el ID de la canción seleccionada."
-                            );
-                            return (window.location.href = "/");
-                        }
-
-                        const lyrics = await getLyrics(this.state.id);
-                        if(!lyrics){
-                            alert("Error: No se pudo obtener la letra de la canción seleccionada.");
-                            return (window.location.href = "/");
-                        }
-                        this.state.lyrics.push(...lyrics);
-                        this.n_lyricDOM.current.innerHTML = this.state.lyrics[0];
-                        /* FETCH INFO */
-                        const info = await getInfoSelected(this.state.id);
-                        if(!info){
-                            alert("Se generó un error al intentar obtener la información de la canción, intente recargar la página");
-                            return (window.location.href = "/");
-                        }
-                        console.log(info);
-                        this.backgroundDOM.current.style.backgroundImage = `url(${info.cover})`;
-                        this.setState({ infoExport: info }, () => {
-                            document.title = `${info.title} - ${info.artist}`;
-                            this.state.toExport.push("[ar:" + info.artist + "]");
-                            this.state.toExport.push("\n");
-                            this.state.toExport.push("[al:" + info.album + "]");
-                            this.state.toExport.push("\n");
-                            this.state.toExport.push("[ti:" + info.title + "]");
-                            this.state.toExport.push("\n");
-                            if (
-                                this.state.lyrics[0].includes("[") &&
-                                this.state.lyrics[0].includes("]")
-                            ) {
-                                console.log("Lyrics is maybe separated by verses");
-                                this.nextLyric();
-                            }
-                        });
-                    }catch(err){
-                        console.log(err);
-                        console.log("hello")
-                    }
-
-                }
-
-                    
-            );
-        }catch(err){
-            console.log(err);
-            return (window.location.href = "/");
-        }
+        this.renderModal({ title, body, footer });
     }
 
     preview() {
@@ -252,11 +294,6 @@ class Start extends React.Component {
         }
     }
 
-    removeDisbaled(dom) {
-        console.log("function removeDisabled");
-        dom.removeAttribute("disabled");
-    }
-
     playMusic() {
         if (
             this.audioDOM.current.duration > 0 &&
@@ -271,26 +308,8 @@ class Start extends React.Component {
         }
     }
 
-    stopMusic() {
-        this.audioDOM.current.pause();
-    }
-
     reset() {
         window.location.reload();
-    }
-
-    OnErrorFile() {
-        alert(
-            "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"
-        );
-        axios
-            .delete(`${process.env.REACT_APP_API_URL}/delete`)
-            .then((res) => {
-                window.location.href = "/";
-            })
-            .catch(() => {
-                window.location.href = "/";
-            });
     }
 
     render() {
@@ -375,10 +394,22 @@ class Start extends React.Component {
                             ref={this.audioDOM}
                             id="audio"
                             src={`${process.env.REACT_APP_API_URL}/uploadFile`}
-                            onError={this.OnErrorFile}
-                            onPlay={this.cronometrar}
-                            onEnded={this.Toggle()}
-                            onPause={this.parar}
+                            onError={() => {
+                                alert(
+                                    "Se produjo un error al intentar reproducir tu archivo, vuelve a intentarlo"
+                                );
+                                axios
+                                    .delete(
+                                        `${process.env.REACT_APP_API_URL}/delete`
+                                    )
+                                    .then((res) => {
+                                        window.location.href = "/";
+                                    })
+                                    .catch(() => {
+                                        window.location.href = "/";
+                                    });
+                            }}
+                            onEnded={this.endedAction}
                             onTimeUpdate={this.timeUpdate}
                             onCanPlayThrough={() => {
                                 this.setState({ startDisabled: false });
@@ -386,7 +417,7 @@ class Start extends React.Component {
                         ></audio>
                     </div>
                 </div>
-                {}
+                {this.state.notification}
             </div>
         );
     }
