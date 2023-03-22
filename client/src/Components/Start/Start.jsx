@@ -293,11 +293,10 @@ class Start extends React.Component {
     timeUpdate() {
         if (this.state.previewEnabled) {
             if (
-                this.audioDOM.current.currentTime <=
+                this.audioDOM.current.currentTime >=
                 this.times.get(this.index + 1)
             ) {
                 this.nextLyric();
-                this.forceUpdate();
             }
             if (this.index < this.times.size) {
                 this.checkTime = requestAnimationFrame(this.timeUpdate);
