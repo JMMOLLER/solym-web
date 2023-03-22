@@ -52,7 +52,7 @@ function buildLocalStorage() {
 function detectedLocalStorage(isCompleted) {
     const title = "Se ha detectado progreso guardado";
     const body =
-        "Al parecer existe progreso guardado de un posible cierre inesperado. ¿Deseas continuar con el progreso?";
+        "Al parecer existe progreso guardado de un posible cierre inesperado. ¿Qué acción desea realizar?";
     const footer = (
         <>
             <button

@@ -1,7 +1,6 @@
 import React from 'react';
 import axios from 'axios';
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
-import selectScript from './select.js';
 import SelectStyle from './Select.module.css';
 axios.defaults.withCredentials = true;
 
@@ -21,10 +20,6 @@ class Select extends React.Component {
         this.searchForm = this.searchForm.bind(this);
         this.setLoader = this.setLoader.bind(this);
         this.goNextStep = this.goNextStep.bind(this);
-    }
-
-    componentDidMount() {
-        selectScript();
     }
 
     doSelected(element) {
@@ -118,10 +113,6 @@ class Select extends React.Component {
     componentWillMount() {
         axios.get(`${process.env.REACT_APP_API_URL}/select`).then((res) => {
             console.log(res.data);
-            // const responseURL = new URL(res.request.responseURL);
-            // if(responseURL.pathname !== `${process.env.REACT_APP_API_URL}/select`) {
-            //     window.location.href = res.request.responseURL;
-            // }
             this.setState({response: res.data});
         }).catch((err) => {
             window.location.href = err.response.data.returnTo;
@@ -150,6 +141,14 @@ class Select extends React.Component {
         }
     }
 
+    backToHome() {
+        axios.delete(`${process.env.REACT_APP_API_URL}/delete`).then((res) => {
+            window.location.href = "/";
+        }).catch((err) => {
+            window.location.href = "/";
+        });
+    }
+
     render(){
         return (
             <div className={SelectStyle.contentResults}>
@@ -176,7 +175,7 @@ class Select extends React.Component {
                         <div className={SelectStyle.cardColumns} ref={this.results_searchEl} id="results-search"></div>
                     </div>
                     <div className={SelectStyle.options}>
-                        <button type="button" className="btn btn-warning" id="previous">Regresar</button>
+                        <button type="button" className="btn btn-warning" id="previous" onClick={this.backToHome}>Regresar</button>
                         <button type="button" className="btn btn-success" id="next" onClick={this.goNextStep}>Continuar</button>
                     </div>
                 </div>

@@ -1,6 +1,7 @@
 /* eslint-disable array-callback-return */
 import axios from "axios";
 import React from "react";
+import { createRoot } from "react-dom/client";
 import StylesStart from "./Start.module.css";
 import {
     nextLyric,
@@ -30,7 +31,6 @@ class Start extends React.Component {
             startDisabled: true,
             previousDisabled: true,
             previewEnabled: false,
-            hasData: false,
             notification: undefined,
             toggleShow: false,
         };
@@ -59,6 +59,8 @@ class Start extends React.Component {
         this.audioDOM = React.createRef();
         // DOM MODAL
         this.modal = React.createRef();
+        this.modalContainer = React.createRef();
+        // DOM CONTAINER
         this.containerDOM = React.createRef();
         // FUNCTIONS
         this.nextLyric = nextLyric.bind(this);
@@ -67,9 +69,11 @@ class Start extends React.Component {
         this.exportLyric = exportLyric.bind(this);
         this.preview = this.preview.bind(this);
         this.buildLocalStorage = buildLocalStorage.bind(this);
+        this.stopMusic = this.stopMusic.bind(this);
         this.timeUpdate = this.timeUpdate.bind(this);
         this.renderModal = this.renderModal.bind(this);
         this.endedAction = this.endedAction.bind(this);
+        this.checkLocalStorage = this.checkLocalStorage.bind(this);
         this.detectedLocalStorage = detectedLocalStorage.bind(this);
     }
 
@@ -111,29 +115,7 @@ class Start extends React.Component {
                         this.n_lyricDOM.current.innerHTML =
                             this.state.lyrics[0];
 
-                        if (
-                            window.localStorage.getItem("lyrics") &&
-                            JSON.parse(window.localStorage.getItem("times"))
-                                .length > 1
-                        ) {
-                            let response = true;
-                            const localLyrics = JSON.parse(
-                                window.localStorage.getItem("lyrics")
-                            );
-                            this.state.lyrics.forEach((lyric, index) => {
-                                if (lyric !== localLyrics[index]) {
-                                    response = false;
-                                }
-                            });
-                            if (response) {
-                                this.detectedLocalStorage(
-                                    JSON.parse(
-                                        window.localStorage.getItem("times")
-                                    ).length === this.state.lyrics.length
-                                );
-                            }
-                        }
-
+                        this.checkLocalStorage();
                         /* FETCH INFO */
                         const info = await getInfoSelected(this.state.id);
                         if (!info) {
@@ -178,14 +160,43 @@ class Start extends React.Component {
 
     componentDidUpdate() {
         console.log("actualizado => " + this.state.toggleShow);
+        if (this.state.toggleShow) {
+            const root = createRoot(document.getElementById("modalContainer"));
+            root.render(this.state.notification);
+        }
         if (!this.state.toggleShow) {
             if (this.modal.current) {
                 this.modal.current.remove();
             }
         }
+    }
 
-        if (this.state.hasData) {
-            console.log("Hola mundo");
+    checkLocalStorage() {
+        try{
+            if (
+                window.localStorage.getItem("lyrics") &&
+                JSON.parse(window.localStorage.getItem("times"))
+                    .length > 1
+            ) {
+                let response = true;
+                const localLyrics = JSON.parse(
+                    window.localStorage.getItem("lyrics")
+                );
+                this.state.lyrics.forEach((lyric, index) => {
+                    if (lyric !== localLyrics[index]) {
+                        response = false;
+                    }
+                });
+                if (response) {
+                    this.detectedLocalStorage(
+                        JSON.parse(
+                            window.localStorage.getItem("times")
+                        ).length === this.state.lyrics.length
+                    );
+                }
+            }
+        }catch(err){
+            console.log(err);
         }
     }
 
@@ -263,7 +274,6 @@ class Start extends React.Component {
     }
 
     preview() {
-        this.Toggle();
         this.audioDOM.current.currentTime = 0;
         this.p_lyricDOM.current.innerHTML = "TEXT";
         this.c_lyricDOM.current.innerHTML = this.state.lyrics[0];
@@ -273,6 +283,7 @@ class Start extends React.Component {
         this.index = -1;
         this.setState({ previewEnabled: true }, () => {
             console.log("ready to preview => ", this.state.previewEnabled);
+            this.Toggle();
             this.playMusic();
             this.checkTime = requestAnimationFrame(this.timeUpdate);
         });
@@ -306,6 +317,12 @@ class Start extends React.Component {
         } else {
             console.log("la musica aun no carga");
         }
+    }
+
+    stopMusic() {
+        this.audioDOM.current.pause();
+        this.nextDOM.current.style.display = "none";
+        this.stopDOM.current.style.display = "none";
     }
 
     reset() {
@@ -417,7 +434,8 @@ class Start extends React.Component {
                         ></audio>
                     </div>
                 </div>
-                {this.state.notification}
+                <div id="modalContainer">
+                </div>
             </div>
         );
     }
