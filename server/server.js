@@ -1,25 +1,17 @@
 require("dotenv").config({ path: "./.env" });
 require("./Services/scheduledTasks");
-const { args } = require("./Resources/yargs");
-const express = require("express");
 const path = require("path");
 const cors = require("cors");
+const express = require("express");
 const cookieParser = require("cookie-parser");
+const { args } = require("./Resources/yargs");
+const { config } = require("./Resources/corsConfig");
 const app = express();
 const HOST = args.host;
 const PORT = args.port;
-const allowedOrigins = ["http://localhost:3000", "http://localhost:8080"];
 
 app.use(cors({
-    origin: function (origin, callback) {
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            var msg = 'The CORS policy for this site does not ' +
-                'allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    },
+    origin: config.bind(null),
     credentials: true
 }));
 app.use(cookieParser());

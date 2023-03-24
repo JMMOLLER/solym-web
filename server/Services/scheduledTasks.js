@@ -1,5 +1,5 @@
-const cron = require('node-cron');
 const ms = require('ms');
+const cron = require('node-cron');
 const DB = require('../DB/DAO/SolymDatas.dao').UploadFile.returnSingleton();
 
 // Run every 5 minutes
