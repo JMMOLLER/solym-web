@@ -1,5 +1,4 @@
-const { UploadFile } = require('../../DB/DAO/DAO');
-const DB = UploadFile.returnSingleton();
+const DB = require('../../DB/DAO/SolymDatas.dao').UploadFile.returnSingleton();
 
 /* DELETE REQUESTS */
 

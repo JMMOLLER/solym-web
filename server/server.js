@@ -1,4 +1,5 @@
 require("dotenv").config({ path: "./.env" });
+require("./Services/scheduledTasks");
 const { args } = require("./Resources/yargs");
 const express = require("express");
 const path = require("path");

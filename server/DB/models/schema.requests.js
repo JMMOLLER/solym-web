@@ -7,6 +7,6 @@ const somlySchema = new Schema({
     date: { type: Date, default: Date.now }
 });
 
-const Somly = mongoose.model('somly_data', somlySchema);
+const Somly = mongoose.model('solym_datas', somlySchema);
 
 module.exports = Somly;

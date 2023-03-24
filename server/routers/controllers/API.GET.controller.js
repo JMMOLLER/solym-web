@@ -1,5 +1,5 @@
 const { ObjectId } = require('mongoose').Types;
-const DB = require('../../DB/DAO/DAO').UploadFile.returnSingleton();
+const DB = require('../../DB/DAO/SolymDatas.dao').UploadFile.returnSingleton();
 const { getLyricsByID, getInfoByID } = require('../../Resources/genius-api');
 const { getBucket, getConnection } = require('../../Resources/multer');
 const { searchSong } = require('../../Resources/genius-api');
@@ -14,7 +14,7 @@ const select = async(req, res) => {
     if(!data){
         return res.status(403).json({ message: "No Solym data found", code: 403, returnTo: '/' });
     }
-    res.status(200).send(data.results);
+    return res.status(200).send(data.results);
 };
 
 const lyrics = async(req, res) => {
@@ -22,7 +22,7 @@ const lyrics = async(req, res) => {
         return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
     const lyrics = await getLyricsByID(Number(req.params.id));
-    res.status(200).json({lyrics: lyrics});
+    return res.status(200).json({lyrics: lyrics});
 }
 
 const info = async(req, res) => {
@@ -30,7 +30,7 @@ const info = async(req, res) => {
         return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
     const info = await getInfoByID(Number(req.params.id));
-    res.status(200).json(info);
+    return res.status(200).json(info);
 };
 
 const uploadFileInfo = async (req, res) => {
@@ -60,11 +60,11 @@ const uploadFileInfo = async (req, res) => {
         const Symly = await DB.saveDoc({results: results, fileId: uploadStream})
         
         res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: false });
-        res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
+        return res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
         await DB.deleteTrack(uploadStream);
         console.log(error);
-        res.status(500).json({error: error.message});
+        return res.status(500).json({error: error.message});
     } 
 }
 

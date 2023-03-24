@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "(cd client && pnpm build) && (cd ..) && node server/server.js",
-    "dev": "nodemon server/server.js --s atlas",
+    "dev": "nodemon server/server.js",
     "test": "(cd client && pnpm build) && (cd ..) && (nodemon server/server.js --s atlas)"
   },
   "keywords": [],
@@ -24,6 +24,7 @@
     "ms": "^2.1.3",
     "multer": "1.4.5-lts.1",
     "musicmetadata": "^2.0.5",
+    "node-cron": "^3.0.2",
     "nodemon": "^2.0.20",
     "path": "^0.12.7",
     "react": "^18.2.0",

@@ -18,6 +18,17 @@ class UploadFile {
         return this.instance;
     }
 
+    async getAllFiles(){
+        try{
+            this.mongodb(this.url);
+            const bucket = await getBucket();
+            return await bucket.find({}).toArray();
+        }catch(err){
+            console.log(err);
+            return false;
+        }
+    }
+
     async saveDoc(data){
         try{
             this.mongodb(this.url);
