@@ -2,21 +2,51 @@
 import axios from "axios";
 import StylesStart from "../Start.module.css";
 
+function setEvent() {
+    window.addEventListener("beforeunload", this.saveProgress);
+}
+
+function saveProgress() {
+    window.localStorage.setItem(
+        "times",
+        JSON.stringify(Array.from(this.times))
+    );
+    window.localStorage.setItem(
+        "lyrics",
+        JSON.stringify(this.state.lyrics)
+    );
+    window.localStorage.setItem("index", this.index);
+}
+
+function getTrackID() {
+    const indexS = document.cookie.indexOf(":") + 1;
+    const tmp = document.cookie.substring(indexS);
+    const id = Number.parseInt(tmp.substring(0, tmp.length - 1));
+    if(!id) {
+        alert("Error: No se pudo obtener el ID de la canción seleccionada.");
+        window.location.href = "/";
+    }
+    return id;
+}
+
 async function getLyrics(id) {
     try {
         const response = await axios.get(
             `${process.env.REACT_APP_API_URL}/lyrics/${id}`
         );
-        return filterVerses(await response.data.lyrics);
+        return filterVerses(await response.data.lyrics);;
     } catch (err) {
-        console.log(err);
-        return null;
+        alert(
+            "Error: No se pudo obtener la letra de la canción seleccionada."
+        );
+        return (window.location.href = "/");
     }
 }
 
 function filterVerses(lyrics) {
     const temp = lyrics.split("\n");
-    const temp2 = [], temp3 = [];
+    const temp2 = [],
+        temp3 = [];
     temp.filter((lyric) => {
         if (lyric !== "") temp2.push(lyric);
     });
@@ -28,21 +58,75 @@ function filterVerses(lyrics) {
 
 async function getInfoSelected(id) {
     try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/info/${id}`)
+        const response = await axios.get(
+            `${process.env.REACT_APP_API_URL}/info/${id}`
+        );
         return await response.data;
     } catch (err) {
+        alert(
+            "Se generó un error al intentar obtener la información de la canción, intente recargar la página."
+        );
+        return (window.location.href = "/");
+    }
+}
+
+function processInfo(info) {
+    this.backgroundDOM.current.style.backgroundImage = `url(${info.cover})`;
+    this.setState({ infoExport: info }, () => {
+        document.title = `${info.title} - ${info.artist}`;
+        this.state.toExport.push("[ar:" + info.artist + "]");
+        this.state.toExport.push("\n");
+        this.state.toExport.push("[al:" + info.album + "]");
+        this.state.toExport.push("\n");
+        this.state.toExport.push("[ti:" + info.title + "]");
+        this.state.toExport.push("\n");
+        if (
+            this.state.lyrics[0].includes("[") &&
+            this.state.lyrics[0].includes("]")
+        ) {
+            console.log("Lyrics is maybe separated by verses");
+            this.nextLyric();
+        }
+    });
+}
+
+/* LOCAL STORAGE */
+
+function checkLocalStorage() {
+    try{
+        if (
+            window.localStorage.getItem("lyrics") &&
+            JSON.parse(window.localStorage.getItem("times"))
+                .length > 1
+        ) {
+            let response = true;
+            const localLyrics = JSON.parse(
+                window.localStorage.getItem("lyrics")
+            );
+            this.state.lyrics.forEach((lyric, index) => {
+                if (lyric !== localLyrics[index]) {
+                    response = false;
+                }
+            });
+            if (response) {
+                this.LocalStorageModal(
+                    JSON.parse(
+                        window.localStorage.getItem("times")
+                    ).length === this.state.lyrics.length
+                );
+            }
+        }
+    }catch(err){
         console.log(err);
-        return null;
     }
 }
 
 function buildLocalStorage() {
-    console.log("build");
     this.times = new Map(JSON.parse(window.localStorage.getItem("times")));
     this.index = Number.parseInt(window.localStorage.getItem("index"));
     this.state.lyrics.map((lyric, index) => {
         if (index < this.index) {
-            this.state.toExport.push(formatTime(...this.times) + lyric);
+            this.state.toExport.push(formatTime(this.times.get(index)) + lyric);
             this.state.toExport.push("\n");
         }
     });
@@ -55,60 +139,27 @@ function buildLocalStorage() {
     this.Toggle();
 }
 
-function detectedLocalStorage(isCompleted) {
-    const title = "Se ha detectado progreso guardado";
-    const body =
-        "Al parecer existe progreso guardado de un posible cierre inesperado. ¿Qué acción desea realizar?";
-    const footer = (
-        <>
-            <button
-                type="button"
-                className="btn btn-danger btn-rounded"
-                data-mdb-dismiss="modal"
-                onClick={this.reset}
-            >
-                Reiniciar
-            </button>
-            {isCompleted ? (
-                <>
-                    <button
-                        type="button"
-                        ref={this.previewDOM}
-                        onClick={this.preview}
-                        className="btn btn-success btn-rounded"
-                    >
-                        Previsualizar
-                    </button>
-                    <button
-                        type="button"
-                        ref={this.exportDOM}
-                        onClick={this.exportLyric}
-                        className="btn btn-info btn-rounded"
-                    >
-                        Exportar
-                        <i
-                            className={
-                                StylesStart.icon + " fas fa-download"
-                            }
-                        ></i>
-                    </button>
-                </>
-            ) : (
-                <>
-                    <button
-                        type="button"
-                        ref={this.previewDOM}
-                        onClick={this.buildLocalStorage}
-                        className="btn btn-success btn-rounded"
-                    >
-                        Continuar
-                    </button>
-                </>
-            )}
-        </>
-    );
-    this.renderModal({ title, body, footer });
+function cleanLocalStorage() {
+    window.localStorage.removeItem("lyrics");
+    window.localStorage.removeItem("times");
+    window.localStorage.removeItem("index");
+    window.removeEventListener("beforeunload", this.saveProgress);
 }
+
+function formatTime(time) {
+    let minutes = Math.floor(time / 60);
+    let seconds = Math.floor(time - minutes * 60);
+    let milliseconds =
+        (time - minutes * 60 - Math.floor(time - minutes * 60)).toFixed(3) *
+        1000;
+    if (minutes < 10) minutes = `0${minutes}`;
+    if (seconds < 10) seconds = `0${seconds}`;
+    if (milliseconds < 10) milliseconds = `00${milliseconds}`;
+    else if (milliseconds < 100) milliseconds = `0${milliseconds}`;
+    return `[${minutes}:${seconds}.${milliseconds}]`;
+}
+
+/* CONTROLLERS */
 
 function nextLyric() {
     // let start = window.performance.now();
@@ -172,6 +223,31 @@ function previousLyric() {
     }
 }
 
+function playMusic() {
+    if (
+        this.audioDOM.current.duration > 0 &&
+        this.audioDOM.current.paused
+    ) {
+        this.stopDOM.current.style.display = "block";
+        this.previousDOM.current.style.display = "block";
+        this.nextDOM.current.style.display = "block";
+        this.audioDOM.current.play();
+    } else {
+        console.log("la musica aun no carga");
+    }
+}
+
+function stopMusic() {
+    this.audioDOM.current.pause();
+    this.nextDOM.current.style.display = "none";
+    this.stopDOM.current.style.display = "none";
+}
+
+function reset() {
+    window.location.reload();
+}
+
+/* EXPORT */
 function exportLyric() {
     console.log(this.state.toExport);
     const document = new Blob(this.state.toExport, {
@@ -179,27 +255,14 @@ function exportLyric() {
     });
     const link = window.URL.createObjectURL(document);
     saveAs(link, `${this.state.infoExport.title}.lrc`);
-    axios
-        .delete("/api/delete")
+    this.cleanLocalStorage();
+    axios.delete("/api/delete")
         .then((res) => {
             window.location.href = "/";
         })
         .catch(() => {
             window.location.href = "/";
         });
-}
-
-function formatTime(time) {
-    let minutes = Math.floor(time / 60);
-    let seconds = Math.floor(time - minutes * 60);
-    let milliseconds =
-        (time - minutes * 60 - Math.floor(time - minutes * 60)).toFixed(3) *
-        1000;
-    if (minutes < 10) minutes = `0${minutes}`;
-    if (seconds < 10) seconds = `0${seconds}`;
-    if (milliseconds < 10) milliseconds = `00${milliseconds}`;
-    else if (milliseconds < 100) milliseconds = `0${milliseconds}`;
-    return `[${minutes}:${seconds}.${milliseconds}]`;
 }
 
 function saveAs(uri, filename) {
@@ -221,4 +284,186 @@ function saveAs(uri, filename) {
     }
 }
 
-export { nextLyric, previousLyric, exportLyric, getLyrics, getInfoSelected, buildLocalStorage, detectedLocalStorage };
+/* RENDER MODAL */
+
+function renderModal({ title, body, footer }) {
+    this.Toggle();
+    const modal = (
+        <div
+            className={StylesStart.modal + " modal"}
+            ref={this.modal}
+            tabIndex="-1"
+        >
+            <div className="modal-dialog">
+                <div
+                    className={
+                        StylesStart["modal-content"] + " modal-content"
+                    }
+                >
+                    <div className="modal-header">
+                        <h5 className="modal-title">{title}</h5>
+                        <button
+                            type="button"
+                            className={StylesStart.close + " btn-close"}
+                            data-mdb-dismiss="modal"
+                            aria-label="Close"
+                            onClick={() => {
+                                this.Toggle();
+                            }}
+                        ></button>
+                    </div>
+                    <div className="modal-body">
+                        <p>{body}</p>
+                    </div>
+                    <div className="modal-footer">{footer}</div>
+                </div>
+            </div>
+        </div>
+    );
+    this.setState({ notification: modal });
+}
+
+/* SEND TO RENDER MODAL */
+
+function endTrackModal() {
+    const title = "¡Último paso!";
+    const body =
+        "La música ha terminado, puede ver una previsualización del resultado o puede exportar directamente el archivo ahora. ¿Qué desea hacer?";
+    const footer = (
+        <>
+            <button
+                type="button"
+                className="btn btn-danger btn-rounded"
+                data-mdb-dismiss="modal"
+                onClick={() => {reset()}}
+            >
+                Reiniciar
+            </button>
+            <button
+                type="button"
+                ref={this.previewDOM}
+                onClick={this.preview}
+                className="btn btn-success btn-rounded"
+            >
+                Previsualizar
+            </button>
+            <button
+                type="button"
+                ref={this.exportDOM}
+                onClick={this.exportLyric}
+                className="btn btn-info btn-rounded"
+            >
+                Exportar
+                <i className={StylesStart.icon + " fas fa-download"}></i>
+            </button>
+        </>
+    );
+    this.renderModal({ title, body, footer });
+}
+
+function LocalStorageModal(isCompleted) {
+    const title = "Se ha detectado progreso guardado";
+    const body =
+        "Al parecer existe progreso guardado de un posible cierre inesperado. ¿Qué acción desea realizar?";
+    const footer = (
+        <>
+            <button
+                type="button"
+                className="btn btn-danger btn-rounded"
+                data-mdb-dismiss="modal"
+                onClick={() => {reset()}}
+                >
+                Reiniciar
+            </button>
+            {isCompleted ? (
+                <>
+                    <button
+                        type="button"
+                        ref={this.previewDOM}
+                        onClick={this.preview}
+                        className="btn btn-success btn-rounded"
+                    >
+                        Previsualizar
+                    </button>
+                    <button
+                        type="button"
+                        ref={this.exportDOM}
+                        onClick={this.exportLyric}
+                        className="btn btn-info btn-rounded"
+                    >
+                        Exportar
+                        <i
+                            className={StylesStart.icon + " fas fa-download"}
+                            ></i>
+                    </button>
+                </>
+            ) : (
+                <>
+                    <button
+                        type="button"
+                        ref={this.previewDOM}
+                        onClick={this.buildLocalStorage}
+                        className="btn btn-success btn-rounded"
+                        >
+                        Continuar
+                    </button>
+                </>
+            )}
+        </>
+    );
+    this.renderModal({ title, body, footer });
+}
+
+/* PREVIEW FUNCTIONS */
+
+function preview() {
+    this.index = -1;
+    this.audioDOM.current.currentTime = 0;
+    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "TEXT";
+    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "START";
+    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "END";
+    this.previousDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
+    this.nextDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
+    this.setState({ previewEnabled: true }, () => {
+        console.log("ready to preview => ", this.state.previewEnabled);
+        this.Toggle();
+        this.playMusic();
+        this.checkTime = requestAnimationFrame(this.timeUpdate);
+    });
+}
+
+function timeUpdate() {
+    if (this.state.previewEnabled) {
+        if (
+            this.audioDOM.current.currentTime >=
+            this.times.get(this.index + 1)
+        ) {
+            this.nextLyric();
+        }
+        if (this.index < this.times.size) {
+            this.checkTime = requestAnimationFrame(this.timeUpdate);
+        }
+    }
+}
+
+export {
+    preview,
+    setEvent,
+    playMusic,
+    nextLyric,
+    stopMusic,
+    getLyrics,
+    getTrackID,
+    timeUpdate,
+    processInfo,
+    renderModal,
+    exportLyric,
+    saveProgress,
+    previousLyric,
+    endTrackModal,
+    getInfoSelected,
+    cleanLocalStorage,
+    buildLocalStorage,
+    checkLocalStorage,
+    LocalStorageModal,
+};

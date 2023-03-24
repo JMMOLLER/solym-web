@@ -23,6 +23,7 @@ button{
 .cardColumns {
     display: flex !important;
     flex-wrap: wrap !important;
+    justify-content: center;
 }
 .cardImgTop {
     max-height: 300px !important;
@@ -57,4 +58,8 @@ button{
 }
 .hidden {
     display: none;
+}
+.fetchResults {
+    display: flex;
+    align-items: center;
 }

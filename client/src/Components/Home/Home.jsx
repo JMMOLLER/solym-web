@@ -1,7 +1,7 @@
 import React from "react";
-import axios from "axios";
-import ProgressBar from "react-bootstrap/ProgressBar";
 import HomeStyle from "./Home.module.css";
+import ProgressBar from "react-bootstrap/ProgressBar";
+import * as controller from "./Controller/Home.controller.js";
 
 class Home extends React.Component {
     constructor(props) {
@@ -15,8 +15,10 @@ class Home extends React.Component {
         this.loaderDiv = React.createRef();
         this.mainContent = React.createRef();
         this.containerDiv = React.createRef();
-        this.sendFile = this.sendFile.bind(this);
-        this.enableSubmit = this.enableSubmit.bind(this);
+        // FUNCTIONS
+        this.sendFile = controller.sendFile.bind(this);
+        this.enableSubmit = controller.enableSubmit.bind(this);
+        this.delete_cookie = controller.delete_cookie.bind(this);
     }
 
     componentDidMount() {
@@ -27,51 +29,6 @@ class Home extends React.Component {
         this.btnInput.current.addEventListener("change", this.enableSubmit);
     }
 
-    enableSubmit() {
-        this.btnSubmit.current.removeAttribute("disabled");
-    }
-
-    async sendFile(e) {
-        e.preventDefault();
-        this.btnSubmit.current.setAttribute("disabled", "disabled");
-        this.btnInput.current.setAttribute("disabled", "disabled");
-
-        this.loaderDiv.current.classList.remove("desactivate");
-        this.mainContent.current.classList.add("activate");
-        this.containerDiv.current.classList.add("loading");
-
-        const file = this.btnInput.current.files[0];
-        const formData = new FormData();
-        formData.append("song", file);
-
-        axios.post(`${process.env.REACT_APP_API_URL}/uploadFile`, formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-                onUploadProgress: (progressEvent) => {
-                    const { loaded, total } = progressEvent;
-
-                    let percent = Math.floor((loaded * 100) / total);
-
-                    this.setState({ now: percent });
-                },
-            })
-            .then((res) => {
-                if (res.status === 200) {
-                    axios.get(`${process.env.REACT_APP_API_URL}/uploadFileInfo/${res.data.id}`).then((res) => {
-                        if(res.status === 200)
-                            document.location.href = "/select";
-                    });
-                } else {
-                    alert("Error uploading file. Please try again.");
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                alert("Error uploading file. Please try again.");
-            });
-    }
-
     componentDidUpdate() {
         this.progressDiv.current.style.width = `${this.state.now}%`;
         document.getElementsByClassName("progress-bar")[0].innerHTMLL = `${this.state.now}%`;
@@ -79,10 +36,6 @@ class Home extends React.Component {
             setTimeout(() => {
                 document.getElementsByClassName("progress-bar")[0].innerHTML = `Processing...`;
             }, 500);
-    }
-
-    delete_cookie(name) {
-        document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
     }
 
     render() {
