@@ -1,4 +1,12 @@
-.content{
+.content {
+    height: 100%;
+    position: relative;
+    z-index: 2;
+}
+.contentChild {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     position: absolute;
     top: 50%;
@@ -6,17 +14,29 @@
     margin: 0px 50%;
     width: 500px;
 }
+.lyrics {
+    display: flex;
+    flex-direction: column;
+}
+/* TEXT LYRICS */
 .previousLyric {
-    opacity: 30%;
+    opacity: 0.3;
 }
-.nextLiric {
-    opacity:60%;
+.nextLyric {
+    opacity: 0.6;
 }
-.controllers{
-    display:flex;
-    align-items:center;
-    justify-content:space-around;
-    margin:2% 5%;
+.nextAuxLyric {
+    opacity: 0;
+}
+.previousAuxLyric {
+    opacity: 0;
+}
+/* END TEXT LYRICS */
+.controllers {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
 }
 .bg {
     height: 100%;
@@ -61,4 +81,90 @@
 }
 .icon {
     margin-left: 5px;
+}
+.lyrics>p {
+    margin-bottom: 0 !important;
+    min-height: 26px;
+}
+/* ANIMATIONS */
+@keyframes previous {
+    from {
+        opacity: 0.3;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(-100%);
+    }
+}
+@keyframes current {
+    from {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0.3;
+        transform: translateY(-100%);
+    }
+}
+@keyframes next {
+    from {
+        opacity: 0.6;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(-100%);
+    }
+}
+@keyframes AuxNext {
+    from {
+        opacity: 0;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0.6;
+        transform: translateY(-100%);
+    }
+}
+/* REVERSE */
+@keyframes reverse_aux_previous {
+    from {
+        opacity: 0;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0.3;
+        transform: translateY(100%);
+    }
+}
+@keyframes reverse_previous {
+    from {
+        opacity: 0.3;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(100%);
+    }
+}
+@keyframes reverseCurrent {
+    from {
+        opacity: 1;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0.6;
+        transform: translateY(100%);
+    }
+}
+@keyframes reverse_next {
+    from {
+        opacity: 0.6;
+        transform: translateY(0%);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(100%);
+    }
 }

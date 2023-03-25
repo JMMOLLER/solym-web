@@ -6,6 +6,28 @@ function setEvent() {
     window.addEventListener("beforeunload", this.saveProgress);
 }
 
+function setAnimation(isReverse) {
+    if (!isReverse) {
+        this.p_lyricDOM.current.style.setProperty("animation",`${StylesStart.previous} .15s linear`);
+        this.c_lyricDOM.current.style.setProperty("animation", `${StylesStart.current} .15s linear`);
+        this.n_lyricDOM.current.style.setProperty("animation", `${StylesStart.next} .15s linear`);
+        this.n_aux_lyricDOM.current.style.setProperty("animation", `${StylesStart.AuxNext} .2s linear`);
+    } else {
+        this.p_aux_lyricDOM.current.style.setProperty("animation",`${StylesStart.reverse_aux_previous} .15s linear`);
+        this.p_lyricDOM.current.style.setProperty("animation",`${StylesStart.reverse_previous} .15s linear`);
+        this.c_lyricDOM.current.style.setProperty("animation",`${StylesStart.reverseCurrent} .15s linear`);
+        this.n_lyricDOM.current.style.setProperty("animation",`${StylesStart.reverse_next} .15s linear`);
+    }
+}
+
+function removeAnimation() {
+    this.p_aux_lyricDOM.current.style.removeProperty("animation");
+    this.p_lyricDOM.current.style.removeProperty("animation");
+    this.c_lyricDOM.current.style.removeProperty("animation");
+    this.n_lyricDOM.current.style.removeProperty("animation");
+    this.n_aux_lyricDOM.current.style.removeProperty("animation");
+}
+
 function saveProgress() {
     window.localStorage.setItem(
         "times",
@@ -124,17 +146,17 @@ function checkLocalStorage() {
 function buildLocalStorage() {
     this.times = new Map(JSON.parse(window.localStorage.getItem("times")));
     this.index = Number.parseInt(window.localStorage.getItem("index"));
+    if(this.index > -1) {this.setState({ previousDisabled: false });}
+    this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2];
     this.state.lyrics.map((lyric, index) => {
         if (index < this.index) {
             this.state.toExport.push(formatTime(this.times.get(index)) + lyric);
             this.state.toExport.push("\n");
         }
     });
-    this.p_lyricDOM.current.innerHTML =
-        this.state.lyrics[this.index - 1] || "START";
+    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪";
     this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
-    this.n_lyricDOM.current.innerHTML =
-        this.state.lyrics[this.index + 1] || "END";
+    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "";
     this.audioDOM.current.currentTime = this.times.get(this.index);
     this.Toggle();
 }
@@ -162,65 +184,65 @@ function formatTime(time) {
 /* CONTROLLERS */
 
 function nextLyric() {
-    // let start = window.performance.now();
-    // let executinTime = 0;
     if (this.index >= -1) {
         this.setState({ previousDisabled: false });
     }
     if (this.index < this.state.lyrics.length - 1) {
         this.index++;
-        if (!this.state.previewEnabled) {
-            this.currentSecond = this.audioDOM.current.currentTime;
-            this.times.set(this.index, this.currentSecond);
-
-            // executinTime = (window.performance.now() - start)/1000;
-
-            this.currentLyric =
-                formatTime(this.currentSecond) + this.state.lyrics[this.index];
-            this.state.toExport.push(this.currentLyric);
-            this.state.toExport.push("\n");
-            console.log(this.currentLyric + " Index: " + this.index);
-        }
-        this.p_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index - 1] || "START";
-        this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
-        this.n_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index + 1] || "END";
+        this.setAnimation(false);
+        setTimeout(() => {
+            this.removeAnimation();
+            if (!this.state.previewEnabled) {
+                this.currentSecond = this.audioDOM.current.currentTime - 0.15;
+                this.times.set(this.index, this.currentSecond);
+                this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index];
+                this.state.toExport.push(this.currentLyric);
+                this.state.toExport.push("\n");
+                console.log(this.currentLyric + " Index: " + this.index);
+            }
+            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
+            this.p_lyricDOM.current.innerText = this.state.lyrics[this.index - 1] || "♪";
+            this.c_lyricDOM.current.innerText = this.state.lyrics[this.index];
+            this.n_lyricDOM.current.innerText = this.state.lyrics[this.index + 1] || "";
+            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
+        }, 150);
     }
-    // console.log("Time to execute: " + executinTime + " ms");
 }
 
 function previousLyric() {
     this.stopDOM.current.style.display = "none";
     this.nextDOM.current.style.display = "none";
-    if (this.index > 0) {
-        this.index--; //REDUCE EL INDICE
-        this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-        const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
-        this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
-        this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-        this.state.toExport.pop();
-        this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-        this.p_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
-        this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
-        this.n_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
-    } else {
-        this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
-        this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-        this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-        this.state.toExport.pop();
-        this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-        this.index--; //REDUCE EL INDICE
-        this.p_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index - 1] || "START"; //ESCRIBE LA LETRA ANTERIOR
-        this.c_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index] || "TEXT"; //ESCRIBE LA LETRA ACTUAL
-        this.n_lyricDOM.current.innerHTML =
-            this.state.lyrics[this.index + 1] || "END"; //ESCRIBE LA LETRA SIGUIENTE
-        this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
-    }
+    this.setAnimation(true);
+    setTimeout(() => {
+        this.removeAnimation();
+        if (this.index > 0) {
+            this.index--; //REDUCE EL INDICE
+            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
+            const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
+            this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
+            this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+            this.state.toExport.pop();
+            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
+            this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪"; //ESCRIBE LA LETRA ANTERIOR
+            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
+            this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
+            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
+        } else {
+            this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
+            this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
+            this.state.toExport.pop();
+            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+            this.index--; //REDUCE EL INDICE
+            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
+            this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || ""; //ESCRIBE LA LETRA ANTERIOR
+            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪"; //ESCRIBE LA LETRA ACTUAL
+            this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
+            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
+            this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
+        }
+    }, 150);
 }
 
 function playMusic() {
@@ -249,7 +271,6 @@ function reset() {
 
 /* EXPORT */
 function exportLyric() {
-    console.log(this.state.toExport);
     const document = new Blob(this.state.toExport, {
         type: "text/plain;charset=utf-8",
     });
@@ -419,9 +440,9 @@ function LocalStorageModal(isCompleted) {
 function preview() {
     this.index = -1;
     this.audioDOM.current.currentTime = 0;
-    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "TEXT";
-    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "START";
-    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "END";
+    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "";
+    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪";
+    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "";
     this.previousDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
     this.nextDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
     this.setState({ previewEnabled: true }, () => {
@@ -458,9 +479,11 @@ export {
     processInfo,
     renderModal,
     exportLyric,
+    setAnimation,
     saveProgress,
     previousLyric,
     endTrackModal,
+    removeAnimation,
     getInfoSelected,
     cleanLocalStorage,
     buildLocalStorage,

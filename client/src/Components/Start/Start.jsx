@@ -36,6 +36,8 @@ class Start extends React.Component {
         this.p_lyricDOM = React.createRef();
         this.n_lyricDOM = React.createRef();
         this.backgroundDOM = React.createRef();
+        this.p_aux_lyricDOM = React.createRef();
+        this.n_aux_lyricDOM = React.createRef();
         // DOM BUTTONS
         this.stopDOM = React.createRef();
         this.nextDOM = React.createRef();
@@ -61,9 +63,11 @@ class Start extends React.Component {
         this.processInfo = controller.processInfo.bind(this);
         this.renderModal = controller.renderModal.bind(this);
         this.exportLyric = controller.exportLyric.bind(this);
+        this.setAnimation = controller.setAnimation.bind(this);
         this.saveProgress = controller.saveProgress.bind(this);
         this.endTrackModal = controller.endTrackModal.bind(this);
         this.previousLyric = controller.previousLyric.bind(this);
+        this.removeAnimation = controller.removeAnimation.bind(this);
         this.cleanLocalStorage = controller.cleanLocalStorage.bind(this);
         this.buildLocalStorage = controller.buildLocalStorage.bind(this);
         this.checkLocalStorage = controller.checkLocalStorage.bind(this);
@@ -73,7 +77,6 @@ class Start extends React.Component {
     async componentDidMount() {
         try {
             this.setEvent();
-            console.log(controller.exportLyric);
             this.audioDOM.current.volume = 0.5;
             this.setState(
                 { id: controller.getTrackID() },
@@ -83,6 +86,7 @@ class Start extends React.Component {
                         const lyrics = await controller.getLyrics(this.state.id);
                         this.state.lyrics.push(...lyrics);
                         this.n_lyricDOM.current.innerHTML = this.state.lyrics[0];
+                        this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2];
                         this.checkLocalStorage();
                         /* FETCH INFO */
                         const info = await controller.getInfoSelected(this.state.id);
@@ -115,35 +119,35 @@ class Start extends React.Component {
         return (
             <div style={{ position: "relative", height: "100%" }}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
-                <div
-                    style={{
-                        height: "100%",
-                        position: "relative",
-                        zIndex: "2",
-                    }}
-                >
-                    <div className={StylesStart.content}>
+                <div className={StylesStart.content}>
+                    <div className={StylesStart.contentChild}>
                         <div className="boton start"></div>
                         <div className="boton stop"></div>
                         <div className="boton reiniciar"></div>
                         <h1>Lyrics</h1>
-                        <p
-                            id="previous-lyric"
-                            className={StylesStart.previousLyric}
-                            ref={this.p_lyricDOM}
-                        >
-                            TEXT
-                        </p>
-                        <p id="current-lyric" ref={this.c_lyricDOM}>
-                            TEXT
-                        </p>
-                        <p
-                            id="next-lyric"
-                            className={StylesStart.nextLiric}
-                            ref={this.n_lyricDOM}
-                        >
-                            TEXT
-                        </p>
+                        <div className={StylesStart.lyrics}>
+                            <p
+                                id="previous-aux-lyric"
+                                className={StylesStart.previousAuxLyric}
+                                ref={this.p_aux_lyricDOM}
+                            ></p>
+                            <p
+                                id="previous-lyric"
+                                className={StylesStart.previousLyric}
+                                ref={this.p_lyricDOM}
+                            ></p>
+                            <p id="current-lyric" ref={this.c_lyricDOM}>♪</p>
+                            <p
+                                id="next-lyric"
+                                className={StylesStart.nextLyric}
+                                ref={this.n_lyricDOM}
+                            ></p>
+                            <p
+                                id="next-aux-lyric"
+                                className={StylesStart.nextAuxLyric}
+                                ref={this.n_aux_lyricDOM}
+                            ></p>
+                        </div>
                         <div className={StylesStart.controllers}>
                             <button
                                 style={{ display: "none" }}
@@ -216,8 +220,7 @@ class Start extends React.Component {
                         ></audio>
                     </div>
                 </div>
-                <div id="modalContainer">
-                </div>
+                <div id="modalContainer"></div>
             </div>
         );
     }
