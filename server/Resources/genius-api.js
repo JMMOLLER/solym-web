@@ -36,9 +36,9 @@ async function selectSong(results, artist, title){
     for (let i = 0; i < results.length; i++) {
         const CurrentArtist = (results[i].result.primary_artist.name).toLowerCase();
         const CurrentTitle = (results[i].result.full_title).toLowerCase();
-        const indexArtist = CurrentArtist.indexOf(artist.toLowerCase());
-        const indexTitle = CurrentTitle.indexOf(title.toLowerCase());
-        if ((indexArtist>-1 || indexTitle>-1) && !bestFound) {
+        const indexArtist = CurrentArtist === artist.toLowerCase();
+        const indexTitle = CurrentTitle === title.toLowerCase();
+        if ((indexArtist || indexTitle) && !bestFound) {
             bestFound = true;
             const temp = results[i].result
             results.unshift({best: true,result: temp});
