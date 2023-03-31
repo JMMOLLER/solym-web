@@ -3,6 +3,8 @@ import axios from "axios";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import StylesStart from "./Start.module.css";
+import * as global from "../../Scripts/config.js";
+import Selection from "../Selection/Selection.jsx";
 import * as controller from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 
@@ -54,6 +56,7 @@ class Start extends React.Component {
         // DOM CONTAINER
         this.containerDOM = React.createRef();
         // FUNCTIONS
+        this.config = global.config;
         this.preview = controller.preview.bind(this);
         this.setEvent = controller.setEvent.bind(this);
         this.playMusic = controller.playMusic.bind(this);
@@ -120,33 +123,18 @@ class Start extends React.Component {
             <div style={{ position: "relative", height: "100%" }}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
                 <div className={StylesStart.content}>
+                    {<Selection/>}
                     <div className={StylesStart.contentChild}>
                         <div className="boton start"></div>
                         <div className="boton stop"></div>
                         <div className="boton reiniciar"></div>
                         <h1>Lyrics</h1>
                         <div className={StylesStart.lyrics}>
-                            <p
-                                id="previous-aux-lyric"
-                                className={StylesStart.previousAuxLyric}
-                                ref={this.p_aux_lyricDOM}
-                            ></p>
-                            <p
-                                id="previous-lyric"
-                                className={StylesStart.previousLyric}
-                                ref={this.p_lyricDOM}
-                            ></p>
+                            <p id="previous-aux-lyric" className={StylesStart.previousAuxLyric} ref={this.p_aux_lyricDOM}></p>
+                            <p id="previous-lyric" className={StylesStart.previousLyric} ref={this.p_lyricDOM}></p>
                             <p id="current-lyric" ref={this.c_lyricDOM}>♪</p>
-                            <p
-                                id="next-lyric"
-                                className={StylesStart.nextLyric}
-                                ref={this.n_lyricDOM}
-                            ></p>
-                            <p
-                                id="next-aux-lyric"
-                                className={StylesStart.nextAuxLyric}
-                                ref={this.n_aux_lyricDOM}
-                            ></p>
+                            <p id="next-lyric" className={StylesStart.nextLyric} ref={this.n_lyricDOM}></p>
+                            <p id="next-aux-lyric" className={StylesStart.nextAuxLyric} ref={this.n_aux_lyricDOM}></p>
                         </div>
                         <div className={StylesStart.controllers}>
                             <button

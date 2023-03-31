@@ -2,6 +2,7 @@ import React from "react";
 import HomeStyle from "./Home.module.css";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as controller from "./Controller/Home.controller.js";
+import Selection from "../Selection/Selection.jsx"
 
 class Home extends React.Component {
     constructor(props) {
@@ -40,35 +41,38 @@ class Home extends React.Component {
 
     render() {
         return (
-            <div className="container" ref={this.containerDiv}>
-                
-                <div className={HomeStyle.content} ref={this.mainContent}>
-                    <h1>Uploaded File</h1>
+            <>
+                <div className="container" ref={this.containerDiv}>
+                    
+                    <div className={HomeStyle.content} ref={this.mainContent}>
+                        <h1>Uploaded File</h1>
 
-                    <form action="/select" onSubmit={(e) => {this.sendFile(e)}}>
-                        <input
-                            type="file"
-                            ref={this.btnInput}
-                            name="song"
-                            accept=".mp3, .flac"
-                        ></input>
-                        <button type="submit" ref={this.btnSubmit}>
-                            Enviar
-                        </button>
-                    </form>
+                        <form action="/select" onSubmit={(e) => {this.sendFile(e)}}>
+                            <input
+                                type="file"
+                                ref={this.btnInput}
+                                name="song"
+                                accept=".mp3, .flac"
+                            ></input>
+                            <button type="submit" ref={this.btnSubmit}>
+                                Enviar
+                            </button>
+                        </form>
+                    </div>
+
+                    <div className="progressBar desactivate" ref={this.loaderDiv}>
+                        <ProgressBar
+                            animated={true}
+                            ref={this.progressDiv}
+                            style={{ height: "20px" }}
+                            now={this.state.now}
+                            label={`${this.state.now}%`}
+                        />
+                    </div>
+
                 </div>
-
-                <div className="progressBar desactivate" ref={this.loaderDiv}>
-                    <ProgressBar
-                        animated={true}
-                        ref={this.progressDiv}
-                        style={{ height: "20px" }}
-                        now={this.state.now}
-                        label={`${this.state.now}%`}
-                    />
-                </div>
-
-            </div>
+                {<Selection />}
+            </>
         );
     }
 }

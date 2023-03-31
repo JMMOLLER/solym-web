@@ -193,7 +193,7 @@ function nextLyric() {
         setTimeout(() => {
             this.removeAnimation();
             if (!this.state.previewEnabled) {
-                this.currentSecond = this.audioDOM.current.currentTime - 0.15;
+                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.config.delay);
                 this.times.set(this.index, this.currentSecond);
                 this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index];
                 this.state.toExport.push(this.currentLyric);
