@@ -79,14 +79,16 @@ const uploadFile = async(req, res) => {
     res.set('Accept-Ranges', 'bytes');
     const bucket = await getBucket();
     const Track = bucket.openDownloadStream(ObjectId(data.fileId));
-    await getConnection().collection('tracks.files').findOne({_id: ObjectId(data.fileId)}, (err, file) => {
-        if(err){
-            console.log(err);
-            return res.status(500).json({error: 'Error'});
-        }
-        res.set('content-length', file.length);
-        res.set('X-Content-Duration', file.length);
-    } )
+    await getConnection().then((connection) => {
+        connection.collection('tracks.files').findOne({_id: ObjectId(data.fileId)}, (err, file) => {
+            if(err){
+                console.log(err);
+                return res.status(500).json({error: 'Error'});
+            }
+            res.set('content-length', file.length);
+            res.set('X-Content-Duration', file.length);
+        })
+    })
     console.log('\x1b[34m%s\x1b[0m', "Sending track...");
     Track.on('data', chunk => {
         res.write(chunk);

@@ -20,7 +20,7 @@ class UploadFile {
 
     async getAllFiles(){
         try{
-            this.mongodb(this.url);
+            this.mongodb(this.url).catch(err => console.log("\x1b[31m%s\x1b[0m", "DataBase connection error."));
             const bucket = await getBucket();
             return await bucket.find({}).toArray();
         }catch(err){
@@ -31,7 +31,7 @@ class UploadFile {
 
     async saveDoc(data){
         try{
-            this.mongodb(this.url);
+            this.mongodb(this.url).catch(err => console.log("\x1b[31m%s\x1b[0m", "DataBase connection error."));
             const newDoc = new Somly(data);
             return await newDoc.save();
         }catch(err){
@@ -42,7 +42,7 @@ class UploadFile {
 
     async getDoc(id){
         try{
-            this.mongodb(this.url);
+            this.mongodb(this.url).catch(err => console.log("\x1b[31m%s\x1b[0m", "DataBase connection error."));
             const doc = await Somly.findById(id);
             if(doc==null){throw new Error('ID not found')}
             return doc;
@@ -54,7 +54,7 @@ class UploadFile {
 
     async deleteDoc(id){
         try{
-            this.mongodb(this.url);
+            this.mongodb(this.url).catch(err => console.log("\x1b[31m%s\x1b[0m", "DataBase connection error."));
             await Somly.findByIdAndDelete(id);
             return true;
         }catch(err){
@@ -65,7 +65,7 @@ class UploadFile {
 
     async deleteDocByFileId(id){
         try{
-            this.mongodb(this.url);
+            this.mongodb(this.url).catch(err => console.log("\x1b[31m%s\x1b[0m", "DataBase connection error."));
             const doc = await Somly.findOne({fileId: id});
             if(doc==null){throw new Error('ID not found')}
             doc.delete();

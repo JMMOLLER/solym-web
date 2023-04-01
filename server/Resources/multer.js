@@ -1,41 +1,40 @@
-const { GridFSBucket } = require('mongodb');
-const { getConnectionURI } = require('../DB/Service/Connection.service');
-const mongoose = require('mongoose');
-mongoose.set('strictQuery', true);
-const multer = require('multer');
+const ms = require("ms");
+const { GridFSBucket } = require("mongodb");
+const { getConnectionURI } = require("../DB/Service/Connection.service");
+const mongoose = require("mongoose");
+mongoose.set("strictQuery", true);
+const multer = require("multer");
 const storage = multer.memoryStorage({});
-const upload = multer({ 
+const upload = multer({
     storage: storage,
-    limits: { 
+    limits: {
         fields: 1,
         fileSize: 100000000,
         files: 1,
-        parts: 5
-    }
+        parts: 5,
+    },
 });
 
-
-mongoose.connect(getConnectionURI(), (err) => {
-    if(err){
-        console.log(err);
-        process.exit(0);
+const getConnection = async() => {
+    try{
+        await mongoose.connect(getConnectionURI());
+        return mongoose.connection.db;
+    }catch(err){
+        console.log("\x1b[31m%s\x1b[0m","Hubo un error al intentar conectar con la Base de Datos. Reintentando en 1 minuto.");
+        await new Promise(resolve => setTimeout(resolve, ms("1m")));
+        return await getConnection();
     }
-    db = mongoose.connection.db;
-    console.log('\x1b[35m%s\x1b[0m','Conexión establecida con la Base de Datos')
-});
-
-const getConnection = () => db;
-
+};
 
 module.exports = {
     getBucket: () => {
-        return new Promise((resolve, reject) => {
-            const bucket = new GridFSBucket(getConnection(), {
-                bucketName: 'tracks'
+        return new Promise(async(resolve, reject) => {
+            const bucket = new GridFSBucket(await getConnection(), {
+                bucketName: "tracks",
             });
             resolve(bucket);
         });
     },
     upload,
-    getConnection
-}
+    getConnection,
+};
