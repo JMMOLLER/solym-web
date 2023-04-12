@@ -12,7 +12,7 @@ function getResults() {
                 key={item.result.id}
             >
                 <img
-                    src={item.result.header_image_url}
+                    src={item.result.song_art_image_url}
                     className={SelectStyle.cardImgTop + " card-img-top"}
                     alt="cover"
                 ></img>
@@ -89,7 +89,7 @@ async function searchForm(form) {
                 result = result.result;
                 this.results_searchEl.current.innerHTML +=
                 `<div class="${SelectStyle.card} card">
-                    <img src=${result.header_image_url} class="${SelectStyle.cardImgTop} card-img-top" alt="cover"></img>
+                    <img src=${result.song_art_image_url} class="${SelectStyle.cardImgTop} card-img-top" alt="cover"></img>
                     <div class="card-body">
                         <h5 class="${SelectStyle.cardTitle} card-title">${result.full_title}</h5>
                         <div class="${SelectStyle.textContainer} text-container">
