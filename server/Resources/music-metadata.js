@@ -1,11 +1,13 @@
-const Metadata = require("musicmetadata");
+const metadata = require("music-metadata");
 
 async function getMetadata(file) {
-    return new Promise((resolve, reject) => {
-        Metadata(file, function (err, metadata) {
-            if (err) reject(err);
-            resolve(metadata);
-        });
+    return new Promise(async(resolve, reject) => {
+        try{
+            const parser = await metadata.parseStream(file, {duration: true});
+            return resolve(parser.common);
+        }catch(err){
+            return reject(err);
+        }
     });
 }
 

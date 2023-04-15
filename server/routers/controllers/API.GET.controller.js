@@ -41,9 +41,11 @@ const uploadFileInfo = async (req, res) => {
         const Track = bucket.openDownloadStream(uploadStream);
         const fullInfo = await getMetadata(Track);
 
+        console.log(fullInfo)
+
         const partialInfo = {
             title: fullInfo.title,
-            fullTitle: fullInfo.title+" by "+fullInfo.artist[0],
+            fullTitle: fullInfo.title + " " + (fullInfo.artist.split(",")[0]),
             artist: fullInfo.artist,
             duration: fullInfo.duration,
         }
