@@ -1,8 +1,9 @@
 /* eslint-disable array-callback-return */
 import axios from "axios";
 import React from "react";
-import { createRoot } from "react-dom/client";
 import StylesStart from "./Start.module.css";
+import { createRoot } from "react-dom/client";
+import DelayConfig from "../Config/DelayConfig.jsx";
 import * as controller from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 
@@ -78,7 +79,6 @@ class Start extends React.Component {
 
     async componentDidMount() {
         try {
-            console.log(this.context);
             this.setEvent();
             this.audioDOM.current.volume = 0.5;
             this.setState(
@@ -119,10 +119,15 @@ class Start extends React.Component {
     }
 
     render() {
+        const { globalConfigs } = this.props
+        const { setGlobalConfigs } = this.props
+
+
         return (
             <div style={{ position: "relative", height: "100%" }}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
                 <div className={StylesStart.content}>
+                    <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
                     <div className={StylesStart.contentChild}>
                         <div className="boton start"></div>
                         <div className="boton stop"></div>

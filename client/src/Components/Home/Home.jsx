@@ -2,6 +2,7 @@ import React from "react";
 import HomeStyle from "./Home.module.css";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as controller from "./Controller/Home.controller.js";
+import DelayConfig from "../Config/DelayConfig.jsx";
 
 class Home extends React.Component {
     constructor(props) {
@@ -30,7 +31,6 @@ class Home extends React.Component {
     }
 
     componentDidUpdate() {
-        this.progressDiv.current.style.width = `${this.state.now}%`;
         document.getElementsByClassName("progress-bar")[0].innerHTMLL = `${this.state.now}%`;
         if(this.state.now === 100)
             setTimeout(() => {
@@ -39,18 +39,23 @@ class Home extends React.Component {
     }
 
     render() {
+        const { globalConfigs } = this.props;
+        const { setGlobalConfigs } = this.props;
+
         return (
             <>
                 <div className="container" ref={this.containerDiv}>
-                    
+
                     <div className={HomeStyle.content} ref={this.mainContent}>
                         <h1>Uploaded File</h1>
 
                         <form action="/select" onSubmit={(e) => {this.sendFile(e)}}>
+                            <label htmlFor="song" style={{display:"none"}}>Song:</label>
                             <input
                                 type="file"
                                 ref={this.btnInput}
                                 name="song"
+                                id="song"
                                 accept=".mp3, .flac"
                             ></input>
                             <button type="submit" ref={this.btnSubmit}>
@@ -70,6 +75,7 @@ class Home extends React.Component {
                     </div>
 
                 </div>
+                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
             </>
         );
     }

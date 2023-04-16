@@ -124,14 +124,12 @@ function fadeAudioVolume() {
             currentVolume = Math.max(currentVolume - volumeStep, 0);
             this.audioDOM.current.volume = currentVolume;
         } else {
+            this.audioDOM.current.pause();
+            this.audioDOM.current.currentTime = 0;
+            this.audioDOM.current.volume = temp;
             clearInterval(intervalId);
         }
     }, timeStep);
-    if(currentVolume === 0) {
-        this.audioDOM.current.pause();
-        this.audioDOM.current.currentTime = 0;
-        this.audioDOM.current.volume = temp;
-    }
 }
 
 function increaseAudioVolume() {
@@ -231,7 +229,7 @@ function nextLyric() {
         setTimeout(() => {
             this.removeAnimation();
             if (!this.state.previewEnabled) {
-                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.context.delay);
+                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.props.globalConfigs.delay);
                 this.times.set(this.index, this.currentSecond);
                 this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index];
                 this.state.toExport.push(this.currentLyric);

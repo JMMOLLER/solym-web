@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "axios";
 import SelectStyle from "./Select.module.css";
+import DelayConfig from "../Config/DelayConfig.jsx";
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
 import * as controller from "./Controller/Select.controller.js";
 axios.defaults.withCredentials = true;
@@ -46,8 +47,12 @@ class Select extends React.Component {
     }
 
     render() {
+        const { globalConfigs } = this.props;
+        const { setGlobalConfigs } = this.props;
+
         return (
             <div className={SelectStyle.contentResults}>
+                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
                 <h1 className={SelectStyle.titles}>
                     SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR
                 </h1>
