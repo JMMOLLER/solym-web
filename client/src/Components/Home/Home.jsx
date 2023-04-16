@@ -2,7 +2,6 @@ import React from "react";
 import HomeStyle from "./Home.module.css";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as controller from "./Controller/Home.controller.js";
-import Selection from "../Selection/Selection.jsx"
 
 class Home extends React.Component {
     constructor(props) {
@@ -71,7 +70,6 @@ class Home extends React.Component {
                     </div>
 
                 </div>
-                {<Selection />}
             </>
         );
     }

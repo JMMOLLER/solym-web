@@ -112,6 +112,44 @@ function processInfo(info) {
     });
 }
 
+function fadeAudioVolume() {
+    let currentVolume = this.audioDOM.current.volume;
+    let temp = currentVolume;
+    const targetVolume = 0; // El volumen deseado
+    const volumeStep = 0.01; // Cuánto cambiar el volumen en cada paso
+    const timeStep = 90; // Cuánto tiempo esperar entre cada paso (en milisegundos)
+
+    const intervalId = setInterval(() => {
+        if (currentVolume > targetVolume) {
+            currentVolume = Math.max(currentVolume - volumeStep, 0);
+            this.audioDOM.current.volume = currentVolume;
+        } else {
+            clearInterval(intervalId);
+        }
+    }, timeStep);
+    if(currentVolume === 0) {
+        this.audioDOM.current.pause();
+        this.audioDOM.current.currentTime = 0;
+        this.audioDOM.current.volume = temp;
+    }
+}
+
+function increaseAudioVolume() {
+    const targetVolume = this.audioDOM.current.volume; // El volumen deseado
+    let currentVolume = this.audioDOM.current.volume = 0;
+    const volumeStep = 0.01; // Cuánto cambiar el volumen en cada paso
+    const timeStep = 90; // Cuánto tiempo esperar entre cada paso (en milisegundos)
+
+    const intervalId = setInterval(() => {
+        if (currentVolume < targetVolume) {
+            currentVolume = Math.min(currentVolume + volumeStep, 1);
+            this.audioDOM.current.volume = currentVolume;
+        } else {
+            clearInterval(intervalId);
+        }
+    }, timeStep);
+}
+
 /* LOCAL STORAGE */
 
 function checkLocalStorage() {
@@ -193,7 +231,7 @@ function nextLyric() {
         setTimeout(() => {
             this.removeAnimation();
             if (!this.state.previewEnabled) {
-                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.config.delay);
+                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.context.delay);
                 this.times.set(this.index, this.currentSecond);
                 this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index];
                 this.state.toExport.push(this.currentLyric);
@@ -347,6 +385,12 @@ function renderModal({ title, body, footer }) {
 /* SEND TO RENDER MODAL */
 
 function endTrackModal() {
+    this.audioDOM.current.currentTime=40;
+    this.playMusic();
+    this.increaseAudioVolume();
+    setTimeout(() => {
+        this.fadeAudioVolume();
+    }, 15000)
     const title = "¡Último paso!";
     const body =
         "La música ha terminado, puede ver una previsualización del resultado o puede exportar directamente el archivo ahora. ¿Qué desea hacer?";
@@ -485,8 +529,10 @@ export {
     endTrackModal,
     removeAnimation,
     getInfoSelected,
+    fadeAudioVolume,
     cleanLocalStorage,
     buildLocalStorage,
     checkLocalStorage,
     LocalStorageModal,
+    increaseAudioVolume,
 };

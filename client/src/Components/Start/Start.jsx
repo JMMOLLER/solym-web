@@ -3,8 +3,6 @@ import axios from "axios";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import StylesStart from "./Start.module.css";
-import * as global from "../../Scripts/config.js";
-import Selection from "../Selection/Selection.jsx";
 import * as controller from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 
@@ -56,7 +54,6 @@ class Start extends React.Component {
         // DOM CONTAINER
         this.containerDOM = React.createRef();
         // FUNCTIONS
-        this.config = global.config;
         this.preview = controller.preview.bind(this);
         this.setEvent = controller.setEvent.bind(this);
         this.playMusic = controller.playMusic.bind(this);
@@ -70,15 +67,18 @@ class Start extends React.Component {
         this.saveProgress = controller.saveProgress.bind(this);
         this.endTrackModal = controller.endTrackModal.bind(this);
         this.previousLyric = controller.previousLyric.bind(this);
+        this.fadeAudioVolume = controller.fadeAudioVolume.bind(this);
         this.removeAnimation = controller.removeAnimation.bind(this);
         this.cleanLocalStorage = controller.cleanLocalStorage.bind(this);
         this.buildLocalStorage = controller.buildLocalStorage.bind(this);
         this.checkLocalStorage = controller.checkLocalStorage.bind(this);
         this.LocalStorageModal = controller.LocalStorageModal.bind(this);
+        this.increaseAudioVolume = controller.increaseAudioVolume.bind(this);
     }
 
     async componentDidMount() {
         try {
+            console.log(this.context);
             this.setEvent();
             this.audioDOM.current.volume = 0.5;
             this.setState(
@@ -123,7 +123,6 @@ class Start extends React.Component {
             <div style={{ position: "relative", height: "100%" }}>
                 <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
                 <div className={StylesStart.content}>
-                    {<Selection/>}
                     <div className={StylesStart.contentChild}>
                         <div className="boton start"></div>
                         <div className="boton stop"></div>
