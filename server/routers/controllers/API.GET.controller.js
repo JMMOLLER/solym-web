@@ -46,8 +46,7 @@ const uploadFileInfo = async (req, res) => {
         const partialInfo = {
             title: fullInfo.title,
             fullTitle: fullInfo.title + " " + (fullInfo.artist.split(",")[0]),
-            artist: fullInfo.artist,
-            duration: fullInfo.duration,
+            artist: fullInfo.artists,
         }
         
         let results = [];
