@@ -1,14 +1,86 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 #root {
-    color: white;
-    height: 100%;
+    color: rgb(255, 255, 255);
+    min-height: calc(100vh - 60px);
     width: 100%;
 }
 
 html, body {
-    height: 100vh !important;
+    min-height: 100vh !important;
+    background: linear-gradient(-20deg, #ff1e00fb, #bd1717bb, #214fcf, #4500b3bb);
+    background-size: 400% 400%;
+    animation: background-gradient 15s ease infinite;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
     background-color: black;
+    filter: brightness(0.5) blur(10px);
 }
 
 .form-label, .form-control {
     color: white !important;
+}
+
+/* ================= NAVBAR CONTENT ================= */
+
+.navbar {
+    background-color: rgba(15, 15, 15, 0.4);
+    height: 60px;
+    padding: 10px;
+}
+
+.logo {
+    height: 40px;
+}
+
+.logo img {
+    height: 100%;
+    width: auto;
+}
+
+.rigthContainer {
+    display: flex;
+    align-items: center;
+}
+
+nav {
+    height: 25.59px;
+}
+
+.navList li {
+    color: #ffffff;
+    list-style: none;
+    display: inline-block;
+    margin: 0 20px;
+    text-transform: uppercase;
+}
+
+.navList li a {
+    color: white;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes background-gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }

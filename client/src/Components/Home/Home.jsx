@@ -9,25 +9,28 @@ class Home extends React.Component {
         super(props);
         this.state = {
             now: 0,
+            buttonHidden: true,
         };
-        this.progressDiv = React.createRef();
-        this.btnSubmit = React.createRef();
+        this.dropZone = React.createRef();
         this.btnInput = React.createRef();
         this.loaderDiv = React.createRef();
+        this.btnSubmit = React.createRef();
+        this.progressDiv = React.createRef();
         this.mainContent = React.createRef();
         this.containerDiv = React.createRef();
+        this.textDropZone = React.createRef();
         // FUNCTIONS
         this.sendFile = controller.sendFile.bind(this);
         this.enableSubmit = controller.enableSubmit.bind(this);
         this.delete_cookie = controller.delete_cookie.bind(this);
+        this.events = controller.enableEvents.bind(this);
     }
 
     componentDidMount() {
+        this.events();
         this.delete_cookie("Symly");
         this.delete_cookie("selectedTrack");
         this.btnSubmit.current.setAttribute("disabled", "disabled");
-
-        this.btnInput.current.addEventListener("change", this.enableSubmit);
     }
 
     componentDidUpdate() {
@@ -44,38 +47,49 @@ class Home extends React.Component {
 
         return (
             <>
-                <div className="container" ref={this.containerDiv}>
+                <div className={HomeStyle.uploadContainer} ref={this.containerDiv}>
 
                     <div className={HomeStyle.content} ref={this.mainContent}>
-                        <h1>Uploaded File</h1>
 
-                        <form action="/select" onSubmit={(e) => {this.sendFile(e)}}>
+                        <form 
+                            action="/select" 
+                            className={HomeStyle.formContainer} 
+                            ref={this.dropZone}
+                        >
                             <label htmlFor="song" style={{display:"none"}}>Song:</label>
                             <input
+                                className={HomeStyle.inputZone}
                                 type="file"
                                 ref={this.btnInput}
                                 name="song"
-                                id="song"
-                                accept=".mp3, .flac"
+                                accept=".mp3, .aac, .ogg, .alac, .flac"
                             ></input>
-                            <button type="submit" ref={this.btnSubmit}>
-                                Enviar
-                            </button>
-                        </form>
-                    </div>
 
-                    <div className="progressBar desactivate" ref={this.loaderDiv}>
-                        <ProgressBar
-                            animated={true}
-                            ref={this.progressDiv}
-                            style={{ height: "20px" }}
-                            now={this.state.now}
-                            label={`${this.state.now}%`}
-                        />
+                            <div className={HomeStyle.drawDropZone} onClick={(e) => {this.btnInput.current.click()}}>
+
+                                <img src="./download_icon.png" alt="icon" />
+                                <p ref={this.textDropZone}>Choose <strong>your music file</strong> or drag it here.</p>
+                                <button type="submit" ref={this.btnSubmit} className={HomeStyle.btnSubmit} hidden={this.state.buttonHidden}>Enviar</button>
+
+                            </div>
+                            
+                        </form>
+
                     </div>
 
                 </div>
-                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
+
+                <div className={"progressBar desactivate "+HomeStyle.ProgressBarContainer} ref={this.loaderDiv}>
+                    <ProgressBar
+                        animated={true}
+                        ref={this.progressDiv}
+                        style={{ height: "20px" }}
+                        now={this.state.now}
+                        label={`${this.state.now}%`}
+                    />
+                    <p>We are processing your file, please be patient...</p>
+                </div>
+                {/* <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} /> */}
             </>
         );
     }

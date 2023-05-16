@@ -1,6 +1,89 @@
+.uploadContainer {
+    position: absolute;
+    width: 100%;
+    margin: 0 auto;
+    bottom: 35%;
+}
+
+/* ============= UPLOAD CONTAINER ============= */
+
+.formContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+.inputZone {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    visibility: hidden;
+    z-index: 1;
+}
+
 .content {
+    position: relative;
+    height: 25rem;
+    width: 60rem;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px;
+    margin: auto;
+    border: 3px dashed #00000080;
+    border-radius: 10px;
+    background-color: rgba(184, 184, 184, 0.363);
+}
+
+.drawDropZone {
+    position: absolute;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 2;
+}
+
+.drawDropZone img {
+    height: 100px;
+    width: 100px;
+}
+
+.drawDropZone p {
+    font-size: larger;
+    margin: 1rem 0 0 0;
+    color: #d1d1d1;
+}
+
+.btnSubmit {
+    bottom: 0;
+    right: 0;
+    margin: 0 0 1rem 0;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 5px;
+    background: linear-gradient(-20deg, #ff1e00fb, #bd1717bb, #214fcf, #4500b3bb);
+    background-size: 400% 400%;
+    color: white;
+    font-size: larger;
+    cursor: pointer;
+    z-index: 3;
+}
+
+/* ============= PROGRESS BAR ============= */
+
+.ProgressBarContainer {
+    display: none;
+    position: absolute;
+    bottom: 50%;
+    width: calc(100% - 20rem);
+    margin: 0 10rem;
+}
+
+.ProgressBar p {
+    margin: 1rem 0 0 0;
+    font-size: larger;
 }
