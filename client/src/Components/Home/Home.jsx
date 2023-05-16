@@ -21,9 +21,11 @@ class Home extends React.Component {
         this.textDropZone = React.createRef();
         // FUNCTIONS
         this.sendFile = controller.sendFile.bind(this);
+        this.events = controller.enableEvents.bind(this);
         this.enableSubmit = controller.enableSubmit.bind(this);
         this.delete_cookie = controller.delete_cookie.bind(this);
-        this.events = controller.enableEvents.bind(this);
+        this.changeContent = controller.changeContent.bind(this);
+        this.resetUploadContent = controller.resetUploadContent.bind(this);
     }
 
     componentDidMount() {
@@ -89,7 +91,7 @@ class Home extends React.Component {
                     />
                     <p>We are processing your file, please be patient...</p>
                 </div>
-                {/* <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} /> */}
+                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
             </>
         );
     }

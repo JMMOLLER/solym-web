@@ -79,6 +79,7 @@ class Start extends React.Component {
 
     async componentDidMount() {
         try {
+            document.getElementsByClassName("navbar")[0].style.display = "none";
             this.setEvent();
             this.audioDOM.current.volume = 0.5;
             this.setState(

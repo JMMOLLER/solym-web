@@ -5,6 +5,24 @@ function enableSubmit() {
     this.setState({ buttonHidden: false }); // Show submit button
 }
 
+function changeContent(showLoader) {
+    if(showLoader) {
+        this.containerDiv.current.style.display = "none"; // Hide drop zone
+        this.loaderDiv.current.style.display = "block"; // Show loader
+    } else {
+        this.containerDiv.current.style.display = "block"; // Show drop zone
+        this.loaderDiv.current.style.display = "none"; // Hide loader
+        this.btnInput.current.removeAttribute("disabled"); // Enable submit input
+        this.btnSubmit.current.removeAttribute("disabled"); // Enable submit button
+    }
+}
+
+function resetUploadContent() {
+    this.btnInput.current.value = "";
+    this.textDropZone.current.innerHTML = "Choose <strong>your music file</strong> or drag it here.";
+    this.setState({ now: 0, buttonHidden: true }, () => {this.changeContent(false);});
+}
+
 async function sendFile(e) {
     e.preventDefault();
     this.btnSubmit.current.setAttribute("disabled", "disabled");
@@ -37,6 +55,10 @@ async function sendFile(e) {
             axios.get(`${process.env.REACT_APP_API_URL}/uploadFileInfo/${res.data.id}`).then((res) => {
                 if(res.status === 200)
                     document.location.href = "/select";
+            }).catch((err) => {
+                console.log(err);
+                alert("Error uploading file. Please try again.");
+                this.resetUploadContent();
             });
         } else {
             alert("Error uploading file. Please try again.");
@@ -68,8 +90,7 @@ function enableEvents() {
 
     this.dropZone.current.addEventListener("submit", (e) => {
         this.sendFile(e); // Send file
-        this.containerDiv.current.style.display = "none"; // Hide drop zone
-        this.loaderDiv.current.style.display = "block"; // Show loader
+        this.changeContent(true); // Change content
     }); // Add event listener to drop zone
 
     dropZone.addEventListener("dragover", (e) => {
@@ -108,4 +129,6 @@ export {
     sendFile,
     delete_cookie,
     enableEvents,
+    changeContent,
+    resetUploadContent,
 }
