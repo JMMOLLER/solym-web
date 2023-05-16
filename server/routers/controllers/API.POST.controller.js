@@ -27,7 +27,7 @@ const uploadFile = async (req, res) => {
     TrackStream.pipe(uploadStream);
 
     uploadStream.on('error', () => {
-        console.log('\x1b[31m%s\x1b[0m', "File uploaded successfully.");
+        console.log('\x1b[31m%s\x1b[0m', "File uploaded error.");
         return res.status(500).json({ message:'Error uploading file.', code: 500, returnTo: '/' });
     });
 

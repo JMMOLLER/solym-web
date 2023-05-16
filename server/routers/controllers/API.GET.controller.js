@@ -63,8 +63,8 @@ const uploadFileInfo = async (req, res) => {
         res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: false });
         return res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
-        await DB.deleteTrack(uploadStream);
         console.log(error);
+        await DB.deleteTrack(uploadStream);
         return res.status(500).json({error: error.message});
     } 
 }
