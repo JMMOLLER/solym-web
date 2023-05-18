@@ -21,7 +21,7 @@ class Home extends React.Component {
         this.textDropZone = React.createRef();
         // FUNCTIONS
         this.sendFile = controller.sendFile.bind(this);
-        this.events = controller.enableEvents.bind(this);
+        this.enableEvents = controller.enableEvents.bind(this);
         this.enableSubmit = controller.enableSubmit.bind(this);
         this.delete_cookie = controller.delete_cookie.bind(this);
         this.changeContent = controller.changeContent.bind(this);
@@ -29,7 +29,7 @@ class Home extends React.Component {
     }
 
     componentDidMount() {
-        this.events();
+        this.enableEvents();
         this.delete_cookie("Symly");
         this.delete_cookie("selectedTrack");
         this.btnSubmit.current.setAttribute("disabled", "disabled");

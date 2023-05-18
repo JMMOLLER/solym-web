@@ -15,9 +15,11 @@ class Start extends React.Component {
             lyrics: [],
             toExport: [],
             infoExport: {},
+            notLoadYet: true,
             toggleShow: false,
-            startDisabled: true,
+            hasStarted: false,
             previewEnabled: false,
+            musicArePlaying: false,
             previousDisabled: true,
             notification: undefined,
         };
@@ -56,7 +58,6 @@ class Start extends React.Component {
         this.containerDOM = React.createRef();
         // FUNCTIONS
         this.preview = controller.preview.bind(this);
-        this.setEvent = controller.setEvent.bind(this);
         this.playMusic = controller.playMusic.bind(this);
         this.stopMusic = controller.stopMusic.bind(this);
         this.nextLyric = controller.nextLyric.bind(this);
@@ -75,11 +76,12 @@ class Start extends React.Component {
         this.checkLocalStorage = controller.checkLocalStorage.bind(this);
         this.LocalStorageModal = controller.LocalStorageModal.bind(this);
         this.increaseAudioVolume = controller.increaseAudioVolume.bind(this);
+        this.enableEvents = controller.enableEvents.bind(this);
     }
 
     async componentDidMount() {
         try {
-            this.setEvent();
+            this.enableEvents();
             document.getElementsByClassName("navbar")[0].style.display = "none";
             document.getElementById("root").style.height = "100vh";
             this.audioDOM.current.volume = 0.5;
@@ -180,7 +182,7 @@ class Start extends React.Component {
                                 className="btn btn-success"
                                 id="start"
                                 onClick={this.playMusic}
-                                disabled={this.state.startDisabled}
+                                disabled={this.state.notLoadYet}
                             >
                                 start
                             </button>
@@ -209,7 +211,7 @@ class Start extends React.Component {
                             onEnded={this.endTrackModal}
                             onTimeUpdate={this.timeUpdate}
                             onCanPlayThrough={() => {
-                                this.setState({ startDisabled: false });
+                                this.setState({ notLoadYet: false });
                             }}
                         ></audio>
                     </div>

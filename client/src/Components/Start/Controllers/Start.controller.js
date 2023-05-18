@@ -2,8 +2,14 @@
 import axios from "axios";
 import StylesStart from "../Start.module.css";
 
-function setEvent() {
+function enableEvents() {
     window.addEventListener("beforeunload", this.saveProgress);
+    window.addEventListener("keydown", (e) => {
+        if(e.key === "ArrowRight") this.nextLyric();
+        else if(e.key === "ArrowLeft") this.previousLyric();
+        else if(e.key === " "&&this.state.musicArePlaying) this.stopMusic();
+        else if(e.key === " "&&!this.state.musicArePlaying) this.playMusic();
+    });
 }
 
 function setAnimation(isReverse) {
@@ -112,173 +118,209 @@ function processInfo(info) {
     });
 }
 
+/**
+ * The function fades the volume of an audio element to zero and pauses it.
+ */
 function fadeAudioVolume() {
-    let currentVolume = this.audioDOM.current.volume;
-    let temp = currentVolume;
+    let currentVolume = this.audioDOM.current.volume; // El volumen actual
+    let temp = currentVolume; // Guardar el volumen actual
     const targetVolume = 0; // El volumen deseado
     const volumeStep = 0.01; // Cuánto cambiar el volumen en cada paso
     const timeStep = 90; // Cuánto tiempo esperar entre cada paso (en milisegundos)
 
     const intervalId = setInterval(() => {
-        if (currentVolume > targetVolume) {
-            currentVolume = Math.max(currentVolume - volumeStep, 0);
-            this.audioDOM.current.volume = currentVolume;
+        if (currentVolume > targetVolume) { // Si el volumen actual es mayor que el volumen deseado
+            currentVolume = Math.max(currentVolume - volumeStep, 0); // Restar el volumen
+            this.audioDOM.current.volume = currentVolume; // Establecer el volumen
         } else {
-            this.audioDOM.current.pause();
-            this.audioDOM.current.currentTime = 0;
-            this.audioDOM.current.volume = temp;
-            clearInterval(intervalId);
+            this.audioDOM.current.pause(); // Pausar la canción
+            this.audioDOM.current.currentTime = 0; // Establecer el tiempo de reproducción al inicio
+            this.audioDOM.current.volume = temp; // Establecer el volumen al valor guardado
+            clearInterval(intervalId); // Limpiar el intervalo
         }
-    }, timeStep);
+    }, timeStep); // Repetir cada timeStep milisegundos
 }
 
+/**
+ * The function increases the volume of an audio element gradually over time.
+ */
 function increaseAudioVolume() {
     const targetVolume = this.audioDOM.current.volume; // El volumen deseado
-    let currentVolume = this.audioDOM.current.volume = 0;
+    let currentVolume = this.audioDOM.current.volume = 0; // El volumen actual
     const volumeStep = 0.01; // Cuánto cambiar el volumen en cada paso
     const timeStep = 90; // Cuánto tiempo esperar entre cada paso (en milisegundos)
 
     const intervalId = setInterval(() => {
-        if (currentVolume < targetVolume) {
-            currentVolume = Math.min(currentVolume + volumeStep, 1);
-            this.audioDOM.current.volume = currentVolume;
+        if (currentVolume < targetVolume) { // Si el volumen actual es menor que el volumen deseado
+            currentVolume = Math.min(currentVolume + volumeStep, 1); // Sumar el volumen
+            this.audioDOM.current.volume = currentVolume; // Establecer el volumen
         } else {
-            clearInterval(intervalId);
+            clearInterval(intervalId); // Limpiar el intervalo
         }
-    }, timeStep);
+    }, timeStep); // Repetir cada timeStep milisegundos
 }
 
-/* LOCAL STORAGE */
+/* ============ LOCAL STORAGE ============ */
 
+/**
+ * The function checks if there is data stored in the local storage and compares it with the current
+ * state of the lyrics, and displays a modal if they match.
+ */
 function checkLocalStorage() {
     try{
         if (
             window.localStorage.getItem("lyrics") &&
             JSON.parse(window.localStorage.getItem("times"))
                 .length > 1
-        ) {
-            let response = true;
-            const localLyrics = JSON.parse(
-                window.localStorage.getItem("lyrics")
-            );
-            this.state.lyrics.forEach((lyric, index) => {
-                if (lyric !== localLyrics[index]) {
-                    response = false;
+        ) { // Si hay datos en el local storage
+            let response = true; // La respuesta es verdadera
+            const localLyrics = JSON.parse(window.localStorage.getItem("lyrics")); // Obtener las letras del local storage
+            this.state.lyrics.forEach((lyric, index) => { // Por cada letra en el estado
+                if (lyric !== localLyrics[index]) { // Si la letra actual es diferente a la letra en el local storage
+                    response = false; // La respuesta es falsa
                 }
             });
-            if (response) {
+            if (response) { // Si la respuesta es verdadera
                 this.LocalStorageModal(
-                    JSON.parse(
-                        window.localStorage.getItem("times")
-                    ).length === this.state.lyrics.length
-                );
+                    JSON.parse( window.localStorage.getItem("times"))
+                        .length === this.state.lyrics.length // Si el número de tiempos en el local storage es igual al número de letras en el estado
+                ); // Mostrar el modal
             }
         }
     }catch(err){
-        console.log(err);
+        console.log(err); // Mostrar el error en la consola
     }
 }
 
+/**
+ * The function builds and sets the state of a local storage object for a music player.
+ */
 function buildLocalStorage() {
-    this.times = new Map(JSON.parse(window.localStorage.getItem("times")));
-    this.index = Number.parseInt(window.localStorage.getItem("index"));
-    if(this.index > -1) {this.setState({ previousDisabled: false });}
-    this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2];
-    this.state.lyrics.map((lyric, index) => {
-        if (index < this.index) {
-            this.state.toExport.push(formatTime(this.times.get(index)) + lyric);
-            this.state.toExport.push("\n");
+    this.times = new Map(JSON.parse(window.localStorage.getItem("times"))); // Obtener los tiempos del local storage
+    this.index = Number.parseInt(window.localStorage.getItem("index")); // Obtener el índice del local storage
+    if(this.index > -1) {this.setState({ previousDisabled: false });} // Si el índice es mayor a -1, habilitar el botón de anterior
+    this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2]; // Establecer la letra siguiente
+    this.state.lyrics.map((lyric, index) => { // Por cada letra en el estado
+        if (index < this.index) { // Si el índice es menor al índice del local storage
+            this.state.toExport.push(formatTime(this.times.get(index)) + lyric); // Agregar el tiempo y la letra al array de exportación
+            this.state.toExport.push("\n"); // Agregar un salto de línea al array de exportación
         }
     });
-    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪";
-    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index];
-    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "";
-    this.audioDOM.current.currentTime = this.times.get(this.index);
-    this.Toggle();
+    this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪"; // Establecer la letra anterior
+    this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; // Establecer la letra actual
+    this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; // Establecer la letra siguiente
+    this.audioDOM.current.currentTime = this.times.get(this.index); // Establecer el tiempo de reproducción
+    this.Toggle(); // Pausar la canción
 }
 
+/**
+ * The function removes specific items from local storage and removes an event listener.
+ */
 function cleanLocalStorage() {
-    window.localStorage.removeItem("lyrics");
-    window.localStorage.removeItem("times");
-    window.localStorage.removeItem("index");
-    window.removeEventListener("beforeunload", this.saveProgress);
+    window.localStorage.removeItem("lyrics"); // Eliminar las letras del local storage
+    window.localStorage.removeItem("times"); // Eliminar los tiempos del local storage
+    window.localStorage.removeItem("index"); // Eliminar el índice del local storage
+    window.removeEventListener("beforeunload", this.saveProgress); // Eliminar el evento de guardar el progreso
 }
 
+/**
+ * The function formats a given time in seconds into a string with minutes, seconds, and milliseconds
+ * in a specific format.
+ * @param time - The time parameter is a number representing the time in seconds.
+ * @returns a formatted string representing the time in minutes, seconds, and milliseconds. The string
+ * is enclosed in square brackets and has the format [mm:ss.mmm].
+ */
 function formatTime(time) {
-    let minutes = Math.floor(time / 60);
-    let seconds = Math.floor(time - minutes * 60);
+    let minutes = Math.floor(time / 60); // Obtener los minutos
+    let seconds = Math.floor(time - minutes * 60); // Obtener los segundos
     let milliseconds =
         (time - minutes * 60 - Math.floor(time - minutes * 60)).toFixed(3) *
-        1000;
-    if (minutes < 10) minutes = `0${minutes}`;
-    if (seconds < 10) seconds = `0${seconds}`;
-    if (milliseconds < 10) milliseconds = `00${milliseconds}`;
-    else if (milliseconds < 100) milliseconds = `0${milliseconds}`;
-    return `[${minutes}:${seconds}.${milliseconds}]`;
+        1000; // Obtener los milisegundos
+    if (minutes < 10) minutes = `0${minutes}`; // Si los minutos son menores a 10, agregar un 0 al inicio
+    if (seconds < 10) seconds = `0${seconds}`; // Si los segundos son menores a 10, agregar un 0 al inicio
+    if (milliseconds < 10) milliseconds = `00${milliseconds}`; // Si los milisegundos son menores a 10, agregar dos 0 al inicio
+    else if (milliseconds < 100) milliseconds = `0${milliseconds}`; // Si los milisegundos son menores a 100, agregar un 0 al inicio
+    return `[${minutes}:${seconds}.${milliseconds}]`; // Devolver el tiempo en el formato [mm:ss.mmm]
 }
 
-/* CONTROLLERS */
+/* ============ CONTROLLERS ============ */
 
+/**
+ * The function advances to the next lyric in a song and updates the displayed lyrics accordingly,
+ * while also exporting the current time and lyric to an array if preview is disabled.
+ */
 function nextLyric() {
-    if (this.index >= -1) {
-        this.setState({ previousDisabled: false });
-    }
-    if (this.index < this.state.lyrics.length - 1) {
-        this.index++;
-        this.setAnimation(false);
-        setTimeout(() => {
-            this.removeAnimation();
-            if (!this.state.previewEnabled) {
-                this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.props.globalConfigs.delay);
-                this.times.set(this.index, this.currentSecond);
-                this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index];
-                this.state.toExport.push(this.currentLyric);
-                this.state.toExport.push("\n");
-                console.log(this.currentLyric + " Index: " + this.index);
-            }
-            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
-            this.p_lyricDOM.current.innerText = this.state.lyrics[this.index - 1] || "♪";
-            this.c_lyricDOM.current.innerText = this.state.lyrics[this.index];
-            this.n_lyricDOM.current.innerText = this.state.lyrics[this.index + 1] || "";
-            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
-        }, 150);
+    if(this.state.hasStarted){ // Si la canción ha iniciado
+        if (this.index >= -1) { // Si el índice es mayor o igual a -1
+            this.setState({ previousDisabled: false }); // Habilitar el botón de anterior
+        }
+        if (this.index < this.state.lyrics.length - 1) { // Si el índice es menor al número de letras en el estado
+            this.index++; // Aumentar el índice
+            this.setAnimation(false); // Establecer la animación
+            setTimeout(() => { // Después de 150 milisegundos
+                this.removeAnimation(); // Eliminar la animación
+                if (!this.state.previewEnabled) { // Si la vista previa está deshabilitada
+                    this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.props.globalConfigs.delay); // Obtener el tiempo actual
+                    this.times.set(this.index, this.currentSecond); // Establecer el tiempo actual
+                    this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index]; // Obtener el tiempo actual y la letra actual
+                    this.state.toExport.push(this.currentLyric); // Agregar el tiempo actual y la letra actual al array de exportación
+                    this.state.toExport.push("\n"); // Agregar un salto de línea al array de exportación
+                    console.log(this.currentLyric + " Index: " + this.index); // Imprimir el tiempo actual y la letra actual en la consola
+                }
+                this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || ""; // Establecer la letra anterior
+                this.p_lyricDOM.current.innerText = this.state.lyrics[this.index - 1] || "♪"; // Establecer la letra anterior
+                this.c_lyricDOM.current.innerText = this.state.lyrics[this.index]; // Establecer la letra actual
+                this.n_lyricDOM.current.innerText = this.state.lyrics[this.index + 1] || ""; // Establecer la letra siguiente
+                this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || ""; // Establecer la letra siguiente
+            }, 150);
+        }
+    }else{
+        alert("You haven't started the song yet"); // SI LA CANCION NO HA EMPEZADO
     }
 }
 
+/**
+ * The function allows the user to go back to the previous lyric of a song and synchronize it with the
+ * audio.
+ */
 function previousLyric() {
-    this.stopDOM.current.style.display = "none";
-    this.nextDOM.current.style.display = "none";
-    this.setAnimation(true);
-    setTimeout(() => {
-        this.removeAnimation();
-        if (this.index > 0) {
-            this.index--; //REDUCE EL INDICE
-            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-            const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
-            this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
-            this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-            this.state.toExport.pop();
-            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
-            this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪"; //ESCRIBE LA LETRA ANTERIOR
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
-            this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
-            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
-        } else {
-            this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
-            this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
-            this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
-            this.state.toExport.pop();
-            this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-            this.index--; //REDUCE EL INDICE
-            this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
-            this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || ""; //ESCRIBE LA LETRA ANTERIOR
-            this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪"; //ESCRIBE LA LETRA ACTUAL
-            this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
-            this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
-            this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
-        }
-    }, 150);
+    if(this.state.hasStarted){ // SI LA CANCION YA HA EMPEZADO
+        this.stopDOM.current.style.display = "none"; // OCULTA EL BOTON DE PARAR
+        this.nextDOM.current.style.display = "none"; // OCULTA EL BOTON DE SIGUIENTE
+        this.setAnimation(true); // ESTABLECE LA ANIMACION DE LA LETRA ANTERIOR
+        setTimeout(() => {
+            this.removeAnimation(); // REMUEVE LA ANIMACION DE LA LETRA ANTERIOR
+            if (this.index > 0) { // SI EL INDICE ES MAYOR A 0
+                this.index--; //REDUCE EL INDICE
+                this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
+                const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
+                this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
+                this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+                this.state.toExport.pop();
+                this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+                this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
+                this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "♪"; //ESCRIBE LA LETRA ANTERIOR
+                this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index]; //ESCRIBE LA LETRA ACTUAL
+                this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
+                this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
+            } else {
+                this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
+                this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+                this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
+                this.state.toExport.pop();
+                this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
+                this.index--; //REDUCE EL INDICE
+                this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
+                this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || ""; //ESCRIBE LA LETRA ANTERIOR
+                this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪"; //ESCRIBE LA LETRA ACTUAL
+                this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
+                this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
+                this.audioDOM.current.currentTime = 0; //SETEA EL TIEMPO DEL AUDIO A 0
+            }
+        }, 150); //ESPERA 150 MILISEGUNDOS
+    }else{
+        alert("You haven't started the song yet"); //SI LA CANCION NO HA EMPEZADO
+    }
 }
 
 function playMusic() {
@@ -290,6 +332,10 @@ function playMusic() {
         this.previousDOM.current.style.display = "block";
         this.nextDOM.current.style.display = "block";
         this.audioDOM.current.play();
+        this.setState({ musicArePlaying: true });
+        if(!this.state.hasStarted){
+            this.setState({ hasStarted: true });
+        }
     } else {
         console.log("la musica aun no carga");
     }
@@ -299,6 +345,7 @@ function stopMusic() {
     this.audioDOM.current.pause();
     this.nextDOM.current.style.display = "none";
     this.stopDOM.current.style.display = "none";
+    this.setState({ musicArePlaying: false });
 }
 
 function reset() {
@@ -511,7 +558,6 @@ function timeUpdate() {
 
 export {
     preview,
-    setEvent,
     playMusic,
     nextLyric,
     stopMusic,
@@ -520,6 +566,7 @@ export {
     timeUpdate,
     processInfo,
     renderModal,
+    enableEvents,
     exportLyric,
     setAnimation,
     saveProgress,
