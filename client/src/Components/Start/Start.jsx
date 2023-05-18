@@ -79,8 +79,9 @@ class Start extends React.Component {
 
     async componentDidMount() {
         try {
-            document.getElementsByClassName("navbar")[0].style.display = "none";
             this.setEvent();
+            document.getElementsByClassName("navbar")[0].style.display = "none";
+            document.getElementById("root").style.height = "100vh";
             this.audioDOM.current.volume = 0.5;
             this.setState(
                 { id: controller.getTrackID() },

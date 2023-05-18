@@ -1,3 +1,7 @@
+ul {
+    cursor: default;
+}
+
 .uploadContainer {
     position: absolute;
     width: 100%;
