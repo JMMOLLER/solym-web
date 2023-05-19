@@ -10,6 +10,16 @@ function enableEvents() {
         else if(e.key === " "&&this.state.musicArePlaying) this.stopMusic();
         else if(e.key === " "&&!this.state.musicArePlaying) this.playMusic();
     });
+    this.bgVideo.current.addEventListener("loadeddata", () => {
+        this.setState({ hasVideo: true });
+    })
+}
+
+function reorganizeStyles() {
+    document.body.style.overflow = "hidden";
+    document.querySelector("html").style.minWidth = "101%";
+    document.getElementsByClassName("navbar")[0].style.display = "none";
+    document.getElementById("root").style.height = "100vh";
 }
 
 function setAnimation(isReverse) {
@@ -99,7 +109,8 @@ async function getInfoSelected(id) {
 }
 
 function processInfo(info) {
-    this.backgroundDOM.current.style.backgroundImage = `url(${info.cover})`;
+    this.coverImg.current.src = info.cover;
+    this.bgVideo.current.src = info.videoURL;
     this.setState({ infoExport: info }, () => {
         document.title = `${info.title} - ${info.artist}`;
         this.state.toExport.push("[ar:" + info.artist + "]");
@@ -328,6 +339,10 @@ function playMusic() {
         this.audioDOM.current.duration > 0 &&
         this.audioDOM.current.paused
     ) {
+        if(this.state.hasVideo){
+            document.getElementById("backgroundDOM").style.animation = `${StylesStart.showVideo} .3s ease-in-out forwards`;
+            this.bgVideo.current.play();
+        }
         this.stopDOM.current.style.display = "block";
         this.previousDOM.current.style.display = "block";
         this.nextDOM.current.style.display = "block";
@@ -342,6 +357,10 @@ function playMusic() {
 }
 
 function stopMusic() {
+    if(this.state.hasVideo){
+        document.getElementById("backgroundDOM").style.animation = `${StylesStart.hiddenVideo} .1s ease-in forwards`;
+        this.bgVideo.current.pause();
+    }
     this.audioDOM.current.pause();
     this.nextDOM.current.style.display = "none";
     this.stopDOM.current.style.display = "none";
@@ -575,6 +594,7 @@ export {
     removeAnimation,
     getInfoSelected,
     fadeAudioVolume,
+    reorganizeStyles,
     cleanLocalStorage,
     buildLocalStorage,
     checkLocalStorage,

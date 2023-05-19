@@ -1,12 +1,10 @@
 require('dotenv').config({ path: './.env' });
-// CLIENT ACCESS TOKEN
-const API = process.env.CLIENT_ACCESS_TOKEN;
-//DEPENDENCY FOR GENIUS API LYRICS
-const Genius = require("genius-lyrics");
+const API = process.env.CLIENT_ACCESS_TOKEN; // CLIENT ACCESS TOKEN
+const Genius = require("genius-lyrics"); // DEPENDENCY FOR GENIUS API LYRICS
 const Client = new Genius.Client(API);
-//DEPENDENCY FOR GENIUS API SEARCH
-const api = require('genius-api');
+const api = require('genius-api'); // DEPENDENCY FOR GENIUS API SEARCH
 const genius = new api(API);
+const { getVideoId } = require("./youtubeAPI");
 
 
 async function shearchByName(title) {
@@ -24,6 +22,10 @@ async function getInfoByID(id) {
         song.album
             ? info.album = song.album.name
             : info.album = song.title;
+        if(info.artist) {
+            const videoId = await getVideoId(`${info.title} ${info.artist}`);
+            videoId ? info.videoURL = "https://yewtu.be/latest_version?id="+videoId : undefined;
+        }
         return info;
     }catch(error){
         console.log(error);

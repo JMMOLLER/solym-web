@@ -15,6 +15,7 @@ class Start extends React.Component {
             lyrics: [],
             toExport: [],
             infoExport: {},
+            hasVideo: false,
             notLoadYet: true,
             toggleShow: false,
             hasStarted: false,
@@ -38,7 +39,6 @@ class Start extends React.Component {
         this.c_lyricDOM = React.createRef();
         this.p_lyricDOM = React.createRef();
         this.n_lyricDOM = React.createRef();
-        this.backgroundDOM = React.createRef();
         this.p_aux_lyricDOM = React.createRef();
         this.n_aux_lyricDOM = React.createRef();
         // DOM BUTTONS
@@ -51,6 +51,10 @@ class Start extends React.Component {
         this.previousDOM = React.createRef();
         // DOM AUDIO
         this.audioDOM = React.createRef();
+        // DOM BACKGROUND
+        this.bgVideo = React.createRef();
+        this.coverImg = React.createRef();
+        this.backgroundDOM = React.createRef();
         // DOM MODAL
         this.modal = React.createRef();
         this.modalContainer = React.createRef();
@@ -65,6 +69,7 @@ class Start extends React.Component {
         this.processInfo = controller.processInfo.bind(this);
         this.renderModal = controller.renderModal.bind(this);
         this.exportLyric = controller.exportLyric.bind(this);
+        this.enableEvents = controller.enableEvents.bind(this);
         this.setAnimation = controller.setAnimation.bind(this);
         this.saveProgress = controller.saveProgress.bind(this);
         this.endTrackModal = controller.endTrackModal.bind(this);
@@ -76,14 +81,12 @@ class Start extends React.Component {
         this.checkLocalStorage = controller.checkLocalStorage.bind(this);
         this.LocalStorageModal = controller.LocalStorageModal.bind(this);
         this.increaseAudioVolume = controller.increaseAudioVolume.bind(this);
-        this.enableEvents = controller.enableEvents.bind(this);
     }
 
     async componentDidMount() {
         try {
             this.enableEvents();
-            document.getElementsByClassName("navbar")[0].style.display = "none";
-            document.getElementById("root").style.height = "100vh";
+            controller.reorganizeStyles();
             this.audioDOM.current.volume = 0.5;
             this.setState(
                 { id: controller.getTrackID() },
@@ -129,7 +132,12 @@ class Start extends React.Component {
 
         return (
             <div style={{ position: "relative", height: "100%" }}>
-                <div ref={this.backgroundDOM} className={StylesStart.bg}></div>
+                <div className={StylesStart.bgContainer}>
+                    <div id="backgroundDOM" ref={this.backgroundDOM} className={StylesStart.bg}>
+                        <img ref={this.coverImg} src="" alt="cover" />
+                    </div>
+                    <video src="" ref={this.bgVideo} className={StylesStart.bgVideo} muted={true}></video>
+                </div>
                 <div className={StylesStart.content}>
                     <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
                     <div className={StylesStart.contentChild}>
