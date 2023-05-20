@@ -13,6 +13,18 @@ function enableEvents() {
     this.bgVideo.current.addEventListener("loadeddata", () => {
         this.setState({ hasVideo: true });
     })
+    this.audioDOM.current.onpause = () => {
+        if(this.state.hasVideo){
+            document.getElementById("backgroundDOM").style.animation = `${StylesStart.hiddenVideo} .1s ease-in forwards`;
+            this.bgVideo.current.pause();
+        }
+    };
+    this.audioDOM.current.onplay = () => {
+        if(this.state.hasVideo){
+            document.getElementById("backgroundDOM").style.animation = `${StylesStart.showVideo} .3s ease-in-out forwards`;
+            this.bgVideo.current.play();
+        }
+    };
 }
 
 function reorganizeStyles() {
@@ -306,6 +318,7 @@ function previousLyric() {
                 this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
                 const currentTime = this.times.get(this.index); //OBTIENE EL TIEMPO DE LA LETRA ANTERIOR
                 this.audioDOM.current.currentTime = currentTime; //SETEA EL TIEMPO DEL AUDIO A EL TIEMPO DE LA LETRA ANTERIOR
+                this.bgVideo.current.currentTime = currentTime; //SETEA EL TIEMPO DEL VIDEO A EL TIEMPO DE LA LETRA ANTERIOR
                 this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
                 this.state.toExport.pop();
                 this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
@@ -339,10 +352,6 @@ function playMusic() {
         this.audioDOM.current.duration > 0 &&
         this.audioDOM.current.paused
     ) {
-        if(this.state.hasVideo){
-            document.getElementById("backgroundDOM").style.animation = `${StylesStart.showVideo} .3s ease-in-out forwards`;
-            this.bgVideo.current.play();
-        }
         this.stopDOM.current.style.display = "block";
         this.previousDOM.current.style.display = "block";
         this.nextDOM.current.style.display = "block";
@@ -357,10 +366,6 @@ function playMusic() {
 }
 
 function stopMusic() {
-    if(this.state.hasVideo){
-        document.getElementById("backgroundDOM").style.animation = `${StylesStart.hiddenVideo} .1s ease-in forwards`;
-        this.bgVideo.current.pause();
-    }
     this.audioDOM.current.pause();
     this.nextDOM.current.style.display = "none";
     this.stopDOM.current.style.display = "none";
@@ -449,7 +454,9 @@ function renderModal({ title, body, footer }) {
 /* SEND TO RENDER MODAL */
 
 function endTrackModal() {
-    this.audioDOM.current.currentTime=40;
+    const JUMP = 40
+    this.audioDOM.current.currentTime=JUMP;
+    this.bgVideo.current.currentTime=JUMP;
     this.playMusic();
     this.increaseAudioVolume();
     setTimeout(() => {
@@ -548,11 +555,12 @@ function LocalStorageModal(isCompleted) {
 function preview() {
     this.index = -1;
     this.audioDOM.current.currentTime = 0;
+    this.bgVideo.current.currentTime = 0;
     this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "";
     this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪";
     this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "";
-    this.previousDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
-    this.nextDOM.current.style.display = "none"; // ESTO NO ESTA FUNCIONANDO
+    this.previousDOM.current.style.display = "none";
+    this.nextDOM.current.style.display = "none";
     this.setState({ previewEnabled: true }, () => {
         console.log("ready to preview => ", this.state.previewEnabled);
         this.Toggle();
