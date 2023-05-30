@@ -346,6 +346,9 @@ function previousLyric() {
     }
 }
 
+/**
+ * The function plays music if it has loaded and is not already playing, otherwise it logs a message.
+ */
 function playMusic() {
     if (
         this.audioDOM.current.duration > 0 &&
@@ -364,6 +367,10 @@ function playMusic() {
     }
 }
 
+/**
+ * The function stops the currently playing music and hides the next and stop buttons while updating
+ * the state to indicate that music is no longer playing.
+ */
 function stopMusic() {
     this.audioDOM.current.pause();
     this.nextDOM.current.style.display = "none";
@@ -371,11 +378,18 @@ function stopMusic() {
     this.setState({ musicArePlaying: false });
 }
 
+/**
+ * The function resets the current webpage by reloading it.
+ */
 function reset() {
     window.location.reload();
 }
 
-/* EXPORT */
+/* ================= EXPORT ================= */
+
+/**
+ * This function exports a lyric file and deletes data from local storage and a server.
+ */
 function exportLyric() {
     const document = new Blob(this.state.toExport, {
         type: "text/plain;charset=utf-8",
@@ -392,6 +406,14 @@ function exportLyric() {
         });
 }
 
+/**
+ * This function creates a download link for a given URI and filename, and simulates a click to
+ * download the file.
+ * @param uri - The URI (Uniform Resource Identifier) is a string of characters that identifies a name
+ * or a resource on the Internet. In this function, it is the URL of the file to be downloaded or
+ * saved.
+ * @param filename - The name that the downloaded file will have.
+ */
 function saveAs(uri, filename) {
     let link = document.createElement("a");
     if (typeof link.download === "string") {
@@ -411,8 +433,11 @@ function saveAs(uri, filename) {
     }
 }
 
-/* RENDER MODAL */
+/* ================= RENDER MODAL ================= */
 
+/**
+ * The function renders a modal with a title, body, and footer.
+ */
 function renderModal({ title, body, footer }) {
     this.Toggle();
     const modal = (
@@ -450,8 +475,12 @@ function renderModal({ title, body, footer }) {
     this.setState({ notification: modal });
 }
 
-/* SEND TO RENDER MODAL */
+/* ================= SEND TO RENDER MODAL ================= */
 
+/**
+ * The function ends a track, sets the audio and video to a specific time, fades out the audio, and
+ * displays a modal with options to preview or export the result.
+ */
 function endTrackModal() {
     const JUMP = 40
     this.audioDOM.current.currentTime=JUMP;
@@ -496,6 +525,10 @@ function endTrackModal() {
     this.renderModal({ title, body, footer });
 }
 
+/**
+ * The function creates a modal with options for handling saved progress in case of unexpected closure.
+ * @param isCompleted - A boolean value indicating whether the progress is completed or not.
+ */
 function LocalStorageModal(isCompleted) {
     const title = "Se ha detectado progreso guardado";
     const body =
@@ -549,8 +582,11 @@ function LocalStorageModal(isCompleted) {
     this.renderModal({ title, body, footer });
 }
 
-/* PREVIEW FUNCTIONS */
+/* ================= PREVIEW FUNCTIONS ================= */
 
+/**
+ * The function enables preview mode and plays music with lyrics displayed.
+ */
 function preview() {
     this.index = -1;
     this.audioDOM.current.currentTime = 0;
@@ -568,6 +604,10 @@ function preview() {
     });
 }
 
+/**
+ * The function checks if the current time of an audio player is greater than the next lyric time and
+ * updates the index accordingly.
+ */
 function timeUpdate() {
     if (this.state.previewEnabled) {
         if (
