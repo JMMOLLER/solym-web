@@ -20,7 +20,7 @@ const getConnection = async() => {
         await mongoose.connect(getConnectionURI());
         return mongoose.connection.db;
     }catch(err){
-        console.log("\x1b[31m%s\x1b[0m","Hubo un error al intentar conectar con la Base de Datos. Reintentando en 1 minuto.");
+        console.warn("\x1b[31m%s\x1b[0m","Hubo un error al intentar conectar con la Base de Datos. Reintentando en 1 minuto.");
         await new Promise(resolve => setTimeout(resolve, ms("1m")));
         return await getConnection();
     }

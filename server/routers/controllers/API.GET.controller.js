@@ -69,44 +69,56 @@ const uploadFileInfo = async (req, res) => {
     } 
 }
 
-const uploadFile = async(req, res) => {
-    console.log('\x1b[31m%s\x1b[0m', "New request");
-    const data = await DB.getDoc(req.cookies['Symly'].infoId);
-    if(!data){
-        return res.status(400).json({error: 'No data'});
+const uploadFile = async (req, res) => {
+    try {
+        console.info('\x1b[31m%s\x1b[0m', 'New request');
+        const data = await DB.getDoc(req.cookies['Symly'].infoId);
+        if (!data) {
+            return res.status(400).json({ error: 'No data' });
+        }
+
+        res.set('content-type', 'audio/mpeg');
+        res.set('content-range', 'bytes');
+        res.set('Accept-Ranges', 'bytes');
+
+        const bucket = await getBucket();
+        const Track = bucket.openDownloadStream(ObjectId(data.fileId));
+
+        const connection = await getConnection();
+        const collection = connection.collection('tracks.files');
+        const file = await collection.findOne({ _id: ObjectId(data.fileId) });
+
+        if (!file) {
+            console.error('File not found');
+            return res.status(404).json({ error: 'File not found' });
+        }
+
+        res.set('content-length', file.length);
+        res.set('X-Content-Duration', file.length);
+
+        console.info('\x1b[34m%s\x1b[0m', 'Sending track...');
+
+        Track.on('data', chunk => {
+            res.write(chunk);
+        });
+        Track.on('field', (name, value) => {
+            console.info('field');
+            console.info(name, value);
+        });
+        Track.on('error', () => {
+            console.error('error');
+            res.status(404);
+        });
+        Track.on('end', () => {
+            console.info('\x1b[31m%s\x1b[0m', 'Request ended');
+            res.end();
+        });
+    } catch (error) {
+        console.error('An error occurred:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
-    res.set('content-type', 'audio/mpeg');
-    res.set('content-range', 'bytes');
-    res.set('Accept-Ranges', 'bytes');
-    const bucket = await getBucket();
-    const Track = bucket.openDownloadStream(ObjectId(data.fileId));
-    await getConnection().then((connection) => {
-        connection.collection('tracks.files').findOne({_id: ObjectId(data.fileId)}, (err, file) => {
-            if(err){
-                console.log(err);
-                return res.status(500).json({error: 'Error'});
-            }
-            res.set('content-length', file.length);
-            res.set('X-Content-Duration', file.length);
-        })
-    })
-    console.log('\x1b[34m%s\x1b[0m', "Sending track...");
-    Track.on('data', chunk => {
-        res.write(chunk);
-    })
-    Track.on('field', (name, value) => {
-        console.log("field");
-        console.log(name, value);
-    })
-    Track.on('error', () => {
-        console.log("error");
-        res.status(404);
-    });
-    Track.on('end', () => {
-        console.log('\x1b[31m%s\x1b[0m', "Request ended");
-        res.end();
-    });
 };
+  
 
 module.exports = {
     select,
