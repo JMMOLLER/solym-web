@@ -333,7 +333,6 @@ function previousLyric() {
                 this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
                 this.state.toExport.pop();
                 this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
-                this.index--; //REDUCE EL INDICE
                 this.p_aux_lyricDOM.current.innerText = this.state.lyrics[this.index - 2] || "";
                 this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || ""; //ESCRIBE LA LETRA ANTERIOR
                 this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪"; //ESCRIBE LA LETRA ACTUAL
@@ -343,7 +342,7 @@ function previousLyric() {
             }
         }, 150); //ESPERA 150 MILISEGUNDOS
     }else{
-        alert("You haven't started the song yet"); //SI LA CANCION NO HA EMPEZADO
+        alert("You haven't started the song yet"); // SI LA CANCION NO HA EMPEZADO
     }
 }
 
@@ -562,7 +561,7 @@ function preview() {
     this.previousDOM.current.style.display = "none";
     this.nextDOM.current.style.display = "none";
     this.setState({ previewEnabled: true }, () => {
-        console.log("ready to preview => ", this.state.previewEnabled);
+        console.info("preview has been enabled");
         this.Toggle();
         this.playMusic();
         this.checkTime = requestAnimationFrame(this.timeUpdate);

@@ -12,11 +12,12 @@
     top: 50%;
     transform: translateY(-50%) translateX(-50%);
     margin: 0px 50%;
-    width: 500px;
+    width: 60rem;
 }
 .lyrics {
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 /* TEXT LYRICS */
 .previousLyric {
@@ -36,7 +37,8 @@
     display: flex;
     align-items: center;
     justify-content: space-around;
-    width: 100%;
+    width: 35rem;
+    margin: 0 auto;
 }
 .bgContainer {
     height: 101.5%;
@@ -51,6 +53,7 @@
     z-index: 1;
     filter: brightness(0.5) blur(7px);
     /* aqui se establece background-color gradient con los colores más destacados del cover */
+    background-color: #000000;
 }
 .bgVideo {
     width: 100%;
@@ -98,6 +101,17 @@
 .lyrics>p {
     margin-bottom: 0 !important;
     min-height: 26px;
+    font-size: calc(1.5rem + 1vw);
+}
+.buttonsController {
+    position: relative;
+}
+.keySymbol {
+    width: 20px;
+    position: absolute;
+    bottom: -10px;
+    left: 35px;
+    filter: invert(1);
 }
 /* ANIMATIONS */
 @keyframes previous {

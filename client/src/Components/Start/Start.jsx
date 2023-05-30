@@ -100,10 +100,10 @@ class Start extends React.Component {
                         this.checkLocalStorage();
                         /* FETCH INFO */
                         const info = await controller.getInfoSelected(this.state.id);
-                        console.log(info);
+                        console.info(info);
                         this.processInfo(info);
                     } catch (err) {
-                        console.log(err);
+                        console.error(err);
                     }
                 }
             );
@@ -157,42 +157,46 @@ class Start extends React.Component {
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.previousDOM}
-                                className="btn btn-warning"
+                                className={StylesStart.buttonsController+" btn btn-warning"}
                                 id="previous"
                                 onClick={this.previousLyric}
                                 disabled={this.state.previousDisabled}
                             >
-                                previous
+                                <span>previous</span>
+                                <img className={StylesStart.keySymbol} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAYAAACNiR0NAAAACXBIWXMAAAsTAAALEwEAmpwYAAAA9ElEQVR4nLXUvS5EQRjG8d8KiYLYW7CRoBGJqFC6AxVRbKOwd+ACXICoKKh1JChoVGIdK6dyKZRyktnKjD1zlid5i/PMO//MMx+Hf1YL6+jiYER1Q28rBZvFHS5wWAPYwyVuMRMDnmKvQap9nMQG3jTXa8wsakycTvhFE+AOPjAxLnA5HNYVOuOu8Bj3WE2uOxN4hCdsxSY0jbwQ4j5g5S+AQ22jzDmU0mhNJvwyZn5iTr7a+IoNVOZ1JrSNmxSwCG/5HYPw/VsNQu2m9vAR8/LVCTfgh6p/2ws2MFUDVPVsoo+1VNMSzvFcI3LVc4bFBqnq6xtWyUMN2RAOUgAAAABJRU5ErkJggg==" alt="key symbol"></img>
                             </button>
                             <button
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.nextDOM}
-                                className="btn btn-info"
+                                className={StylesStart.buttonsController+" btn btn-info"}
                                 id="next"
                                 onClick={this.nextLyric}
                             >
-                                Next
+                                <span>Next</span>
+                                <img className={StylesStart.keySymbol} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAACdklEQVR4nO2ZP2sUQRjGf3dcNGonahM8Szsb8TNogmBhrUZyEQmChX/SWvoVLGwsLSz8c51+ABMLSaMguZgTS4OgiMldRgaeheEQ3J3d2ZmTfWDK932fZ2ffZ2bfhQYNGlSBQ8Ay0Ae+AHuACbT2VKOvmrOVKAAuAtsBif9rfQYWyoq4BYyV8C1wBTgJdAiHjmpcBdZUewSslNmJsZLcAVrUjxZw1+Ex79MT2etkRcTGfXHZKtozN5zXKcZOTMJyWBenHgXQV5DtiVRwTZxeFgkaKsg2XSroipN95XNjV0Eh3akoZsTJcsuNzMNTgynKy1dIGzjHfyCkA+wDTwP1l6lTSBb7A3hQ5V2JGoVYXAY+Ojk+AZc8c0UVku2MPVS/OrneAGdK5IwiJMMRYBX47lzRHwHHp01IhmPAQ+C38n4DbnucUya2kAyngWdO/g1ZdjBeJuCBaIk/dmp0plHIPPDeyf982nbkLPDayfvB8/PVxBLSlUtln8s7crEDnvlM3UKOyqV+KY8V8gQ4USJnrUJaeuI7FR+EUe9a25qEVAlTp5CfAS6LUV6tOcLB+ApJ8VPXFAkyCQ4fTpURUnWzlsH1MkLWEhzQmSKB7jTczl5jY3WCU25kAfs6le9F2pm2RIzFxVtIz7knrWts2ZWDhMKMaiwC75wrzpKPEHfSeAHYnNjaOtcmcN530jg5+z0sB7MD5IEjNMTaVY0XGqLbXxyu/Raa/b5K0H4XxckKzI3lxOy37fSL7ZXcmNVPyNTsdwAcLBq8oP92qdjvSE3vhRUliG2/I+BmFZOPrYj2OyizE3/rmZ4cY1iD/Q5Va8mnJxo0oDr8AdeQo5jOlqZzAAAAAElFTkSuQmCC" alt="key symbol"></img>
                             </button>
                             <button
                                 style={{ display: "none" }}
                                 type="button"
                                 ref={this.stopDOM}
-                                className="btn btn-danger"
+                                className={StylesStart.buttonsController+" btn btn-danger"}
                                 id="stop"
                                 onClick={this.stopMusic}
                             >
-                                stop
+                                <span>stop</span>
+                                <img className={StylesStart.keySymbol} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFklEQVR4nO2YPU4DQQyFv4ZQbUgBBeFQ/BwjAW7JEqQloku4BknvaJAHmSgUaZAnep9kaWa38dMbS7ZBCCGEEEL8B+fAE7AAtoAljS3wCjwCo30RN8BHgiTtyFgC0+hEFbECboGOvHTAHbD2nN+rM89BxIR2mAQx8/LhzS/FidZ48NxLzbDxS+bn9Bdjz/2LUDitYjV/CUmCyZFkmBxJhsmRZNjJOtLRHheHhJTWuNWm0QiHdYNt/OchIVXMvXeVWRm7E1HELyFDgtHVjoyY83cvXw6XwMyHlOzLh95zvYrzyOIEir3H1yqtF/sM30AsGy72ATirP6dBTEsxANf7Ske+VunDQiJjbIAXf04/TgghhBBCkI8df+Nv3sQqFjkAAAAASUVORK5CYII=" alt="key symbol"></img>
                             </button>
                             <button
                                 type="button"
                                 ref={this.startDOM}
-                                className="btn btn-success"
+                                className={StylesStart.buttonsController+" btn btn-success"}
                                 id="start"
                                 onClick={this.playMusic}
-                                disabled={this.state.notLoadYet}
+                                disabled={this.state.notLoadYet||this.state.musicArePlaying}
                             >
-                                start
+                                <span>start</span>
+                                <img className={StylesStart.keySymbol} src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAACXBIWXMAAAsTAAALEwEAmpwYAAABFklEQVR4nO2YPU4DQQyFv4ZQbUgBBeFQ/BwjAW7JEqQloku4BknvaJAHmSgUaZAnep9kaWa38dMbS7ZBCCGEEEL8B+fAE7AAtoAljS3wCjwCo30RN8BHgiTtyFgC0+hEFbECboGOvHTAHbD2nN+rM89BxIR2mAQx8/LhzS/FidZ48NxLzbDxS+bn9Bdjz/2LUDitYjV/CUmCyZFkmBxJhsmRZNjJOtLRHheHhJTWuNWm0QiHdYNt/OchIVXMvXeVWRm7E1HELyFDgtHVjoyY83cvXw6XwMyHlOzLh95zvYrzyOIEir3H1yqtF/sM30AsGy72ATirP6dBTEsxANf7Ske+VunDQiJjbIAXf04/TgghhBBCkI8df+Nv3sQqFjkAAAAASUVORK5CYII=" alt="key symbol"></img>
                             </button>
                         </div>
                         <audio
