@@ -120,8 +120,15 @@ async function getInfoSelected(id) {
     }
 }
 
+function setBGImage(URL){
+    this.backgroundDOM.current.style.setProperty("background-size",'100% auto');
+    this.backgroundDOM.current.style.setProperty("background-repeat",'no-repeat');
+    this.backgroundDOM.current.style.setProperty("background-position",'center');
+    this.backgroundDOM.current.style.setProperty("background-image",`url(${URL})`);
+}
+
 function processInfo(info) {
-    this.coverImg.current.src = info.cover;
+    this.setBGImage(info.cover);
     this.bgVideo.current.src = info.videoURL;
     this.setState({ infoExport: info }, () => {
         document.title = `${info.title} - ${info.artist}`;
@@ -630,6 +637,7 @@ export {
     getLyrics,
     getTrackID,
     timeUpdate,
+    setBGImage,
     processInfo,
     renderModal,
     enableEvents,

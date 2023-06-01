@@ -65,6 +65,7 @@ class Start extends React.Component {
         this.playMusic = controller.playMusic.bind(this);
         this.stopMusic = controller.stopMusic.bind(this);
         this.nextLyric = controller.nextLyric.bind(this);
+        this.setBGImage = controller.setBGImage.bind(this);
         this.timeUpdate = controller.timeUpdate.bind(this);
         this.processInfo = controller.processInfo.bind(this);
         this.renderModal = controller.renderModal.bind(this);
@@ -133,9 +134,7 @@ class Start extends React.Component {
         return (
             <div style={{ position: "relative", height: "100%" }}>
                 <div className={StylesStart.bgContainer}>
-                    <div id="backgroundDOM" ref={this.backgroundDOM} className={StylesStart.bg}>
-                        <img ref={this.coverImg} src="" alt="cover" />
-                    </div>
+                    <div id="backgroundDOM" ref={this.backgroundDOM} className={StylesStart.bg}></div>
                     <video src="" ref={this.bgVideo} className={StylesStart.bgVideo} muted={true}></video>
                 </div>
                 <div className={StylesStart.content}>

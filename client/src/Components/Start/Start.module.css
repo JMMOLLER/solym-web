@@ -51,8 +51,7 @@
     height: 100%;
     position: absolute;
     z-index: 1;
-    filter: brightness(0.5) blur(7px);
-    /* aqui se establece background-color gradient con los colores más destacados del cover */
+    filter: brightness(0.7) blur(2px);
     background-color: #000000;
 }
 .bgVideo {
@@ -61,7 +60,7 @@
     position: absolute;
     z-index: 0;
     left: 0;
-    object-fit: cover;
+    object-fit: fill;
     filter: brightness(0.5);
 }
 .modal {
