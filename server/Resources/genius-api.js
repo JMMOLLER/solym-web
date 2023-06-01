@@ -1,4 +1,5 @@
 require('dotenv').config({ path: './.env' });
+const { logger } = require('./pino');
 const API = process.env.CLIENT_ACCESS_TOKEN; // CLIENT ACCESS TOKEN
 const Genius = require("genius-lyrics"); // DEPENDENCY FOR GENIUS API LYRICS
 const Client = new Genius.Client(API);
@@ -15,6 +16,7 @@ async function shearchByName(title) {
 async function getInfoByID(id) {
     const info = {};
     try{
+        const VIDEO_URL ="https://yewtu.be/latest_version?id=";
         const song = await Client.songs.get(id);
         info.cover = song._raw.song_art_image_url || undefined;
         info.title = song.title || undefined;
@@ -23,8 +25,14 @@ async function getInfoByID(id) {
             ? info.album = song.album.name
             : info.album = song.title;
         if(info.artist) {
-            const videoId = await getVideoId(`${info.title} ${info.artist}`);
-            videoId ? info.videoURL = "https://yewtu.be/latest_version?id="+videoId : undefined;
+            logger.debug('Searching for video URL');
+            song._raw.media.forEach(element => {
+                if(element.provider === "youtube" && element.type === "video" && element.url) {
+                    info.videoURL = VIDEO_URL+element.url.slice(element.url.indexOf("v=")+2,element.url.length);
+                }
+            });
+            if(!info.videoURL) info.videoURL = VIDEO_URL+await getVideoId(`${info.title} ${info.artist}`);
+            logger.debug(`Video URL found: ${info.videoURL}`);
         }
         return info;
     }catch(error){
