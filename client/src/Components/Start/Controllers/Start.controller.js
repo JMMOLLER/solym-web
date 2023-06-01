@@ -335,8 +335,9 @@ function previousLyric() {
                 this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || ""; //ESCRIBE LA LETRA SIGUIENTE
                 this.n_aux_lyricDOM.current.innerText = this.state.lyrics[this.index + 2] || "";
             } else {
+                this.index = -1;
                 this.setState({ previousDisabled: true }); //DESACTIVA EL BOTON DE LETRA ANTERIOR
-                this.times.delete(this.index); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
+                this.times.delete(this.index + 1); //ELIMINA EL TIEMPO DE LA LETRA QUE SE ESTA MOSTRANDO
                 this.stopDOM.current.click(); //HACE UN CLICK EN EL BOTON DE PARAR
                 this.state.toExport.pop();
                 this.state.toExport.pop(); //ELIMINA LAS 2 ULTIMAS LETRAS SINCRONIZADAS
