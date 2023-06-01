@@ -1,4 +1,5 @@
 const ms = require("ms");
+const { logger } = require("./pino");
 const { GridFSBucket } = require("mongodb");
 const { getConnectionURI } = require("../DB/Service/Connection.service");
 const mongoose = require("mongoose");
@@ -20,7 +21,7 @@ const getConnection = async() => {
         await mongoose.connect(getConnectionURI());
         return mongoose.connection.db;
     }catch(err){
-        console.warn("\x1b[31m%s\x1b[0m","Hubo un error al intentar conectar con la Base de Datos. Reintentando en 1 minuto.");
+        logger.warn("\x1b[31m%s\x1b[0m","Hubo un error al intentar conectar con la Base de Datos. Reintentando en 1 minuto.");
         await new Promise(resolve => setTimeout(resolve, ms("1m")));
         return await getConnection();
     }
@@ -29,10 +30,15 @@ const getConnection = async() => {
 module.exports = {
     getBucket: () => {
         return new Promise(async(resolve, reject) => {
-            const bucket = new GridFSBucket(await getConnection(), {
-                bucketName: "tracks",
-            });
-            resolve(bucket);
+            try{
+                const bucket = new GridFSBucket(await getConnection(), {
+                    bucketName: "tracks",
+                });
+                resolve(bucket);
+            }catch(err){
+                logger.error(err);
+                reject(err);
+            }
         });
     },
     upload,

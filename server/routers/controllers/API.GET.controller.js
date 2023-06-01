@@ -1,8 +1,9 @@
 const { ObjectId } = require('mongoose').Types;
+const { logger } = require('../../Resources/pino');
+const { searchSong } = require('../../Resources/genius-api');
 const DB = require('../../DB/DAO/SolymDatas.dao').UploadFile.returnSingleton();
 const { getLyricsByID, getInfoByID } = require('../../Resources/genius-api');
 const { getBucket, getConnection } = require('../../Resources/multer');
-const { searchSong } = require('../../Resources/genius-api');
 const { getMetadata } = require('../../Resources/music-metadata');
 const ms= require('ms');
 
@@ -34,14 +35,15 @@ const info = async(req, res) => {
 };
 
 const uploadFileInfo = async (req, res) => {
-    console.log('\x1b[36m%s\x1b[0m', "Waiting for metadata...");
+    logger.info("Waiting for metadata...");
     const uploadStream = ObjectId(req.params.id);
     try {
         const bucket = await getBucket();
         const Track = bucket.openDownloadStream(uploadStream);
         const fullInfo = await getMetadata(Track);
 
-        console.log(fullInfo)
+        fullInfo.picture = undefined;
+        logger.debug(fullInfo)
 
         const partialInfo = {
             title: fullInfo.title,
@@ -52,18 +54,18 @@ const uploadFileInfo = async (req, res) => {
         let results = [];
         
         if(partialInfo.title && partialInfo.artist){
-            console.log('\x1b[34m%s\x1b[0m', "Waiting for matches...");
+            logger.info("Waiting for matches...");
             results = await searchSong(partialInfo.fullTitle, partialInfo.artist[0]);
         }
         
-        console.log(partialInfo);
+        logger.debug(partialInfo);
 
         const Symly = await DB.saveDoc({results: results, fileId: uploadStream})
         
         res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: false });
         return res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
-        console.log(error);
+        logger.error(error);
         await DB.deleteTrack(uploadStream);
         return res.status(500).json({error: error.message});
     } 
@@ -71,7 +73,6 @@ const uploadFileInfo = async (req, res) => {
 
 const uploadFile = async (req, res) => {
     try {
-        console.info('\x1b[31m%s\x1b[0m', 'New request');
         const data = await DB.getDoc(req.cookies['Symly'].infoId);
         if (!data) {
             return res.status(400).json({ error: 'No data' });
@@ -89,32 +90,28 @@ const uploadFile = async (req, res) => {
         const file = await collection.findOne({ _id: ObjectId(data.fileId) });
 
         if (!file) {
-            console.error('File not found');
+            logger.error('File not found');
             return res.status(404).json({ error: 'File not found' });
         }
 
         res.set('content-length', file.length);
         res.set('X-Content-Duration', file.length);
 
-        console.info('\x1b[34m%s\x1b[0m', 'Sending track...');
+        logger.info('Sending track...');
 
         Track.on('data', chunk => {
             res.write(chunk);
         });
-        Track.on('field', (name, value) => {
-            console.info('field');
-            console.info(name, value);
-        });
         Track.on('error', () => {
-            console.error('error');
+            logger.error('error');
             res.status(404);
         });
         Track.on('end', () => {
-            console.info('\x1b[31m%s\x1b[0m', 'Request ended');
+            logger.info('Request ended');
             res.end();
         });
     } catch (error) {
-        console.error('An error occurred:', error);
+        logger.error('An error occurred:', error);
         res.status(500).json({ error: 'Internal server error' });
     }
 };

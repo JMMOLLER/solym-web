@@ -1,4 +1,5 @@
 const { Readable } = require('stream');
+const { logger } = require('../../Resources/pino');
 const { getBucket } = require('../../Resources/multer');
 const { shearchByName } = require('../../Resources/genius-api');
 
@@ -27,12 +28,12 @@ const uploadFile = async (req, res) => {
     TrackStream.pipe(uploadStream);
 
     uploadStream.on('error', () => {
-        console.log('\x1b[31m%s\x1b[0m', "File uploaded error.");
+        logger.error("File uploaded error.");
         return res.status(500).json({ message:'Error uploading file.', code: 500, returnTo: '/' });
     });
 
     uploadStream.on('finish', async() => {
-        console.log('\x1b[32m%s\x1b[0m', "File uploaded successfully.");
+        logger.info("File uploaded successfully.");
         return res.status(200).json({ message:"Stream finished" ,id: uploadStream.id, code: 200, returnTo: '/' })
     });
 };

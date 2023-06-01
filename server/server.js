@@ -4,6 +4,7 @@ const cors = require("cors");
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const { args } = require("./Resources/yargs");
+const { logger } = require("./Resources/pino");
 const { config } = require("./Resources/corsConfig");
 const app = express();
 const HOST = args.host;
@@ -17,8 +18,9 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static("public"));
-app.use("/api/", require("./routers/API"));
+app.use("/api/", require("./routers/middlewares/debug") , require("./routers/API"));
+app.get("/", (req, res) => res.status(200).send("API is working successfully!!"));
 
 app.listen(PORT, HOST, () => {
-    console.log(`Application listening at http://${HOST}:${PORT}`);
+    logger.info(`Application listening at http://${HOST}:${PORT}`);
 });
