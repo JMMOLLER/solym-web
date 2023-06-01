@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "(cd client && pnpm build) && (cd ..) && (node server/server.js --s atlas)",
-    "dev": "nodemon server/server.js --s atlas",
-    "dev:local": "nodemon server/server.js --s local"
+    "start": "nodemon server/server.js --s atlas --m prod",
+    "dev": "nodemon server/server.js --s atlas --m dev",
+    "dev:local": "nodemon server/server.js --s local --m dev"
   },
   "keywords": [],
   "author": "",
@@ -26,6 +26,8 @@
     "music-metadata": "7.12.6",
     "node-cron": "^3.0.2",
     "nodemon": "^2.0.22",
+    "pino": "^8.14.1",
+    "pino-pretty": "^10.0.0",
     "yargs": "^17.7.1"
   }
 }
