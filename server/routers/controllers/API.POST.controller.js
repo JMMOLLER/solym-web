@@ -34,7 +34,7 @@ const uploadFile = async (req, res) => {
 
     uploadStream.on('finish', async() => {
         logger.info("File uploaded successfully.");
-        return res.status(200).json({ message:"Stream finished" ,id: uploadStream.id, code: 200, returnTo: '/' })
+        return res.status(200).json({ message:"Stream finished" ,id: uploadStream.id, code: 200, returnTo: '/select' })
     });
 };
 

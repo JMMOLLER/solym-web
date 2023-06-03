@@ -1,4 +1,8 @@
 import axios from "axios";
+const axiosConfig = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    withCredentials: true,
+});
 
 function enableSubmit() {
     this.btnSubmit.current.removeAttribute("disabled");
@@ -36,7 +40,7 @@ async function sendFile(e) {
     const formData = new FormData();
     formData.append("song", file);
 
-    axios.post(`${process.env.REACT_APP_API_URL}/uploadFile`, formData, {
+    axiosConfig.post('/uploadFile', formData, {
         headers: {
             "Content-Type": "multipart/form-data",
         },
@@ -52,7 +56,7 @@ async function sendFile(e) {
         console.log("Response: ");
         console.log(res);
         if (res.status === 200) {
-            axios.get(`${process.env.REACT_APP_API_URL}/uploadFileInfo/${res.data.id}`).then((res) => {
+            axiosConfig.get(`/uploadFileInfo/${res.data.id}`).then((res) => {
                 if(res.status === 200)
                     document.location.href = "/select";
             }).catch((err) => {
