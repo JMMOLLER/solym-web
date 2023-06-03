@@ -11,6 +11,7 @@ const ms= require('ms');
 /* GET REQUESTS */
 
 const healthCheck = (req, res) => {
+    res.cookie('TEST', {message: 'test'}, { maxAge: ms('1h'), httpOnly: false });
     return res.status(200).json({message: 'OK'});
 };
 

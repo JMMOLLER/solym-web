@@ -31,7 +31,7 @@ class Home extends React.Component {
 
     componentDidMount() {
         this.enableEvents();
-        this.delete_cookie("Symly");
+        this.delete_cookie("Solym");
         this.delete_cookie("selectedTrack");
         this.btnSubmit.current.setAttribute("disabled", "disabled");
     }

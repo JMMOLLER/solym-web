@@ -42,9 +42,9 @@ class Select extends React.Component {
                 });
             })
             .catch((err) => {
-                alert("Error while fetching data, please try again later");
                 console.log(err);
-                // window.location.href = err.response.data.returnTo;
+                alert("Error while fetching data, please try again later");
+                window.location.href = err.response.data.returnTo;
             });
     }
 

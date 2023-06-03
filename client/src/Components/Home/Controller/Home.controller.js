@@ -81,6 +81,13 @@ function delete_cookie(name) {
 }
 
 function enableEvents() {
+
+    axiosConfig.get("/healthz").then((res) => {
+        console.log(res);
+    }).catch((err) => {
+        console.log(err);
+    });
+
     const fileInput = this.btnInput.current; // Get file input
     const dropZone = this.dropZone.current; // Get drop zone
     const acceptContent = this.btnInput.current.getAttribute("accept").split(", "); // Get accepted extensions
