@@ -1,5 +1,9 @@
 import axios from "axios";
 import SelectStyle from "../Select.module.css";
+const axiosConfig = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    withCredentials: true
+});
 
 function getResults() {
     console.log("enviando resultados");
@@ -58,8 +62,8 @@ function getResults() {
 /* SEARCH */
 
 async function getSearch(title) {
-    const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/search/${title}`
+    const response = await axiosConfig.post(
+        `/search/${title}`
     );
     const results = await response.data;
     return results;
@@ -160,8 +164,8 @@ function goNextStep() {
 }
 
 function backToHome() {
-    axios
-        .delete(`${process.env.REACT_APP_API_URL}/delete`)
+    axiosConfig
+        .delete('/delete')
         .then((res) => {
             window.location.href = "/";
         })

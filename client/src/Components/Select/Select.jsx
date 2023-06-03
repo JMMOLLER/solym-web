@@ -4,7 +4,10 @@ import SelectStyle from "./Select.module.css";
 import DelayConfig from "../Config/DelayConfig.jsx";
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
 import * as controller from "./Controller/Select.controller.js";
-axios.defaults.withCredentials = true;
+const axiosConfig = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    withCredentials: true,
+});
 
 class Select extends React.Component {
     constructor(props) {
@@ -33,7 +36,7 @@ class Select extends React.Component {
     }
 
     componentDidMount() {
-        axios.get(`${process.env.REACT_APP_API_URL}/select`)
+        axiosConfig.get('/select')
             .then((res) => {
                 console.log(res.data);
                 this.fetchResults.current.style.display = "none";

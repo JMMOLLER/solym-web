@@ -1,6 +1,10 @@
 /* eslint-disable array-callback-return */
 import axios from "axios";
 import StylesStart from "../Start.module.css";
+const axiosConfig = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+    withCredentials: true,
+});
 
 function enableEvents() {
     window.addEventListener("beforeunload", this.saveProgress);
@@ -81,8 +85,8 @@ function getTrackID() {
 
 async function getLyrics(id) {
     try {
-        const response = await axios.get(
-            `${process.env.REACT_APP_API_URL}/lyrics/${id}`
+        const response = await axiosConfig.get(
+            `/lyrics/${id}`
         );
         return filterVerses(await response.data.lyrics);;
     } catch (err) {
@@ -108,8 +112,8 @@ function filterVerses(lyrics) {
 
 async function getInfoSelected(id) {
     try {
-        const response = await axios.get(
-            `${process.env.REACT_APP_API_URL}/info/${id}`
+        const response = await axiosConfig.get(
+            `/info/${id}`
         );
         return await response.data;
     } catch (err) {
@@ -405,7 +409,7 @@ function exportLyric() {
     const link = window.URL.createObjectURL(document);
     saveAs(link, `${this.state.infoExport.title}.lrc`);
     this.cleanLocalStorage();
-    axios.delete("/api/delete")
+    axiosConfig.delete("/delete")
         .then((res) => {
             window.location.href = "/";
         })
