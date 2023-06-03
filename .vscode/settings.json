@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/a22b4650-99cf-4e56-86c0-fbe604df881b/resourceGroups/Solym/providers/Microsoft.Web/sites/api-solym",
+    "appService.deploySubpath": "server"
+}
