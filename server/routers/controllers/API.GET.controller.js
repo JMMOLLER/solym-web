@@ -10,6 +10,10 @@ const ms= require('ms');
 
 /* GET REQUESTS */
 
+const healthCheck = (req, res) => {
+    return res.status(200).json({message: 'OK'});
+};
+
 const select = async(req, res) => {
     const data = await DB.getDoc(req.cookies['Symly'].infoId);
     if(!data){
@@ -122,5 +126,6 @@ module.exports = {
     lyrics,
     info,
     uploadFile,
+    healthCheck,
     uploadFileInfo,
 };

@@ -7,6 +7,8 @@ const cookie = require('./middlewares/authCookies');
 
 /* GET REQUESTS */
 
+Router.get('/healthz', GetController.healthCheck);
+
 Router.get('/select', cookie.validateSolymCookie, GetController.select)
 
 Router.get('/lyrics/:id', cookie.validateCookies, GetController.lyrics);
