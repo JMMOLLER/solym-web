@@ -1,4 +1,6 @@
-const allowedOrigins = ["http://localhost:3000", "http://localhost:8080", "https://solym.vercel.app", "https://solym-jmmoller.vercel.app", "https://solym-git-main-jmmoller.vercel.app"];
+const allowedOrigins = [
+    "*", // Allow all origins
+];
 
 module.exports = {
     config: (origin, callback) => {
