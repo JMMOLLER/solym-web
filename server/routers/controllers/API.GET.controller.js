@@ -11,7 +11,7 @@ const ms= require('ms');
 /* GET REQUESTS */
 
 const healthCheck = (req, res) => {
-    res.cookie('TEST', {message: 'test'}, { maxAge: ms('1h'), httpOnly: false, sameSite: 'none', secure: true });
+    res.cookie('TEST', {message: 'test'}, { maxAge: ms('1h'), httpOnly: false, sameSite: 'none', secure: true, Domain: '.vercel.app' });
     return res.status(200).json({message: 'OK'});
 };
 
@@ -67,7 +67,7 @@ const uploadFileInfo = async (req, res) => {
 
         const Solym = await DB.saveDoc({results: results, fileId: uploadStream})
         
-        res.cookie('Solym', {infoId: Solym._id}, { maxAge: ms('1h'), httpOnly: false, sameSite: 'none', secure: true });
+        res.cookie('Solym', {infoId: Solym._id}, { maxAge: ms('1h'), httpOnly: false, sameSite: 'none', secure: true, Domain: '.vercel.app' });
         return res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
         logger.error(error);
