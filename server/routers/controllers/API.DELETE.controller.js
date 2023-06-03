@@ -5,7 +5,7 @@ const { logger } = require('../../Resources/pino');
 
 const deleteRoute = async(req, res) => {
     logger.debug("Request to "+req.originalUrl+" from "+req.ip+" with "+req.method+" method");
-    const data = await DB.getDoc(req.cookies['Symly'].infoId); // Get cookieInfo from DB
+    const data = await DB.getDoc(req.cookies['Solym'].infoId); // Get cookieInfo from DB
     if(!data){
         return res.status(400).json({error: 'No data'}); // If cookieInfo not found, return error
     }

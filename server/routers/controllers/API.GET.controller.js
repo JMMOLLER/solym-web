@@ -15,7 +15,7 @@ const healthCheck = (req, res) => {
 };
 
 const select = async(req, res) => {
-    const data = await DB.getDoc(req.cookies['Symly'].infoId);
+    const data = await DB.getDoc(req.cookies['Solym'].infoId);
     if(!data){
         return res.status(403).json({ message: "No Solym data found", code: 403, returnTo: '/' });
     }
@@ -64,9 +64,9 @@ const uploadFileInfo = async (req, res) => {
         
         logger.debug(partialInfo);
 
-        const Symly = await DB.saveDoc({results: results, fileId: uploadStream})
+        const Solym = await DB.saveDoc({results: results, fileId: uploadStream})
         
-        res.cookie('Symly', {infoId: Symly._id}, { maxAge: ms('1h'), httpOnly: false });
+        res.cookie('Solym', {infoId: Solym._id}, { maxAge: ms('1h'), httpOnly: false });
         return res.status(200).json({code: 200, message: 'Metadata has been fetched successfully', status: true});
     } catch (error) {
         logger.error(error);
@@ -77,7 +77,7 @@ const uploadFileInfo = async (req, res) => {
 
 const uploadFile = async (req, res) => {
     try {
-        const data = await DB.getDoc(req.cookies['Symly'].infoId);
+        const data = await DB.getDoc(req.cookies['Solym'].infoId);
         if (!data) {
             return res.status(400).json({ error: 'No data' });
         }
