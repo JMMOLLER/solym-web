@@ -62,11 +62,13 @@ async function sendFile(e) {
             });
         } else {
             alert("Error uploading file. Please try again.");
+            this.resetUploadContent();
         }
     })
     .catch((err) => {
         console.log(err);
         alert("Error uploading file. Please try again.");
+        this.resetUploadContent();
     });
 }
 
@@ -89,8 +91,13 @@ function enableEvents() {
     }); // Add event listener to submit button
 
     this.dropZone.current.addEventListener("submit", (e) => {
-        this.sendFile(e); // Send file
-        this.changeContent(true); // Change content
+        if(this.state.formHasBeenSent){
+            return e.preventDefault(); // Prevent default behavior (Prevent file from being opened)
+        }
+        this.setState({formHasBeenSent: true}, () => {
+            this.sendFile(e); // Send file
+            this.changeContent(true); // Change content
+        });
     }); // Add event listener to drop zone
 
     dropZone.addEventListener("dragover", (e) => {

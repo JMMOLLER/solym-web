@@ -10,6 +10,7 @@ class Home extends React.Component {
         this.state = {
             now: 0,
             buttonHidden: true,
+            formHasBeenSent: false,
         };
         this.dropZone = React.createRef();
         this.btnInput = React.createRef();
