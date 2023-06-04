@@ -123,22 +123,22 @@ function newResults(IDs) {
 /* SELECT ITEM */
 
 function doSelected(element) {
-    const id = element.target.dataset.target;
-    console.log('Item "N°' + id + '" seleccionado.');
+    const id = element.target.dataset.target; // ID del elemento seleccionado
+    console.log('Item "N°' + id + '" seleccionado.'); // Log
     if (!this.state.selected) {
         this.setState({ selected: id }, () => {
             document
                 .querySelector(`#label_${this.state.selected}`)
-                .classList.add(`${SelectStyle.selected}`);
+                .classList.add(`${SelectStyle.selected}`); // Agrega la clase "selected" al elemento seleccionado
         });
     } else if (this.state.selected !== id) {
         document
             .querySelector(`#label_${this.state.selected}`)
-            .classList.remove(`${SelectStyle.selected}`);
+            .classList.remove(`${SelectStyle.selected}`); // Remueve la clase "selected" del elemento seleccionado
         document
             .querySelector(`#label_${id}`)
-            .classList.add(`${SelectStyle.selected}`);
-        this.setState({ selected: id });
+            .classList.add(`${SelectStyle.selected}`); // Agrega la clase "selected" al elemento seleccionado
+        this.setState({ selected: id }); // Actualiza el estado
     }
 }
 
@@ -156,8 +156,13 @@ function removeLoader() {
 
 function goNextStep() {
     if (this.state.selected) {
-        document.cookie = `selectedTrack={id:${this.state.selected}}`;
-        window.location.href = `/start`;
+        axiosConfig.put('/updateCookie', {trackID: this.state.selected}).then((res) => {
+            if(res.status !== 200){throw new Error("Error updating cookie on backend.")}
+            window.location.href = `/start`;
+        }).catch((err) => {
+            console.log(err)
+            alert("It couldn't be saved the selected track.")
+        });
     } else {
         alert("Please select a track");
     }
