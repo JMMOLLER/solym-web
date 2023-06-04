@@ -2,6 +2,7 @@ const Router = require('express').Router();
 const { upload } = require('../Resources/multer');
 const GetController = require('./controllers/API.GET.controller.js');
 const PostController = require('./controllers/API.POST.controller.js');
+const PutController = require('./controllers/API.PUT.controller.js');
 const DeleteController = require('./controllers/API.DELETE.controller.js');
 const cookie = require('./middlewares/authCookies');
 
@@ -24,6 +25,10 @@ Router.get('/uploadFileInfo/:id', GetController.uploadFileInfo);
 Router.post('/search/:music', PostController.shearchName);
 
 Router.post('/uploadFile', upload.single('song'), PostController.uploadFile);
+
+/* PUT REQUESTS */
+
+Router.put('/updateCookie', /*cookie.validateSolymCookie,*/ PutController.updateCookie);
 
 /* DELETE REQUESTS */
 

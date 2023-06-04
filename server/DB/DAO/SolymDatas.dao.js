@@ -41,6 +41,20 @@ class UploadFile {
         }
     }
 
+    async updateCookie(id, value){
+        try{
+            this.mongodb(this.url).catch(err => logger.error("DataBase connection error."));
+            const doc = await Somly.findById(id);
+            if(doc==null){throw new Error('ID not found')}
+            doc["trackID"] = value;
+            await doc.save();
+            return true;
+        }catch(err){
+            logger.error(err);
+            return false;
+        }
+    };
+
     async getDoc(id){
         try{
             this.mongodb(this.url).catch(err => logger.error("DataBase connection error."));

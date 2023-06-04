@@ -1,5 +1,5 @@
 const allowedOrigins = [
-    "*", // Allow all origins
+    "https://solym-web.vercel.app",
 ];
 
 module.exports = {
