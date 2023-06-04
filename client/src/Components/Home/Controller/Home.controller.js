@@ -24,7 +24,7 @@ function changeContent(showLoader) {
 function resetUploadContent() {
     this.btnInput.current.value = "";
     this.textDropZone.current.innerHTML = "Choose <strong>your music file</strong> or drag it here.";
-    this.setState({ now: 0, buttonHidden: true }, () => {this.changeContent(false);});
+    this.setState({ now: 0, buttonHidden: true, formHasBeenSent: false }, () => {this.changeContent(false);});
 }
 
 async function sendFile(e) {
