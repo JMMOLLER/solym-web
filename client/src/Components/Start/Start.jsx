@@ -101,7 +101,8 @@ class Start extends React.Component {
             this.processInfo(info);
         } catch (err) {
             alert("Error al cargar la página");
-            return (window.location.href = "/");
+            console.error(err);
+            //return (window.location.href = "/");
         }
     }
 
