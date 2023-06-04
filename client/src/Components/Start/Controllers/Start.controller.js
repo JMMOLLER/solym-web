@@ -93,7 +93,8 @@ async function getLyrics() {
         alert(
             "Error: No se pudo obtener la letra de la canción seleccionada."
         );
-        return (window.location.href = "/");
+        console.log(err);
+        //return (window.location.href = "/");
     }
 }
 
