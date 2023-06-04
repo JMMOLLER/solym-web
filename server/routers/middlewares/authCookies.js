@@ -16,6 +16,5 @@ const cleanCookies = (req, res, next) => {
 
 module.exports = {
     cleanCookies,
-    validateCookies, 
     validateSolymCookie, 
 };

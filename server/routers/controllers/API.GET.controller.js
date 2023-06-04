@@ -10,8 +10,10 @@ const ms= require('ms');
 
 /* GET REQUESTS */
 
-const healthCheck = (req, res) => {
-    return res.status(200).json({message: 'OK'});
+const healthCheck = async (req, res) => {
+    const response = await getLyricsByID(5160124);
+    if(response.error) return res.status(400).json({ message: response.msg, code: 503, status: 'server dosen\'t work correctly' });
+    return res.status(200).json({lyrics: response.lyrics, status: 'OK'});
 };
 
 const select = async(req, res) => {
@@ -27,8 +29,11 @@ const lyrics = async(req, res) => {
     if(!data.trackID){
         return res.status(400).json({ message: 'TrackID not found', code: 400, returnTo: '/' });
     }
-    const lyrics = await getLyricsByID(data.trackID);
-    return res.status(200).json({lyrics});
+    const response = await getLyricsByID(data.trackID);
+    if(response.error){
+        return res.status(400).json({ message: response.msg, code: 400, returnTo: '/' });
+    }
+    return res.status(200).json({lyrics: response.lyrics, trackID: data.trackID});
 }
 
 const info = async(req, res) => {

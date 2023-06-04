@@ -1,15 +1,15 @@
 require('dotenv').config({ path: './.env' });
 const { logger } = require('./pino');
-const API = process.env.CLIENT_ACCESS_TOKEN; // CLIENT ACCESS TOKEN
+const TOKEN = process.env.CLIENT_ACCESS_TOKEN; // CLIENT ACCESS TOKEN
 const Genius = require("genius-lyrics"); // DEPENDENCY FOR GENIUS API LYRICS
-const Client = new Genius.Client(API);
-const api = require('genius-api'); // DEPENDENCY FOR GENIUS API SEARCH
-const genius = new api(API);
+const Client = new Genius.Client(TOKEN); // CLIENT
+const GENIUS = require('genius-api'); // DEPENDENCY FOR GENIUS API SEARCH
+const GENIUS_API = new GENIUS(TOKEN);
 const { getVideoId } = require("./youtubeAPI");
 
 
 async function shearchByName(title) {
-    const response = await genius.search(title)
+    const response = await GENIUS_API.search(title)
     return response.hits;
 }
 
@@ -61,10 +61,15 @@ async function selectSong(results, artist, title){
 async function getLyricsByID(id) {
     try{
         const song = await Client.songs.get(id);
-        return await song.lyrics();
+        return {
+            lyrics: await song.lyrics()
+        };
     }catch(error){
-        console.log(error);
-        return null;
+        return {
+            error: true,
+            msg: error.toString(),
+            trackID: id
+        };
     }
 }
 
