@@ -89,25 +89,16 @@ class Start extends React.Component {
             this.enableEvents();
             controller.reorganizeStyles();
             this.audioDOM.current.volume = 0.5;
-            this.setState(
-                { id: controller.getTrackID() },
-                async () => {
-                    try {
-                        /* FETCH LYRICS */
-                        const lyrics = await controller.getLyrics(this.state.id);
-                        this.state.lyrics.push(...lyrics);
-                        this.n_lyricDOM.current.innerHTML = this.state.lyrics[0];
-                        this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2];
-                        this.checkLocalStorage();
-                        /* FETCH INFO */
-                        const info = await controller.getInfoSelected(this.state.id);
-                        console.info(info);
-                        this.processInfo(info);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                }
-            );
+            /* FETCH LYRICS */
+            const lyrics = await controller.getLyrics();
+            this.state.lyrics.push(...lyrics);
+            this.n_lyricDOM.current.innerHTML = this.state.lyrics[0];
+            this.n_aux_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 2];
+            this.checkLocalStorage();
+            /* FETCH INFO */
+            const info = await controller.getInfoSelected();
+            console.info(info);
+            this.processInfo(info);
         } catch (err) {
             alert("Error al cargar la página");
             return (window.location.href = "/");

@@ -83,10 +83,10 @@ function getTrackID() {
     return id;
 }
 
-async function getLyrics(id) {
+async function getLyrics() {
     try {
         const response = await axiosConfig.get(
-            `/lyrics/${id}`
+            `/lyrics`
         );
         return filterVerses(await response.data.lyrics);;
     } catch (err) {
@@ -99,8 +99,7 @@ async function getLyrics(id) {
 
 function filterVerses(lyrics) {
     const temp = lyrics.split("\n");
-    const temp2 = [],
-        temp3 = [];
+    const temp2 = [], temp3 = [];
     temp.filter((lyric) => {
         if (lyric !== "") temp2.push(lyric);
     });
@@ -110,10 +109,10 @@ function filterVerses(lyrics) {
     return temp3;
 }
 
-async function getInfoSelected(id) {
+async function getInfoSelected() {
     try {
         const response = await axiosConfig.get(
-            `/info/${id}`
+            `/info`
         );
         return await response.data;
     } catch (err) {

@@ -24,18 +24,20 @@ const select = async(req, res) => {
 };
 
 const lyrics = async(req, res) => {
-    if(req.params.id < 1){
+    const data = await DB.getDoc(req.cookies['Solym'].infoId);
+    if(data.trackID < 1){
         return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
-    const lyrics = await getLyricsByID(Number(req.params.id));
-    return res.status(200).json({lyrics: lyrics});
+    const lyrics = await getLyricsByID(data.trackID);
+    return res.status(200).json({lyrics});
 }
 
 const info = async(req, res) => {
-    if(req.params.id < 1){
+    const data = await DB.getDoc(req.cookies['Solym'].infoId);
+    if(data.trackID < 1){
         return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
     }
-    const info = await getInfoByID(Number(req.params.id));
+    const info = await getInfoByID(data.trackID);
     return res.status(200).json(info);
 };
 

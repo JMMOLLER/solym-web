@@ -28,7 +28,7 @@ Router.post('/uploadFile', upload.single('song'), PostController.uploadFile);
 
 /* PUT REQUESTS */
 
-Router.put('/updateCookie', /*cookie.validateSolymCookie,*/ PutController.updateCookie);
+Router.put('/updateCookie', cookie.validateSolymCookie, PutController.updateCookie);
 
 /* DELETE REQUESTS */
 
