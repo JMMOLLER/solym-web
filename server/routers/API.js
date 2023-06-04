@@ -12,9 +12,9 @@ Router.get('/healthz', GetController.healthCheck);
 
 Router.get('/select', cookie.validateSolymCookie, GetController.select)
 
-Router.get('/lyrics/:id', cookie.validateCookies, GetController.lyrics);
+Router.get('/lyrics', cookie.validateSolymCookie, GetController.lyrics);
 
-Router.get('/info/:id', cookie.validateCookies, GetController.info);
+Router.get('/info', cookie.validateSolymCookie, GetController.info);
 
 Router.get('/uploadFile', cookie.validateSolymCookie, GetController.uploadFile);
 

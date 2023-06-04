@@ -4,7 +4,6 @@ const { logger } = require('../../Resources/pino');
 /* DELETE REQUESTS */
 
 const deleteRoute = async(req, res) => {
-    logger.debug("Request to "+req.originalUrl+" from "+req.ip+" with "+req.method+" method");
     const data = await DB.getDoc(req.cookies['Solym'].infoId); // Get cookieInfo from DB
     if(!data){
         return res.status(400).json({error: 'No data'}); // If cookieInfo not found, return error
@@ -26,7 +25,6 @@ const deleteRoute = async(req, res) => {
 };
 
 const deleteByID = async(req, res) => {
-    logger.debug("Request to "+req.originalUrl+" from "+req.ip+" with "+req.method+" method");
     if(await DB.deleteTrack(req.params.id)){
         await DB.deleteDocByFileId(req.params.id); // Delete cookieInfo from DB
         logger.info("File deleted successfully."); // If file and chunks deleted successfully, log it

@@ -11,7 +11,6 @@ const ms= require('ms');
 /* GET REQUESTS */
 
 const healthCheck = (req, res) => {
-    res.cookie('TEST', {message: 'test'}, { maxAge: ms('1h'), httpOnly: false, sameSite: 'none', secure: true });
     return res.status(200).json({message: 'OK'});
 };
 
@@ -25,8 +24,8 @@ const select = async(req, res) => {
 
 const lyrics = async(req, res) => {
     const data = await DB.getDoc(req.cookies['Solym'].infoId);
-    if(data.trackID < 1){
-        return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
+    if(!data.trackID){
+        return res.status(400).json({ message: 'TrackID not found', code: 400, returnTo: '/' });
     }
     const lyrics = await getLyricsByID(data.trackID);
     return res.status(200).json({lyrics});
@@ -34,8 +33,8 @@ const lyrics = async(req, res) => {
 
 const info = async(req, res) => {
     const data = await DB.getDoc(req.cookies['Solym'].infoId);
-    if(data.trackID < 1){
-        return res.status(400).json({ message: 'Invalid ID', code: 400, returnTo: '/' });
+    if(!data.trackID){
+        return res.status(400).json({ message: 'TrackID not found', code: 400, returnTo: '/' });
     }
     const info = await getInfoByID(data.trackID);
     return res.status(200).json(info);
