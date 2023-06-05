@@ -11,9 +11,13 @@ const ms= require('ms');
 /* GET REQUESTS */
 
 const healthCheck = async (req, res) => {
-    const response = await getLyricsByID(5160124);
-    if(response.error) return res.status(400).json({ message: response.msg, code: 503, status: 'server dosen\'t work correctly' });
-    return res.status(200).json({lyrics: response.lyrics, status: 'OK'});
+    try{
+        const response = await getLyricsByID(5160124);
+        if(response.error) return res.status(400).json({ message: response.msg, code: 503, status: 'server dosen\'t work correctly' });
+        return res.status(200).json({lyrics: response.lyric, status: 'OK'});
+    }catch(error){
+        return res.status(400).json({ message: error.toString(), code: 503, status: 'server health is worst!' });
+    }
 };
 
 const select = async(req, res) => {
@@ -33,7 +37,7 @@ const lyrics = async(req, res) => {
     if(response.error){
         return res.status(400).json({ message: response.msg, code: 400, returnTo: '/' });
     }
-    return res.status(200).json({lyrics: response.lyrics, trackID: data.trackID});
+    return res.status(200).json({lyrics: response.lyric, code: 200, returnTo: ''});
 }
 
 const info = async(req, res) => {

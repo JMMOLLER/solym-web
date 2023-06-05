@@ -1,4 +1,5 @@
 require('dotenv').config({ path: './.env' });
+const axios = require('axios');
 const { logger } = require('./pino');
 const TOKEN = process.env.CLIENT_ACCESS_TOKEN; // CLIENT ACCESS TOKEN
 const Genius = require("genius-lyrics"); // DEPENDENCY FOR GENIUS API LYRICS
@@ -60,10 +61,8 @@ async function selectSong(results, artist, title){
 
 async function getLyricsByID(id) {
     try{
-        const song = await Client.songs.get(id);
-        return {
-            lyrics: await song.lyrics()
-        };
+        const response = await axios.get(`https://api-solym.onrender.com/lyric/${id}`);
+        return await response.data;
     }catch(error){
         return {
             error: true,
