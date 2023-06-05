@@ -88,8 +88,7 @@ async function getLyrics() {
         const response = await axiosConfig.get(
             `/lyrics`
         );
-        console.log(response.data);
-        return filterVerses(await response.data.lyrics);;
+        return filterVerses(await response.data.lyrics);
     } catch (err) {
         alert(
             "Error: No se pudo obtener la letra de la canción seleccionada."
