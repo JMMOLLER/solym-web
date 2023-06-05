@@ -88,6 +88,7 @@ async function getLyrics() {
         const response = await axiosConfig.get(
             `/lyrics`
         );
+        console.log(response.data);
         return filterVerses(await response.data.lyrics);;
     } catch (err) {
         alert(
