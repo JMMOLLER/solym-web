@@ -102,7 +102,7 @@ class Start extends React.Component {
         } catch (err) {
             alert("Error al cargar la página");
             console.error(err);
-            //return (window.location.href = "/");
+            return (window.location.href = "/");
         }
     }
 

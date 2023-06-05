@@ -93,8 +93,14 @@ async function getLyrics() {
         alert(
             "Error: No se pudo obtener la letra de la canción seleccionada."
         );
-        console.log(err);
-        //return (window.location.href = "/");
+        console.log(err); 
+        /*
+        * hay que crear un state para comprobar si se genero
+        * un error ya que tambien hay que añadir un setTimeout
+        * cada vez que se intent hacer un redirect porque si no
+        * no se puede visualizar el mensaje de error
+        */
+        return (window.location.href = "/");
     }
 }
 

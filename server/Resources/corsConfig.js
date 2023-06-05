@@ -1,9 +1,5 @@
 const allowedOrigins = [
-    "*",
-    // "https://solym.vercel.app",
-    // "https://solym-web.vercel.app",
-    // "https://solym-jmmoller.vercel.app",
-    // "https://solym-git-main-jmmoller.vercel.app",
+    "http://localhost:3000",
 ];
 
 module.exports = {
