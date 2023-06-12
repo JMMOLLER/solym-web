@@ -1,41 +1,94 @@
-// DelayConfig.jsx
-import React from 'react';
-import SelectionStyle from './Selection.module.css';
+import React, { useRef, useEffect } from "react";
+import "./controller/config.js";
+import SelectionStyle from "./Selection.module.css";
 
 const ConfigEditor = ({ globalConfigs, setGlobalConfigs }) => {
-    const selectDOM = React.createRef();
-
+    const thumb = useRef(null);
+    const selectDOM = useRef(null);
+    const childThumb = useRef(null);
+    const coverRangeInput = useRef(null);
 
     const handleChange = () => {
-        let delay = 0.15;
-        if (selectDOM.current.value === '0') delay = 0;
-        if (selectDOM.current.value === '1') delay = 0.08;
-        else if (selectDOM.current.value === '2') delay = 0.1;
-        else if (selectDOM.current.value === '3') delay = 0.15;
-        else if (selectDOM.current.value === '4') delay = 0.2;
-        else if (selectDOM.current.value === '5') delay = 0.25;
-        else if (selectDOM.current.value === '6') delay = 0.3;
-        setGlobalConfigs({ delay, delayValue: selectDOM.current.value });
+        const delay = selectDOM.current.value / 100;
+        setGlobalConfigs({ delay });
     };
 
+    useEffect(() => {
+        const rangeInput = selectDOM.current;
+        const rangeCover = coverRangeInput.current;
+        const thumbCover = thumb.current;
+        const min = rangeInput.min || 0;
+        const max = rangeInput.max || 100;
+        drawInput();
+
+        rangeInput.addEventListener("input", drawInput);
+
+        rangeInput.addEventListener("focus", () => {
+            thumbCover.style.display = "block";
+            rangeCover.style.setProperty("display", "block");
+            rangeCover.style.setProperty("animation", `${SelectionStyle.fadeIn} 0.2s ease-in forwards`);
+        });
+
+        rangeInput.addEventListener("blur", () => {
+            rangeCover.style.setProperty("animation", `${SelectionStyle.fadeOut} 0.2s ease-out forwards`);
+            setTimeout(() => {
+                rangeCover.style.removeProperty("display", "block");
+            }, 200);
+            console.log(SelectionStyle.fadeOut)
+        });
+
+
+        function getCalc(){
+            return `calc(${((rangeInput.value - min) / (max - min)) * 100}% - ${getThumbOffset(rangeInput.value) / 2}px)`
+        }
+
+        function getCalcCover(){
+            return `calc(${((rangeInput.value - min) / (max - min)) * 100}% - ${getThumbOffset(rangeInput.value) / 10}px)`;
+        }
+
+        function drawInput(){
+            const value = rangeInput.value / 100
+            drawHoverThumb(value);
+            drawCoverThumb(value);
+        }
+
+        function drawHoverThumb(value) {
+            rangeCover.innerHTML = value;
+            rangeCover.style.left = getCalc();
+            thumbCover.style.left = rangeCover.style.left;
+            rangeCover.style.left = (getComputedStyle(rangeCover).left).replace("px", "") - 5 + "px";
+        }
+
+        function drawCoverThumb() {
+            childThumb.current.style.width = getCalcCover();
+        }
+
+        function getThumbOffset(value) {
+            let thumbOffset = rangeInput.getBoundingClientRect().width * 0.03;
+            if (value < 100) {
+                thumbOffset -= (100 - value) * 0.35; // mientras mas grande sea el multiplicador, mas se acerca a la derecha
+            }
+            return thumbOffset;
+        }
+    }, []);
+
     return (
-        <select
-            className={SelectionStyle.delayConfig}
-            name="selectDelay"
-            id="selectDelay"
-            onChange={handleChange}
-            defaultValue={globalConfigs.delayValue}
-            ref={selectDOM}
-            aria-label="label for the select"
-        >
-            <option value="0">0 ms</option>
-            <option value="1">80 ms</option>
-            <option value="2">100 ms</option>
-            <option value="3">150 ms</option>
-            <option value="4">200 ms</option>
-            <option value="5">250 ms</option>
-            <option value="6">300 ms</option>
-        </select>
+        <div className={SelectionStyle.containerDelay}>
+            <span className={SelectionStyle.spanValue} ref={coverRangeInput}></span>
+            <span className={SelectionStyle.cover} ref={childThumb}></span>
+            <span className={SelectionStyle.thumb} ref={thumb}><span className={SelectionStyle.childThumb}></span></span>
+            <input
+                type="range"
+                name="selectDelay"
+                className={SelectionStyle.delayConfig}
+                defaultValue={globalConfigs.delay * 100}
+                onChange={handleChange}
+                ref={selectDOM}
+                aria-label="label for the select"
+                id="selectDelay"
+                step={0.5}
+            />
+        </div>
     );
 };
 

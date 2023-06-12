@@ -13,7 +13,7 @@ const App = () => {
     if (value) {
       return JSON.parse(value);
     }
-    return { delay: 0.15, delayValue: "3" };
+    return { delay: "0.2" };
   });
 
   // Read global configs from local storage and set them to state when the app starts
