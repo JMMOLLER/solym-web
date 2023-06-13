@@ -1,0 +1,38 @@
+.optionsContainer {
+    position: absolute;
+    color: black;
+    width: 270px;
+    border-radius: 15px;
+    background-color: #ffff;
+    bottom: -250px;
+    left: -200px;
+    z-index: 2;
+    padding: 10px;
+}
+
+.optionsContainer::before {
+    content: "";
+    position: absolute;
+    top: -9px;
+    right: 10px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 10px solid #ffffff;
+    transform: rotate(180deg);
+}
+
+.optionsContainer ul {
+    padding: 0;
+}
+
+.optionsContainer ul li {
+    color: black;
+    width: 100%;
+    margin: 0;
+    padding: 10px 0px;
+    border-top: 1px solid #8686868c;
+}
+
+.optionsContainer ul li p {
+    margin: 5px;
+}

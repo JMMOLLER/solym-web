@@ -1,6 +1,5 @@
 .containerDelay {
     position: relative;
-    margin: 50px;
 }
 .delayConfig {
     width: 100%;
@@ -28,6 +27,7 @@
     font-size: 0.9rem;
     padding: 5px;
     border-radius: 50%;
+    color: #ffffff;
 }
 .spanValue::before {
     content: "";

@@ -3,7 +3,7 @@ import axios from "axios";
 import React from "react";
 import StylesStart from "./Start.module.css";
 import { createRoot } from "react-dom/client";
-import DelayConfig from "../Config/DelayConfig.jsx";
+import DelayConfig from "../Config/Components/Delay/DelayConfig.jsx";
 import * as controller from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 

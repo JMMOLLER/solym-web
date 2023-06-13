@@ -10,7 +10,7 @@ const ConfigEditor = ({ globalConfigs, setGlobalConfigs }) => {
 
     const handleChange = () => {
         const delay = selectDOM.current.value / 100;
-        setGlobalConfigs({ delay });
+        setGlobalConfigs({ delay, bgVideo: globalConfigs.bgVideo });
     };
 
     useEffect(() => {
@@ -34,8 +34,8 @@ const ConfigEditor = ({ globalConfigs, setGlobalConfigs }) => {
             setTimeout(() => {
                 rangeCover.style.removeProperty("display", "block");
             }, 200);
-            console.log(SelectionStyle.fadeOut)
         });
+
 
 
         function getCalc(){
@@ -47,19 +47,18 @@ const ConfigEditor = ({ globalConfigs, setGlobalConfigs }) => {
         }
 
         function drawInput(){
-            const value = rangeInput.value / 100
-            drawHoverThumb(value);
-            drawCoverThumb(value);
+            drawHoverThumb(rangeInput.value / 100);
+            drawCoverThumb();
         }
 
         function drawHoverThumb(value) {
             rangeCover.innerHTML = value;
             rangeCover.style.left = getCalc();
-            thumbCover.style.left = rangeCover.style.left;
-            rangeCover.style.left = (getComputedStyle(rangeCover).left).replace("px", "") - 5 + "px";
+            rangeCover.style.left = (getComputedStyle(rangeCover).left).replace("px", "") - 24 + "px";
         }
-
+        
         function drawCoverThumb() {
+            thumbCover.style.left = rangeCover.style.left;
             childThumb.current.style.width = getCalcCover();
         }
 

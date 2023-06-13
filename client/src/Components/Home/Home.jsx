@@ -2,7 +2,6 @@ import React from "react";
 import HomeStyle from "./Home.module.css";
 import ProgressBar from "react-bootstrap/ProgressBar";
 import * as controller from "./Controller/Home.controller.js";
-import DelayConfig from "../Config/DelayConfig.jsx";
 
 class Home extends React.Component {
     constructor(props) {
@@ -45,9 +44,6 @@ class Home extends React.Component {
     }
 
     render() {
-        const { globalConfigs } = this.props;
-        const { setGlobalConfigs } = this.props;
-
         return (
             <>
                 <div className={HomeStyle.uploadContainer} ref={this.containerDiv}>
@@ -92,7 +88,6 @@ class Home extends React.Component {
                     />
                     <p>We are processing your file, please be patient...</p>
                 </div>
-                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
             </>
         );
     }

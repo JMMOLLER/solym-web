@@ -33,44 +33,6 @@ body::after {
     color: white !important;
 }
 
-/* ================= NAVBAR CONTENT ================= */
-
-.navbar {
-    background-color: rgba(15, 15, 15, 0.4);
-    height: 60px;
-    padding: 10px;
-}
-
-.logo {
-    height: 40px;
-}
-
-.logo img {
-    height: 100%;
-    width: auto;
-}
-
-.rigthContainer {
-    display: flex;
-    align-items: center;
-}
-
-nav {
-    height: 25.59px;
-}
-
-.navList li {
-    color: #ffffff;
-    list-style: none;
-    display: inline-block;
-    margin: 0 20px;
-    text-transform: uppercase;
-}
-
-.navList li a {
-    color: white;
-}
-
 /* ================= ANIMATIONS ================= */
 
 @keyframes background-gradient {

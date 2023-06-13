@@ -1,0 +1,43 @@
+/* ================= NAVBAR CONTENT ================= */
+
+.navbar {
+    display: inline-flex;
+    width: 100%;
+    padding: 10px;
+    justify-content: space-between;
+    background-color: rgba(15, 15, 15, 0.4);
+}
+
+.logo {
+    height: 40px;
+}
+
+.logo img {
+    height: 100%;
+    width: auto;
+}
+
+.rigthContainer {
+    display: flex;
+    align-items: center;
+}
+
+nav {
+    height: 25.59px;
+}
+
+.navList li {
+    color: #ffffff;
+    list-style: none;
+    display: inline-block;
+    margin: 0 20px;
+    text-transform: uppercase;
+}
+
+.optionsLi {
+    position: relative;
+}
+
+.navList li a {
+    color: white;
+}

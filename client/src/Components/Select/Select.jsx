@@ -1,7 +1,6 @@
 import React from "react";
 import axios from "axios";
 import SelectStyle from "./Select.module.css";
-import DelayConfig from "../Config/DelayConfig.jsx";
 import { MDBInput, MDBSpinner } from "mdb-react-ui-kit";
 import * as controller from "./Controller/Select.controller.js";
 const axiosConfig = axios.create({
@@ -47,17 +46,13 @@ class Select extends React.Component {
             .catch((err) => {
                 console.log(err);
                 alert("Error while fetching data, please try again later");
-                window.location.href = err.response.data.returnTo;
+                window.location.href = err?.response?.data?.returnTo || "/";
             });
     }
 
     render() {
-        const { globalConfigs } = this.props;
-        const { setGlobalConfigs } = this.props;
-
         return (
             <div className={SelectStyle.contentResults}>
-                <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
                 <h1 className={SelectStyle.titles}>
                     SELECIONA LA MÚSICA QUE DESEAS SINCRONIZAR
                 </h1>
