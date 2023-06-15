@@ -119,9 +119,6 @@ class Start extends React.Component {
     }
 
     render() {
-        const { globalConfigs } = this.props
-        const { setGlobalConfigs } = this.props
-
 
         return (
             <div style={{ position: "relative", height: "100%" }}>
@@ -130,7 +127,6 @@ class Start extends React.Component {
                     <video src="" ref={this.bgVideo} className={StylesStart.bgVideo} muted={true}></video>
                 </div>
                 <div className={StylesStart.content}>
-                    <DelayConfig globalConfigs={globalConfigs} setGlobalConfigs={setGlobalConfigs} />
                     <div className={StylesStart.contentChild}>
                         <div className="boton start"></div>
                         <div className="boton stop"></div>
