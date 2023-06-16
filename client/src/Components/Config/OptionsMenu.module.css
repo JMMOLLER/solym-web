@@ -36,3 +36,13 @@
 .optionsContainer ul li p {
     margin: 5px;
 }
+.containerDelay {
+    position: relative;
+}
+.labelDelay{
+    position: absolute;
+    text-transform: lowercase;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+}

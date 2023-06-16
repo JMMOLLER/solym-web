@@ -12,6 +12,7 @@
 
 html, body {
     min-height: 100vh !important;
+    min-width: 320px !important;
     background: linear-gradient(-20deg, #ff1e00fb, #bd1717bb, #214fcf, #4500b3bb);
     background-size: 400% 400%;
     animation: background-gradient 15s ease infinite;
@@ -22,8 +23,8 @@ body::after {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
     z-index: -1;
     background-color: black;
     filter: brightness(0.5) blur(10px);

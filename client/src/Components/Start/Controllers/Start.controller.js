@@ -33,8 +33,9 @@ function enableEvents() {
 
 function reorganizeStyles() {
     document.body.style.overflow = "hidden";
-    document.querySelector("html").style.minWidth = "101%";
-    document.getElementsByClassName("navbar")[0].style.display = "none";
+    document.querySelector("html").style.overflow = "hidden";
+    document.querySelector("html").style.minWidth = "100%";
+    document.getElementsByTagName("header")[0].style.display = "none";
     document.getElementById("root").style.height = "100vh";
 }
 
@@ -131,7 +132,7 @@ async function getInfoSelected() {
 }
 
 function setBGImage(URL){
-    this.backgroundDOM.current.style.setProperty("background-size",'100% auto');
+    this.backgroundDOM.current.style.setProperty("background-size",'auto 100%');
     this.backgroundDOM.current.style.setProperty("background-repeat",'no-repeat');
     this.backgroundDOM.current.style.setProperty("background-position",'center');
     this.backgroundDOM.current.style.setProperty("background-image",`url(${URL})`);
