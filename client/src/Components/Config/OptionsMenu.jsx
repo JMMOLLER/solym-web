@@ -11,8 +11,9 @@ const MenuOptions = (props) => {
         <div className={styles.optionsContainer}>
             <p>Options</p>
             <ul>
-                <li>
+                <li className={styles.containerDelay}>
                     <p>Delay</p>
+                    <label className={styles.labelDelay}>{globalConfigs.delay}s</label>
                     <DelayConfig
                         globalConfigs={globalConfigs}
                         setGlobalConfigs={setGlobalConfigs}
@@ -23,9 +24,15 @@ const MenuOptions = (props) => {
                     <BootstrapSwitchButton
                         checked={globalConfigs.bgVideo}
                         onlabel="On"
+                        onstyle="success"
+                        offstyle="danger"
+                        width={150}
                         offlabel="Off"
                         onChange={(checked) => {
-                            setGlobalConfigs({bgVideo: checked, delay: globalConfigs.delay})
+                            setGlobalConfigs({
+                                bgVideo: checked,
+                                delay: globalConfigs.delay,
+                            });
                         }}
                     />
                 </li>
