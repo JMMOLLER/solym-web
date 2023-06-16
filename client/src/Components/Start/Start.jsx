@@ -3,10 +3,12 @@ import axios from "axios";
 import React from "react";
 import StylesStart from "./Start.module.css";
 import { createRoot } from "react-dom/client";
+import { GlobalConfigContext } from "../../GlobalConfigContext.js";
 import * as controller from "./Controllers/Start.controller.js";
 axios.defaults.withCredentials = true;
 
 class Start extends React.Component {
+    static contextType = GlobalConfigContext; // Se usa para acceder al contexto global
     constructor(props) {
         super(props);
         this.state = {
