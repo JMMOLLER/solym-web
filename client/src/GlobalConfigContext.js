@@ -8,7 +8,7 @@ export const GlobalConfigProvider = ({ children }) => {
     if (value) {
       return JSON.parse(value);
     }
-    return { delay: "0.2", bgVideo: true };
+    return { delay: "0.295", bgVideo: true };
   });
 
   // Update local storage when global configs change
