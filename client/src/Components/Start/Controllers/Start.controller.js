@@ -29,6 +29,16 @@ function enableEvents() {
             this.bgVideo.current.play();
         }
     };
+    window.onresize = checkWindowWidth.bind(this);
+}
+
+function checkWindowWidth() {
+    const width = window.innerWidth;
+    if (width < this.bgVideo.current.videoWidth) {
+        this.bgVideo.current.style.width = "auto";
+    }else{
+        this.bgVideo.current.style.width = "100%";
+    }
 }
 
 function reorganizeStyles() {
@@ -609,7 +619,7 @@ function LocalStorageModal(isCompleted) {
 function preview() {
     this.index = -1;
     this.audioDOM.current.currentTime = 0;
-    this.bgVideo.current.currentTime = 0;
+    this.bgVideo.current.currentTime = this.audioDOM.current.currentTime;
     this.p_lyricDOM.current.innerHTML = this.state.lyrics[this.index - 1] || "";
     this.c_lyricDOM.current.innerHTML = this.state.lyrics[this.index] || "♪";
     this.n_lyricDOM.current.innerHTML = this.state.lyrics[this.index + 1] || "";
@@ -661,6 +671,7 @@ export {
     removeAnimation,
     getInfoSelected,
     fadeAudioVolume,
+    checkWindowWidth,
     reorganizeStyles,
     cleanLocalStorage,
     buildLocalStorage,

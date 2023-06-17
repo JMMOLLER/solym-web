@@ -78,6 +78,7 @@ class Start extends React.Component {
         this.previousLyric = controller.previousLyric.bind(this);
         this.fadeAudioVolume = controller.fadeAudioVolume.bind(this);
         this.removeAnimation = controller.removeAnimation.bind(this);
+        this.checkWindowWidth = controller.checkWindowWidth.bind(this);
         this.cleanLocalStorage = controller.cleanLocalStorage.bind(this);
         this.buildLocalStorage = controller.buildLocalStorage.bind(this);
         this.checkLocalStorage = controller.checkLocalStorage.bind(this);
@@ -127,7 +128,7 @@ class Start extends React.Component {
             <div style={{ position: "relative", height: "100%" }}>
                 <div className={StylesStart.bgContainer}>
                     <div id="backgroundDOM" ref={this.backgroundDOM} className={StylesStart.bg}></div>
-                    <video src="" ref={this.bgVideo} className={StylesStart.bgVideo} muted={true}></video>
+                    <video src="" ref={this.bgVideo} className={StylesStart.bgVideo} muted={true} onLoadedMetadata={this.checkWindowWidth}></video>
                 </div>
                 <div className={StylesStart.content}>
                     <div className={StylesStart.contentChild}>
