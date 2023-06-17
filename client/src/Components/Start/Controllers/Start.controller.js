@@ -301,7 +301,7 @@ function nextLyric() {
             setTimeout(() => { // Después de 150 milisegundos
                 this.removeAnimation(); // Eliminar la animación
                 if (!this.state.previewEnabled) { // Si la vista previa está deshabilitada
-                    this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.props.globalConfigs.delay); // Obtener el tiempo actual
+                    this.currentSecond = this.audioDOM.current.currentTime - (0.15 + this.context?.globalConfigs?.delay); // Obtener el tiempo actual
                     this.times.set(this.index, this.currentSecond); // Establecer el tiempo actual
                     this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index]; // Obtener el tiempo actual y la letra actual
                     this.state.toExport.push(this.currentLyric); // Agregar el tiempo actual y la letra actual al array de exportación
