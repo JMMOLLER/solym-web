@@ -54,6 +54,7 @@ class Home extends React.Component {
                             action="/select" 
                             className={HomeStyle.formContainer} 
                             ref={this.dropZone}
+                            onSubmit={(e) => {this.sendFile(e)}}
                         >
                             <label htmlFor="song" style={{display:"none"}}>Song:</label>
                             <input
