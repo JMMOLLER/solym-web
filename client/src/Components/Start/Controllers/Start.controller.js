@@ -9,8 +9,8 @@ const axiosConfig = axios.create({
 function enableEvents() {
     window.addEventListener("beforeunload", this.saveProgress);
     window.addEventListener("keydown", (e) => {
-        if(e.key === "ArrowRight") this.nextLyric();
-        else if(e.key === "ArrowLeft") this.previousLyric();
+        if(e.key === "ArrowRight" && !this.state.notLoadYet) this.nextLyric();
+        else if(e.key === "ArrowLeft" && !this.state.notLoadYet) this.previousLyric();
         else if(e.key === " "&&this.state.musicArePlaying) this.stopMusic();
         else if(e.key === " "&&!this.state.musicArePlaying) this.playMusic();
     });
@@ -311,7 +311,7 @@ function nextLyric() {
             setTimeout(() => { // Después de 150 milisegundos
                 this.removeAnimation(); // Eliminar la animación
                 if (!this.state.previewEnabled) { // Si la vista previa está deshabilitada
-                    this.currentSecond = this.audioDOM.current.currentTime - (0.15 + (this.context?.globalConfigs?.delay || 0.295)); // Obtener el tiempo actual
+                    this.currentSecond = this.audioDOM.current.currentTime - (0.15 + (parseFloat(this.context?.globalConfigs?.delay) || 0.295)); // Obtener el tiempo actual
                     this.times.set(this.index, this.currentSecond); // Establecer el tiempo actual
                     this.currentLyric = formatTime(this.currentSecond) + this.state.lyrics[this.index]; // Obtener el tiempo actual y la letra actual
                     this.state.toExport.push(this.currentLyric); // Agregar el tiempo actual y la letra actual al array de exportación
@@ -386,8 +386,8 @@ function playMusic() {
         this.stopDOM.current.style.display = "block";
         this.previousDOM.current.style.display = "block";
         this.nextDOM.current.style.display = "block";
-        this.audioDOM.current.play();
         this.setState({ musicArePlaying: true });
+        this.audioDOM.current.play();
         if(!this.state.hasStarted){
             this.setState({ hasStarted: true });
         }
