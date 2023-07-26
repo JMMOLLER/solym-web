@@ -191,7 +191,6 @@ class Start extends React.Component {
                             </button>
                         </div>
                         <audio
-                            controls
                             preload="auto"
                             ref={this.audioDOM}
                             id="audio"
@@ -216,6 +215,7 @@ class Start extends React.Component {
                             onCanPlayThrough={() => {
                                 this.setState({ notLoadYet: false });
                             }}
+                            style={{ display: "none" }}
                         ></audio>
                     </div>
                 </div>
